@@ -1,9 +1,9 @@
 {
   "sdk_version": 1,
-  "name": "Minimal Workshop HUD",
-  "version": "1.0.0",
-  "author": "your_name",
-  "description": "A minimal Workshop HUD template with health bar, ammo display, match timer, and base status.",
+  "name": "Gestalt HUD SDK - Example",
+  "version": "1.1.0",
+  "author": "Axisray Lab",
+  "description": "Official example HUD from Gestalt HUD SDK. Demonstrates health bar, ammo display, match timer, base status, team indicator, and debug diagnostics. Use as a starting point for your own Workshop HUD.",
   "compatible_maps": [
     "L_Traning",
     "L_Map2026",
