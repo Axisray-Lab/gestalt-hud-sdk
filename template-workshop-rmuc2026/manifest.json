@@ -1,0 +1,9 @@
+{
+  "sdk_version": 1,
+  "name": "RMUC2026 Competition HUD",
+  "version": "1.0.0",
+  "author": "gestalt-sdk",
+  "description": "Full-featured HUD for RMUC2026 competition with remote supply tracking.",
+  "compatible_maps": ["L_Map2026"],
+  "entry": "index.html"
+}

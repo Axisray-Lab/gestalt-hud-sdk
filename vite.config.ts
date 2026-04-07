@@ -11,11 +11,21 @@ export default defineConfig({
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
         'protocol/index': resolve(__dirname, 'src/protocol/index.ts'),
+        'workshop/index': resolve(__dirname, 'src/workshop/index.ts'),
       },
       formats: ['es', 'cjs'],
+      fileName: (format, entryName) => {
+        const ext = format === 'es' ? 'js' : 'cjs';
+        return `${entryName}.${ext}`;
+      },
     },
     rollupOptions: {
       external: ['vue'],
+      output: {
+        globals: {
+          vue: 'Vue',
+        },
+      },
     },
   },
 });

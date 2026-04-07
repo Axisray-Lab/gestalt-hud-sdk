@@ -8,14 +8,19 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     },
     "./protocol": {
+      "types": "./dist/protocol/index.d.ts",
       "import": "./dist/protocol/index.js",
-      "require": "./dist/protocol/index.cjs",
-      "types": "./dist/protocol/index.d.ts"
+      "require": "./dist/protocol/index.cjs"
+    },
+    "./workshop": {
+      "types": "./dist/workshop/index.d.ts",
+      "import": "./dist/workshop/index.js",
+      "require": "./dist/workshop/index.cjs"
     }
   },
   "files": [
@@ -23,8 +28,11 @@
     "src"
   ],
   "scripts": {
-    "build": "vite build",
-    "dev": "vite build --watch",
+    "build": "npx vite build && npx vite build --config vite.config.workshop-umd.ts",
+    "build:lib": "npx vite build",
+    "build:umd": "npx vite build --config vite.config.workshop-umd.ts",
+    "dev": "npx vite build --watch",
+    "devtools": "npx serve . -l 8080",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [

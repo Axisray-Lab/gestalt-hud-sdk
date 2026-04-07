@@ -1,0 +1,12 @@
+{
+  "sdk_version": 1,
+  "name": "RMUL2026 Competition HUD",
+  "version": "1.0.0",
+  "author": "gestalt-sdk",
+  "description": "Full-featured 3v3 HUD for RMUL2026 with team scores, match timer, bases, teammates, and combat status.",
+  "compatible_maps": [
+    "L_MapRMUL2026",
+    "L_MapRMUL2026_IF"
+  ],
+  "entry": "index.html"
+}

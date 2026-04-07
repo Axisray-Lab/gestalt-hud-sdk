@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RMUC2026 Competition HUD</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Version badge (top-left, purple) -->
+  <div id="version-badge" class="version-badge">RMUC2026 HUD</div>
+
+  <!-- Match timer + status (top-center) -->
+  <div class="match-header">
+    <div id="match-timer" class="match-timer">00:00</div>
+    <div id="match-status" class="match-status">—</div>
+  </div>
+
+  <!-- Base & outpost status (top-right) -->
+  <div class="base-status">
+    <div class="base-row">
+      <span class="base-label red">RED BASE</span>
+      <div class="base-hp-container">
+        <div id="red-base-hp" class="base-hp-fill red-fill"></div>
+      </div>
+    </div>
+    <div class="base-row">
+      <span class="base-label blue">BLUE BASE</span>
+      <div class="base-hp-container">
+        <div id="blue-base-hp" class="base-hp-fill blue-fill"></div>
+      </div>
+    </div>
+    <div class="outpost-block">
+      <div class="outpost-row">
+        <span class="outpost-label blue">BLUE OP</span>
+        <span id="blue-outpost-zone" class="zone-pill neutral">—</span>
+      </div>
+      <div class="outpost-repair">
+        <span class="repair-caption">Repair</span>
+        <div class="repair-track">
+          <div id="blue-outpost-repair" class="repair-fill blue-fill"></div>
+        </div>
+      </div>
+      <div class="outpost-row">
+        <span class="outpost-label red">RED OP</span>
+        <span id="red-outpost-zone" class="zone-pill neutral">—</span>
+      </div>
+      <div class="outpost-repair">
+        <span class="repair-caption">Repair</span>
+        <div class="repair-track">
+          <div id="red-outpost-repair" class="repair-fill red-fill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crosshair (center) -->
+  <div class="crosshair">
+    <div class="crosshair-dot"></div>
+    <div class="crosshair-line crosshair-top"></div>
+    <div class="crosshair-line crosshair-bottom"></div>
+    <div class="crosshair-line crosshair-left"></div>
+    <div class="crosshair-line crosshair-right"></div>
+  </div>
+
+  <!-- Control zone (above bottom HUD, center) -->
+  <div id="control-zone-wrap" class="control-zone-wrap">
+    <div class="control-zone-label">CONTROL ZONE</div>
+    <div class="control-zone-inner">
+      <div id="control-zone-indicator" class="control-zone-indicator neutral" aria-hidden="true"></div>
+      <div id="control-zone-text" class="control-zone-text">NEUTRAL</div>
+    </div>
+  </div>
+
+  <!-- Tag overlays -->
+  <div id="overlay-defeated" class="state-overlay hidden">DEFEATED</div>
+  <div id="overlay-overheated" class="state-overlay hidden">OVERHEATED</div>
+  <div id="overlay-jammed" class="state-overlay hidden">JAMMED</div>
+
+  <!-- Player panel (bottom-left) -->
+  <div class="player-panel">
+    <div class="player-panel-header">
+      <span id="team-tag" class="team-tag">--</span>
+      <span id="level" class="level">Lv.0</span>
+    </div>
+    <div id="career-name" class="career-name">—</div>
+    <div class="bar-block">
+      <div class="bar-label">HP</div>
+      <div class="bar-track">
+        <div id="health-bar-fill" class="bar-fill health-fill"></div>
+        <span id="health-text" class="bar-text">0 / 0</span>
+      </div>
+    </div>
+    <div class="bar-block">
+      <div class="bar-label">BUFFER</div>
+      <div class="bar-track">
+        <div id="buffer-bar-fill" class="bar-fill buffer-fill"></div>
+        <span id="buffer-text" class="bar-text">0 / 0</span>
+      </div>
+    </div>
+    <div class="bar-block">
+      <div class="bar-label">HEAT</div>
+      <div class="bar-track">
+        <div id="heat-bar-fill" class="bar-fill heat-fill"></div>
+        <span id="heat-text" class="bar-text">0 / 0</span>
+      </div>
+    </div>
+    <div class="player-ammo-line">
+      <span id="ammo-type-label" class="ammo-type-label">AMMO</span>
+      <span id="ammo-panel-count" class="ammo-panel-count">0</span>
+    </div>
+    <div class="coins-line">
+      <span class="coins-label">COINS</span>
+      <span id="tm-coins" class="coins-value">0</span>
+    </div>
+  </div>
+
+  <!-- Remote supply (right, above ammo) -->
+  <div id="remote-supply-panel" class="remote-supply-panel hidden">
+    <div class="remote-supply-title">REMOTE SUPPLY</div>
+    <div id="remote-ammo-block" class="remote-supply-block hidden">
+      <div class="remote-supply-row">
+        <span class="remote-kind">AMMO</span>
+        <span id="remote-ammo-count" class="remote-count">0</span>
+      </div>
+      <div id="remote-ammo-cd" class="remote-countdown">—</div>
+    </div>
+    <div id="remote-repair-block" class="remote-supply-block hidden">
+      <div class="remote-supply-row">
+        <span class="remote-kind">REPAIR</span>
+        <span id="remote-repair-count" class="remote-count">0</span>
+      </div>
+      <div id="remote-repair-cd" class="remote-countdown">—</div>
+    </div>
+  </div>
+
+  <!-- Ammo display (bottom-right) -->
+  <div class="ammo-display">
+    <div id="ammo-type-title" class="ammo-label">AMMO</div>
+    <div id="ammo-count" class="ammo-count">0</div>
+  </div>
+
+  <script src="gestalt-hud-sdk.workshop.umd.js"></script>
+  <script src="hud.js"></script>
+</body>
+</html>

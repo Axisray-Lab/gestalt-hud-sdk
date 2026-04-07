@@ -2,5 +2,6 @@ node_modules/
 dist/
 *.tsbuildinfo
 .vite/
+.vscode/
 template/node_modules/
 template/dist/

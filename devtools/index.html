@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workshop HUD DevTools</title>
+  <link rel="stylesheet" href="devtools.css" />
+</head>
+<body>
+
+  <!-- Top bar: URL input + load/refresh -->
+  <div class="topbar">
+    <h1>HUD DevTools</h1>
+    <input type="text" id="hud-url"
+           placeholder="HUD URL, e.g. http://localhost:8080/template-workshop/index.html"
+           value="" />
+    <button id="btn-load">Load</button>
+    <button id="btn-refresh">Refresh</button>
+  </div>
+
+  <!-- Main 3-column layout -->
+  <div class="main-layout">
+
+    <!-- Left panel: controls -->
+    <div class="panel-left">
+
+      <!-- Init config -->
+      <div class="panel-section">
+        <h3>Init Config</h3>
+        <div class="init-row">
+          <label>Map</label>
+          <select id="init-map">
+            <option value="2">L_Traning</option>
+            <option value="4" selected>L_Map2026 (RMUC)</option>
+            <option value="5">L_MapRMUL2026</option>
+            <option value="6">L_MapRMUL2026_IF</option>
+            <option value="7">L_Map20261V1</option>
+          </select>
+        </div>
+        <div class="init-row">
+          <label>Team</label>
+          <select id="init-team">
+            <option value="0">RED (0)</option>
+            <option value="1">BLUE (1)</option>
+            <option value="-1">Spectator (-1)</option>
+          </select>
+        </div>
+        <div class="init-row">
+          <label>Player ID</label>
+          <input type="number" id="init-player" value="1" min="0" max="99" />
+        </div>
+        <div class="init-row">
+          <label>Game Mode</label>
+          <select id="init-gamemode">
+            <option value="3v3">3v3</option>
+            <option value="1v1">1v1</option>
+            <option value="training">Training</option>
+          </select>
+        </div>
+        <div class="bypass-check">
+          <input type="checkbox" id="chk-bypass" checked />
+          <label for="chk-bypass">Bypass hud:ready (send data immediately)</label>
+        </div>
+        <div class="action-row">
+          <button class="ctrl-btn" id="btn-send-init">Send Init</button>
+          <button class="ctrl-btn" id="btn-send-data">Send Data</button>
+          <button class="ctrl-btn" id="btn-auto-toggle">Auto: OFF</button>
+        </div>
+      </div>
+
+      <!-- Attribute sliders -->
+      <div class="panel-section">
+        <h3>Vitals</h3>
+        <div class="slider-row">
+          <label>HP</label>
+          <input type="range" id="sl-hp" min="0" max="600" value="600" />
+          <span class="slider-val" id="sl-hp-val">600</span>
+        </div>
+        <div class="slider-row">
+          <label>HP Max</label>
+          <input type="range" id="sl-hp-max" min="100" max="2000" value="600" step="50" />
+          <span class="slider-val" id="sl-hp-max-val">600</span>
+        </div>
+        <div class="slider-row">
+          <label>Shield</label>
+          <input type="range" id="sl-shield" min="0" max="200" value="0" />
+          <span class="slider-val" id="sl-shield-val">0</span>
+        </div>
+
+        <h3 style="margin-top:8px">Ammo &amp; Heat</h3>
+        <div class="slider-row">
+          <label>17mm Ammo</label>
+          <input type="range" id="sl-ammo17" min="0" max="500" value="300" />
+          <span class="slider-val" id="sl-ammo17-val">300</span>
+        </div>
+        <div class="slider-row">
+          <label>42mm Ammo</label>
+          <input type="range" id="sl-ammo42" min="0" max="200" value="0" />
+          <span class="slider-val" id="sl-ammo42-val">0</span>
+        </div>
+        <div class="slider-row">
+          <label>Heat</label>
+          <input type="range" id="sl-heat" min="0" max="240" value="0" />
+          <span class="slider-val" id="sl-heat-val">0</span>
+        </div>
+
+        <h3 style="margin-top:8px">State</h3>
+        <div class="slider-row">
+          <label>Level</label>
+          <input type="range" id="sl-level" min="1" max="3" value="1" />
+          <span class="slider-val" id="sl-level-val">1</span>
+        </div>
+        <div class="slider-row">
+          <label>Team</label>
+          <input type="range" id="sl-team" min="0" max="1" value="0" />
+          <span class="slider-val" id="sl-team-val">RED</span>
+        </div>
+        <div class="slider-row">
+          <label>Match Time</label>
+          <input type="range" id="sl-time" min="0" max="420000" value="0" step="1000" />
+          <span class="slider-val" id="sl-time-val">0:00</span>
+        </div>
+
+        <h3 style="margin-top:8px">Base HP</h3>
+        <div class="slider-row">
+          <label>Red Base</label>
+          <input type="range" id="sl-base0" min="0" max="5000" value="5000" step="100" />
+          <span class="slider-val" id="sl-base0-val">5000</span>
+        </div>
+        <div class="slider-row">
+          <label>Blue Base</label>
+          <input type="range" id="sl-base1" min="0" max="5000" value="5000" step="100" />
+          <span class="slider-val" id="sl-base1-val">5000</span>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="panel-section">
+        <h3>Tags (Boolean)</h3>
+        <div class="toggle-grid">
+          <label class="toggle-item"><input type="checkbox" id="tg-defeated" /> Defeated</label>
+          <label class="toggle-item"><input type="checkbox" id="tg-overheated" /> Overheated</label>
+          <label class="toggle-item"><input type="checkbox" id="tg-invincible" /> Invincible</label>
+          <label class="toggle-item"><input type="checkbox" id="tg-reviving" /> Reviving</label>
+          <label class="toggle-item"><input type="checkbox" id="tg-lowpower" /> Low Power</label>
+          <label class="toggle-item"><input type="checkbox" id="tg-outofcombat" /> Out of Combat</label>
+          <label class="toggle-item"><input type="checkbox" id="tg-weakened" /> Weakened</label>
+          <label class="toggle-item"><input type="checkbox" id="tg-boost" /> Speed Boost</label>
+          <label class="toggle-item"><input type="checkbox" id="tg-charging" /> Charging</label>
+        </div>
+      </div>
+
+      <!-- Presets -->
+      <div class="panel-section">
+        <h3>Presets</h3>
+        <div class="preset-grid" id="preset-container">
+          <button class="preset-btn" data-preset="matchStart">Match Start</button>
+          <button class="preset-btn" data-preset="lowHp">Low HP</button>
+          <button class="preset-btn" data-preset="defeated">Defeated</button>
+          <button class="preset-btn" data-preset="switchTeam">Switch Team</button>
+          <button class="preset-btn" data-preset="midGame">Mid Game</button>
+          <button class="preset-btn" data-preset="overheated">Overheated</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Center: HUD iframe -->
+    <div class="panel-center">
+      <iframe id="hud-iframe" src="about:blank"></iframe>
+      <div id="iframe-overlay" class="iframe-overlay">
+        Enter a HUD URL and click Load
+      </div>
+    </div>
+
+    <!-- Right panel: message log -->
+    <div class="panel-right">
+      <div class="log-header">
+        <h3>Message Log</h3>
+        <button class="ctrl-btn" id="btn-clear-log">Clear</button>
+      </div>
+      <div class="log-body" id="log-body"></div>
+    </div>
+
+  </div>
+
+  <!-- Status bar -->
+  <div class="statusbar">
+    <span><span id="status-dot" class="status-dot disconnected"></span><span id="status-text">No HUD loaded</span></span>
+    <span>Messages: <span id="stat-msg-count">0</span></span>
+  </div>
+
+  <script src="mock-data.js"></script>
+  <script src="devtools.js"></script>
+</body>
+</html>

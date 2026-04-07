@@ -1,0 +1,15 @@
+{
+  "sdk_version": 1,
+  "name": "Minimal Workshop HUD",
+  "version": "1.0.0",
+  "author": "your_name",
+  "description": "A minimal Workshop HUD template with health bar, ammo display, match timer, and base status.",
+  "compatible_maps": [
+    "L_Traning",
+    "L_Map2026",
+    "L_MapRMUL2026",
+    "L_MapRMUL2026_IF",
+    "L_Map20261V1"
+  ],
+  "entry": "index.html"
+}

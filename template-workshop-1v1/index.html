@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1v1 Duel HUD</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Version badge (top-left) -->
+  <div id="version-badge" class="version-badge">1v1 Duel HUD</div>
+
+  <!-- Match timer + status (top-center) -->
+  <div class="match-header">
+    <div id="match-timer" class="match-timer">00:00</div>
+    <div id="match-status" class="match-status">—</div>
+  </div>
+
+  <!-- Crosshair (center) -->
+  <div class="crosshair" aria-hidden="true">
+    <div class="crosshair-dot"></div>
+    <div class="crosshair-line crosshair-top"></div>
+    <div class="crosshair-line crosshair-bottom"></div>
+    <div class="crosshair-line crosshair-left"></div>
+    <div class="crosshair-line crosshair-right"></div>
+  </div>
+
+  <!-- Player panel (bottom-left) -->
+  <div class="player-panel">
+    <div class="health-block">
+      <div class="health-bar-container">
+        <div id="health-bar-fill" class="health-bar-fill"></div>
+        <span id="health-text" class="health-text">0 / 0</span>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="ammo-block">
+        <div class="stat-label">AMMO</div>
+        <div id="ammo-count" class="ammo-count">0</div>
+      </div>
+      <div class="heat-block">
+        <div class="stat-label">HEAT</div>
+        <div class="heat-bar-container">
+          <div id="heat-bar-fill" class="heat-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tag overlays -->
+  <div id="defeated-overlay" class="tag-overlay defeated-overlay" hidden>
+    <span class="tag-overlay-text">DEFEATED</span>
+  </div>
+  <div id="overheated-warning" class="overheated-bar" hidden>
+    <span>OVERHEATED</span>
+  </div>
+
+  <script src="gestalt-hud-sdk.workshop.umd.js"></script>
+  <script src="hud.js"></script>
+</body>
+</html>

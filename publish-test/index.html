@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workshop HUD</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Version badge (top-left) -->
+  <div id="version-badge" class="version-badge">Workshop HUD</div>
+
+  <!-- Crosshair (center) -->
+  <div class="crosshair">
+    <div class="crosshair-dot"></div>
+    <div class="crosshair-line crosshair-top"></div>
+    <div class="crosshair-line crosshair-bottom"></div>
+    <div class="crosshair-line crosshair-left"></div>
+    <div class="crosshair-line crosshair-right"></div>
+  </div>
+
+  <!-- Match timer (top-center) -->
+  <div id="match-timer" class="match-timer">00:00</div>
+
+  <!-- Player badge (bottom-left): team, level, health bar -->
+  <div class="player-badge">
+    <div class="badge-header">
+      <span id="team-tag" class="team-tag">--</span>
+      <span id="level" class="level">Lv.0</span>
+    </div>
+    <div class="health-bar-container">
+      <div id="health-bar-fill" class="health-bar-fill"></div>
+      <span id="health-text" class="health-text">0 / 0</span>
+    </div>
+  </div>
+
+  <!-- Ammo display (bottom-right) -->
+  <div class="ammo-display">
+    <div class="ammo-label">AMMO</div>
+    <div id="ammo-count" class="ammo-count">0</div>
+  </div>
+
+  <!-- Base status (top-right) -->
+  <div class="base-status">
+    <div class="base-row">
+      <span class="base-label red">RED BASE</span>
+      <div class="base-hp-container">
+        <div id="red-base-hp" class="base-hp-fill red-fill"></div>
+      </div>
+    </div>
+    <div class="base-row">
+      <span class="base-label blue">BLUE BASE</span>
+      <div class="base-hp-container">
+        <div id="blue-base-hp" class="base-hp-fill blue-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="gestalt-hud-sdk.workshop.umd.js"></script>
+  <script src="hud.js"></script>
+</body>
+</html>

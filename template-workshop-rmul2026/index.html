@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RMUL2026 Competition HUD</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Version badge (top-left) -->
+  <div id="version-badge" class="version-badge">RMUL2026 HUD</div>
+
+  <!-- Team scores + match block (top) -->
+  <div class="top-hud">
+    <div class="team-score team-score-red glass-panel">
+      <div class="team-score-label">RED</div>
+      <div id="score-red" class="team-score-value">0</div>
+    </div>
+    <div class="match-block glass-panel">
+      <div id="match-timer" class="match-timer">00:00</div>
+      <div id="match-status" class="match-status">—</div>
+    </div>
+    <div class="team-score team-score-blue glass-panel">
+      <div class="team-score-label">BLUE</div>
+      <div id="score-blue" class="team-score-value">0</div>
+    </div>
+  </div>
+
+  <!-- Base + outposts (top-right) -->
+  <div class="base-cluster glass-panel">
+    <div class="base-cluster-title">OBJECTIVES</div>
+    <div class="base-row">
+      <span class="base-label red">RED BASE</span>
+      <div class="base-hp-wrap">
+        <div id="red-base-hp" class="base-hp-fill red-fill"></div>
+      </div>
+    </div>
+    <div class="base-row">
+      <span class="base-label blue">BLUE BASE</span>
+      <div class="base-hp-wrap">
+        <div id="blue-base-hp" class="base-hp-fill blue-fill"></div>
+      </div>
+    </div>
+    <div class="outpost-row">
+      <div class="outpost-pill" id="outpost-red-zone">
+        <span class="outpost-name">RED OP</span>
+        <span class="outpost-owner" id="outpost-red-owner">—</span>
+      </div>
+      <div class="outpost-pill" id="outpost-blue-zone">
+        <span class="outpost-name">BLUE OP</span>
+        <span class="outpost-owner" id="outpost-blue-owner">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Teammates + local player (bottom-left) -->
+  <div class="left-hud-column">
+    <div id="teammate-list" class="teammate-list" aria-hidden="true"></div>
+    <div class="player-panel glass-panel">
+      <div class="player-panel-header">
+        <span id="team-tag" class="team-tag">--</span>
+        <span id="class-name" class="class-name">—</span>
+        <span id="level" class="level">Lv.0</span>
+      </div>
+      <div class="bar-block">
+        <span class="bar-label">HP</span>
+        <div class="bar-track health-track">
+          <div id="health-bar-fill" class="bar-fill health-bar-fill"></div>
+          <span id="health-text" class="bar-text">0 / 0</span>
+        </div>
+      </div>
+      <div class="bar-block">
+        <span class="bar-label">BUFFER</span>
+        <div class="bar-track buffer-track">
+          <div id="buffer-bar-fill" class="bar-fill buffer-bar-fill"></div>
+        </div>
+      </div>
+      <div class="bar-block">
+        <span class="bar-label">HEAT</span>
+        <div class="bar-track heat-track">
+          <div id="heat-bar-fill" class="bar-fill heat-bar-fill"></div>
+        </div>
+      </div>
+      <div class="ammo-row">
+        <span class="ammo-label">AMMO</span>
+        <span id="ammo-count" class="ammo-count">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crosshair (center) -->
+  <div class="crosshair">
+    <div class="crosshair-dot"></div>
+    <div class="crosshair-line crosshair-top"></div>
+    <div class="crosshair-line crosshair-bottom"></div>
+    <div class="crosshair-line crosshair-left"></div>
+    <div class="crosshair-line crosshair-right"></div>
+  </div>
+
+  <!-- Status overlays -->
+  <div id="overlay-defeated" class="status-overlay overlay-defeated hidden">
+    <span>DEFEATED</span>
+  </div>
+  <div id="overlay-overheated" class="status-overlay overlay-overheated hidden">
+    <span>OVERHEATED</span>
+  </div>
+  <div id="overlay-blocked" class="status-overlay overlay-blocked hidden">
+    <span>JAMMED</span>
+  </div>
+
+  <script src="gestalt-hud-sdk.workshop.umd.js"></script>
+  <script src="hud.js"></script>
+</body>
+</html>

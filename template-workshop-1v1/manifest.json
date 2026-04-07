@@ -1,0 +1,9 @@
+{
+  "sdk_version": 1,
+  "name": "1v1 Duel HUD",
+  "version": "1.0.0",
+  "author": "gestalt-sdk",
+  "description": "Streamlined HUD for 1v1 duel matches.",
+  "compatible_maps": ["L_Map20261V1"],
+  "entry": "index.html"
+}

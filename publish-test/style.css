@@ -1,0 +1,230 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: transparent;
+  overflow: hidden;
+  color: #fff;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  pointer-events: none;
+}
+
+/* ── Version badge ── */
+
+.version-badge {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  background: rgba(142, 68, 173, 0.7);
+  z-index: 999;
+}
+
+/* ── Crosshair ── */
+
+.crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+}
+
+.crosshair-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.crosshair-line {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.crosshair-top {
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 8px;
+  transform: translateX(-50%);
+}
+
+.crosshair-bottom {
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  height: 8px;
+  transform: translateX(-50%);
+}
+
+.crosshair-left {
+  top: 50%;
+  left: 0;
+  width: 8px;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+.crosshair-right {
+  top: 50%;
+  right: 0;
+  width: 8px;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+/* ── Match timer ── */
+
+.match-timer {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Player badge ── */
+
+.player-badge {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  min-width: 220px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  padding: 12px 16px;
+  backdrop-filter: blur(8px);
+}
+
+.badge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.team-tag {
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.level {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.health-bar-container {
+  position: relative;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.health-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  width: 0%;
+  background-color: #2ecc71;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.health-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* ── Ammo display ── */
+
+.ammo-display {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  padding: 12px 20px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.ammo-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.ammo-count {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ── Base status ── */
+
+.base-status {
+  position: fixed;
+  top: 52px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.base-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.base-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  width: 70px;
+  text-align: right;
+}
+
+.base-label.red { color: #e74c3c; }
+.base-label.blue { color: #3498db; }
+
+.base-hp-container {
+  width: 100px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.base-hp-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.red-fill { background-color: #e74c3c; }
+.blue-fill { background-color: #3498db; }

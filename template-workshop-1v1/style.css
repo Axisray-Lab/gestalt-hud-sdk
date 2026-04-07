@@ -1,0 +1,249 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: transparent;
+  overflow: hidden;
+  color: #fff;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  pointer-events: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ── Version badge ── */
+
+.version-badge {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  background: rgba(142, 68, 173, 0.55);
+  backdrop-filter: blur(10px);
+  z-index: 900;
+}
+
+/* ── Match header (timer + status) ── */
+
+.match-header {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 800;
+}
+
+.match-timer {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  line-height: 1.1;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.65);
+}
+
+.match-status {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  opacity: 0.92;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+
+/* ── Crosshair (slightly larger than 3v3 template) ── */
+
+.crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  z-index: 100;
+}
+
+.crosshair-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.crosshair-line {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.crosshair-top {
+  top: 0;
+  left: 50%;
+  width: 2.5px;
+  height: 10px;
+  transform: translateX(-50%);
+}
+
+.crosshair-bottom {
+  bottom: 0;
+  left: 50%;
+  width: 2.5px;
+  height: 10px;
+  transform: translateX(-50%);
+}
+
+.crosshair-left {
+  top: 50%;
+  left: 0;
+  width: 10px;
+  height: 2.5px;
+  transform: translateY(-50%);
+}
+
+.crosshair-right {
+  top: 50%;
+  right: 0;
+  width: 10px;
+  height: 2.5px;
+  transform: translateY(-50%);
+}
+
+/* ── Player panel (glass, bottom-left) ── */
+
+.player-panel {
+  position: fixed;
+  bottom: 28px;
+  left: 28px;
+  min-width: 280px;
+  padding: 16px 18px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  z-index: 850;
+}
+
+.health-block {
+  margin-bottom: 12px;
+}
+
+.health-bar-container {
+  position: relative;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.health-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  width: 0%;
+  background-color: #2ecc71;
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.health-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+}
+
+.stats-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.stat-label {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  opacity: 0.65;
+  margin-bottom: 4px;
+}
+
+.ammo-block {
+  flex: 0 0 auto;
+}
+
+.ammo-count {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.5px;
+}
+
+.heat-block {
+  flex: 1;
+  min-width: 0;
+}
+
+.heat-bar-container {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.heat-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #3498db, #e67e22, #e74c3c);
+  transition: width 0.2s ease;
+}
+
+/* ── Tag overlays ── */
+
+.tag-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 950;
+}
+
+.defeated-overlay {
+  background: rgba(192, 32, 32, 0.42);
+  backdrop-filter: blur(2px);
+}
+
+.tag-overlay-text {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 10px;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.75);
+}
+
+.overheated-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #1a1a1a;
+  background: rgba(241, 196, 15, 0.88);
+  backdrop-filter: blur(6px);
+  z-index: 940;
+}
