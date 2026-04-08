@@ -5,3 +5,6 @@ dist/
 .vscode/
 template/node_modules/
 template/dist/
+template-workshop-vue/node_modules/
+template-workshop-vue/dist/
+template-workshop-vue/package-lock.json

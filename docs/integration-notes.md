@@ -54,7 +54,7 @@ The game reads `UI/debug.config.json` to load HUDs from local sources:
 }
 ```
 
-**Critical: Use `127.0.0.1`, not `localhost`.** The game's embedded browser (Unreal Engine CEF) does not resolve `localhost` to the loopback address.
+**Dev server binding note:** The hostname must match the dev server's listen address. `npx serve` typically binds IPv4 (`127.0.0.1`), while Vite defaults to IPv6 only (`::1`). Use `localhost` for Vite, or add `server: { host: '0.0.0.0' }` to `vite.config.ts` so both work.
 
 **URL must include `index.html` explicitly.** The game loads the URL as-is; it does not append `index.html` for directory URLs.
 

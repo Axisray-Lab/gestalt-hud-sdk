@@ -1,8 +1,9 @@
 /**
  * GestaltHUDBridge — postMessage bridge for Workshop HUDs.
  *
- * This bridge runs inside a sandboxed iframe (`sandbox="allow-scripts"`)
- * and communicates with the game's main SPA via `window.postMessage`.
+ * This bridge runs inside a sandboxed iframe
+ * (`sandbox="allow-scripts allow-same-origin"`) and communicates with
+ * the game's main SPA via `window.postMessage`.
  *
  * It is the Workshop counterpart of {@link HUDBridge} (WebSocket).
  * The two bridges expose similar callback signatures so that HUD
@@ -33,8 +34,8 @@ const TAG = '[Workshop HUD]';
 export interface GestaltHUDBridgeOptions {
   /**
    * The `targetOrigin` parameter for `postMessage()`.
-   * Defaults to `'*'` because Workshop HUDs run inside a
-   * sandboxed iframe without `allow-same-origin`.
+   * Defaults to `'*'` for broadest compatibility with Workshop
+   * HUD deployment scenarios (local dev, Steam Workshop, etc.).
    */
   targetOrigin?: string;
 

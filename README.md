@@ -5,7 +5,7 @@ Build custom in-game HUD overlays for **Gestalt System** with real-time game dat
 The SDK provides two development modes:
 
 - **WebSocket mode** — direct connection to the game engine for local development
-- **Workshop mode** — postMessage-based communication for Steam Workshop HUDs running in sandboxed iframes
+- **Workshop mode** — postMessage-based communication for Steam Workshop HUDs running in sandboxed iframes (`allow-scripts allow-same-origin`)
 
 ## Quick Start
 

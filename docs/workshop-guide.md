@@ -4,7 +4,7 @@ This guide walks through the complete process of creating, testing, and publishi
 
 ## Overview
 
-Workshop HUDs run inside a sandboxed iframe (`sandbox="allow-scripts"`) within the game's main UI. They communicate with the game via `postMessage` — the SDK provides `GestaltHUDBridge` to handle all protocol details.
+Workshop HUDs run inside a sandboxed iframe (`sandbox="allow-scripts allow-same-origin"`) within the game's main UI. They communicate with the game via `postMessage` — the SDK provides `GestaltHUDBridge` to handle all protocol details.
 
 ### Architecture
 
@@ -22,10 +22,12 @@ Workshop HUD (sandboxed iframe)
 
 ### Security Model
 
-- The iframe has `sandbox="allow-scripts"` (no `allow-same-origin`)
-- No access to the parent window's DOM, cookies, or localStorage
-- No direct WebSocket connections to the game engine
-- All communication is via `postMessage` only
+- The iframe has `sandbox="allow-scripts allow-same-origin"`
+- `allow-scripts`: JavaScript execution, including ES modules (`import`/`export`, dynamic `import()`)
+- `allow-same-origin`: Required for ES module loading and Vite HMR; also grants access to the iframe's own `localStorage`/cookies (scoped to its origin)
+- No access to the parent window's DOM (cross-origin isolation still applies)
+- No popups (`window.open`), form submission, or top-level navigation
+- All communication with the game is via `postMessage` only
 
 ## Step 1: Choose a Template
 
@@ -35,6 +37,7 @@ Workshop HUD (sandboxed iframe)
 | **RMUL2026** | Full 3v3 competition HUD | `template-workshop-rmul2026/` |
 | **RMUC2026** | RMUC with remote supply | `template-workshop-rmuc2026/` |
 | **1v1** | Simplified duel HUD | `template-workshop-1v1/` |
+| **Vue (advanced)** | Vue 3 + TypeScript, component architecture | `template-workshop-vue/` |
 
 ```bash
 # Copy your chosen template
@@ -238,13 +241,13 @@ npx vite --port 3000
 ```json
 {
   "enableDebug": true,
-  "workshopHUDDevUrl": "http://127.0.0.1:3000/index.html?gestalt-debug=1"
+  "workshopHUDDevUrl": "http://localhost:3000/index.html?gestalt-debug=1"
 }
 ```
 
-> **Important:** Use `127.0.0.1` instead of `localhost`. The game's embedded browser (UE CEF) does not resolve `localhost`.
-
 > **Important:** The URL must include the full filename (`index.html`). The game loads the URL as-is and does not append `index.html` for directory paths.
+
+> **Dev server binding note:** The `workshopHUDDevUrl` hostname must match the dev server's listen address. `npx serve` typically binds IPv4 (`127.0.0.1`), while Vite defaults to IPv6 only (`::1`). If using Vite, either add `server: { host: '0.0.0.0' }` to `vite.config.ts` (recommended), or use `http://localhost:...` which resolves to whichever protocol the server listens on. The SDK's Vue template (`template-workshop-vue/`) already has this configured.
 
 3. Launch the game. Your HUD loads from the local URL instead of Workshop.
 4. Edit code → save → the game reloads the HUD automatically (Vite HMR) or manually refresh.
@@ -377,7 +380,9 @@ The `workshopHUDDevUrl` in `debug.config.json` must include the full filename:
 
 ### Game can't connect to local dev server
 
-Use `127.0.0.1` instead of `localhost` in `workshopHUDDevUrl`. The game's embedded browser (UE CEF) does not resolve `localhost` to the loopback address.
+The `workshopHUDDevUrl` hostname must match the dev server's listen address:
+- **`npx serve`** binds IPv4 (`127.0.0.1`) — use `http://127.0.0.1:port/...`
+- **Vite** defaults to IPv6 only (`::1`) — use `http://localhost:port/...`, or add `server: { host: '0.0.0.0' }` to `vite.config.ts` so both `localhost` and `127.0.0.1` work
 
 ### Debug logs don't appear in game's Shift+U overlay
 
