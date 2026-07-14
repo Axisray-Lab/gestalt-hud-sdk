@@ -1,0 +1,11 @@
+# Protocol snapshots and deterministic generated artifacts are hashed byte-for-byte.
+schemas/fbs/*.fbs text eol=lf whitespace=-blank-at-eol
+schemas/*.json text eol=lf
+protocol/*.json text eol=lf
+src/protocol/generated/*.ts text eol=lf
+docs/generated/*.md text eol=lf whitespace=-blank-at-eol
+scripts/generate-fbs-protocol.mjs text eol=lf
+
+# Workshop release assets are compared to fresh Vite output byte-for-byte.
+**/gestalt-hud-sdk.workshop.umd.js text eol=lf
+**/manifest.js text eol=lf

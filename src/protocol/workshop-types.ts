@@ -1,115 +1,210 @@
 /**
- * Workshop HUD postMessage protocol types.
+ * Workshop HUD postMessage protocol (protocol version 1).
  *
- * These interfaces define the messages exchanged between the game's main SPA
- * (parent window) and a Workshop HUD running inside a sandboxed iframe.
- *
- * Protocol contract:
- *   - The 5 message type strings are frozen and will never change.
- *   - Existing fields will never be removed or renamed.
- *   - New fields may be added in future versions (forward-compatible).
- *   - The bridge implementation should ignore unknown fields.
+ * This is the public contract between the game SPA (parent window) and a
+ * Workshop HUD running in its sandboxed iframe. Existing fields and message
+ * names are frozen; future protocol versions may only add fields/messages.
  */
 
-// ── Main SPA -> Workshop HUD iframe ──
+// Main SPA -> Workshop HUD iframe
+
+export type HUDGameMode = '3v3' | '1v1' | 'training';
 
 export interface HUDInitMessage {
   type: 'hud:init';
-  /** Protocol version number (starts at 1). */
+  /** Workshop HUD postMessage protocol version. */
   version: number;
-  /** Map ID from ERobotBridgeDemoMapType. */
+  /** ERobotBridgeDemoMapType numeric value. */
   mapId: number;
-  /** Human-readable map name. */
+  /** Human-readable map enum name, e.g. "L_MapRMUL2026". */
   mapName: string;
-  /** Local player's numeric ID within the match. */
+  /** Local player's unique ID within this match. */
   playerId: number;
-  /** Player's team ID. */
+  /** Team ID: -1 = spectator, 0 = red, 1 = blue. */
   teamId: number;
-  /** Game mode identifier, e.g. "3v3", "1v1", "training". */
-  gameMode: string;
-  /** WebSocket port (reserved; not exposed to iframe in sandbox mode). */
-  wsPort: number;
+  /** Game mode descriptor. */
+  gameMode: HUDGameMode;
 }
 
 export interface HUDAttributeUpdateMessage {
   type: 'hud:attribute_update';
-  /** Map ID the update originates from. */
+  /** ERobotBridgeDemoMapType numeric value. */
   mapId: number;
-  /**
-   * Attribute data grouped by scope.
-   *
-   * Keys within each record are stringified FBS attribute enum IDs
-   * (e.g. "10000003" for Health). Values are raw numbers matching the
-   * FBS definitions — "thousandths" attributes use 1000 = 100%,
-   * tag attributes use 0/1.
-   */
   data: HUDAttributeData;
 }
 
 export interface HUDAttributeData {
+  /** Global match attributes (timers, match status, map-wide state). */
   global: Record<string, number>;
+  /** Local player's player-level attributes. */
   player: Record<string, number>;
+  /** Local player's battle (robot) attributes. */
   battle: Record<string, number>;
+  /**
+   * Base snapshots keyed by base entity ID (`G_BaseId_0 + teamId`).
+   * This scope does not include the host's separate outpost/buff/zone maps.
+   */
   base: Record<string, Record<string, number>>;
+  /** Per-player battle attributes keyed by player ID. */
   playerBattle: Record<number, Record<string, number>>;
 }
 
-/**
- * @reserved This message type is defined for forward compatibility.
- * Sprint 1 does not send this message. Future versions may introduce
- * discrete game events (e.g. kill notifications, supply arrival).
- */
-export interface HUDEventMessage {
+export interface HUDGameEventMessage {
   type: 'hud:game_event';
-  /** Event identifier (TBD in future protocol versions). */
+  /** Event identifier. Reserved for future use in protocol v1. */
   event: string;
-  /** Event-specific payload (TBD in future protocol versions). */
   payload: unknown;
 }
 
-// ── Workshop HUD iframe -> Main SPA ──
+/** @deprecated Use {@link HUDGameEventMessage}. */
+export type HUDEventMessage = HUDGameEventMessage;
+
+// Workshop HUD iframe -> Main SPA
 
 export interface HUDReadyMessage {
   type: 'hud:ready';
-  /** HUD display name (from manifest.json). */
+  /** HUD name from manifest.json. */
   name: string;
-  /** HUD version string (from manifest.json). */
+  /** HUD version from manifest.json. */
   version: string;
 }
 
-export interface HUDActionMessage {
-  type: 'hud:action';
-  /** Action identifier — must be one of the allowed {@link HUDAction} values. */
-  action: HUDAction;
-  /** Optional action payload (currently unused; reserved for future actions). */
-  payload?: unknown;
-}
-
-/**
- * Allowed action identifiers for Sprint 1.
- * New actions will be added through protocol version extensions.
- */
 export type HUDAction =
   | 'open_settings'
   | 'exit_game'
   | 'resume_game'
   | 'exit_menu';
 
-/** Union of all messages the main SPA sends to a Workshop HUD iframe. */
-export type ParentToHUDMessage =
+/** Actions currently accepted by the game SPA from Workshop HUD iframes. */
+export const WORKSHOP_HUD_ACTION_WHITELIST: ReadonlySet<HUDAction> = new Set([
+  'open_settings',
+  'exit_game',
+  'resume_game',
+  'exit_menu',
+]);
+
+export interface HUDActionMessage {
+  type: 'hud:action';
+  /** Only host-whitelisted actions are processed. */
+  action: HUDAction;
+  payload?: unknown;
+}
+
+export interface HUDDebugLogMessage {
+  type: 'hud:debug_log';
+  message: string;
+}
+
+/** Union of messages the game SPA sends to a Workshop HUD. */
+export type SPAToHUDMessage =
   | HUDInitMessage
   | HUDAttributeUpdateMessage
-  | HUDEventMessage;
+  | HUDGameEventMessage;
 
-/** Union of all messages a Workshop HUD iframe sends to the main SPA. */
-export type HUDToParentMessage =
+/** @deprecated Use {@link SPAToHUDMessage}. */
+export type ParentToHUDMessage = SPAToHUDMessage;
+
+/** Union of messages a Workshop HUD sends to the game SPA. */
+export type HUDToSPAMessage =
   | HUDReadyMessage
-  | HUDActionMessage;
+  | HUDActionMessage
+  | HUDDebugLogMessage;
 
-/** Union of all Workshop HUD postMessage protocol messages. */
-export type WorkshopHUDMessage =
-  | ParentToHUDMessage
-  | HUDToParentMessage;
+/** @deprecated Use {@link HUDToSPAMessage}. */
+export type HUDToParentMessage = HUDToSPAMessage;
 
-/** Current protocol version. */
+export type WorkshopHUDMessage = SPAToHUDMessage | HUDToSPAMessage;
+
+/** Current Workshop HUD postMessage protocol version. */
 export const WORKSHOP_HUD_PROTOCOL_VERSION = 1;
+
+const GAME_MODES: ReadonlySet<string> = new Set<HUDGameMode>([
+  '3v3',
+  '1v1',
+  'training',
+]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function isNumericRecord(value: unknown): value is Record<string, number> {
+  return (
+    isRecord(value) &&
+    Object.values(value).every((entry) => isFiniteNumber(entry))
+  );
+}
+
+function isNestedNumericRecord(
+  value: unknown,
+): value is Record<string, Record<string, number>> {
+  return (
+    isRecord(value) &&
+    Object.values(value).every((entry) => isNumericRecord(entry))
+  );
+}
+
+/** Runtime guard for a complete Workshop attribute snapshot. */
+export function isHUDAttributeData(value: unknown): value is HUDAttributeData {
+  if (!isRecord(value)) return false;
+  return (
+    isNumericRecord(value.global) &&
+    isNumericRecord(value.player) &&
+    isNumericRecord(value.battle) &&
+    isNestedNumericRecord(value.base) &&
+    isNestedNumericRecord(value.playerBattle)
+  );
+}
+
+/** Runtime guard for `hud:init`. Unknown additional fields are ignored. */
+export function isHUDInitMessage(value: unknown): value is HUDInitMessage {
+  if (!isRecord(value) || value.type !== 'hud:init') return false;
+  return (
+    Number.isInteger(value.version) &&
+    isFiniteNumber(value.mapId) &&
+    typeof value.mapName === 'string' &&
+    isFiniteNumber(value.playerId) &&
+    isFiniteNumber(value.teamId) &&
+    typeof value.gameMode === 'string' &&
+    GAME_MODES.has(value.gameMode)
+  );
+}
+
+/** Runtime guard for `hud:attribute_update`. */
+export function isHUDAttributeUpdateMessage(
+  value: unknown,
+): value is HUDAttributeUpdateMessage {
+  if (!isRecord(value) || value.type !== 'hud:attribute_update') return false;
+  return isFiniteNumber(value.mapId) && isHUDAttributeData(value.data);
+}
+
+/** Runtime guard for the reserved `hud:game_event` message. */
+export function isHUDGameEventMessage(
+  value: unknown,
+): value is HUDGameEventMessage {
+  return (
+    isRecord(value) &&
+    value.type === 'hud:game_event' &&
+    typeof value.event === 'string' &&
+    'payload' in value
+  );
+}
+
+/** Runtime guard for any message currently accepted from the game SPA. */
+export function isSPAToHUDMessage(value: unknown): value is SPAToHUDMessage {
+  if (!isRecord(value) || typeof value.type !== 'string') return false;
+  switch (value.type) {
+    case 'hud:init':
+      return isHUDInitMessage(value);
+    case 'hud:attribute_update':
+      return isHUDAttributeUpdateMessage(value);
+    case 'hud:game_event':
+      return isHUDGameEventMessage(value);
+    default:
+      return false;
+  }
+}

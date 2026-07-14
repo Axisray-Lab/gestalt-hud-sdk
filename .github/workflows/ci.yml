@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Protocol, package, and Workshop HUD
+    runs-on: windows-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install SDK dependencies
+        run: npm ci
+
+      - name: Verify generated protocol
+        run: node scripts/generate-fbs-protocol.mjs --verify
+
+      - name: Type-check SDK
+        run: npm run typecheck
+
+      - name: Build SDK and Workshop bundle
+        run: npm run build
+
+      - name: Test runtime contracts
+        run: node --test tests/runtime-contract.test.mjs
+
+      - name: Test packed package consumers
+        run: node scripts/test-package-consumer.mjs
+
+      - name: Verify static Workshop HUD packages
+        shell: pwsh
+        run: |
+          ./scripts/sync-workshop-assets.ps1 -Check
+          @(
+            'template-workshop',
+            'template-workshop-1v1',
+            'template-workshop-rmuc2026',
+            'template-workshop-rmul2026',
+            'publish-test'
+          ) | ForEach-Object {
+            ./scripts/validate-workshop-hud.ps1 -ContentFolder $_
+          }
+
+      - name: Build Vue template against packed local SDK
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          $packJson = npm pack --json --ignore-scripts --pack-destination artifacts
+          if ($LASTEXITCODE -ne 0) { throw 'npm pack failed.' }
+          $pack = $packJson | ConvertFrom-Json
+          if ($pack.Count -ne 1) { throw 'npm pack did not create exactly one tarball.' }
+          $artifactRoot = (Resolve-Path artifacts).Path
+          $tarball = Join-Path $artifactRoot $pack[0].filename
+
+          Push-Location template-workshop-vue
+          try {
+            npm install --ignore-scripts --no-audit --no-fund --no-save --package-lock=false $tarball
+            if ($LASTEXITCODE -ne 0) { throw 'Vue template dependency installation failed.' }
+            npm run typecheck
+            if ($LASTEXITCODE -ne 0) { throw 'Vue template type-check failed.' }
+            npm run build:workshop
+            if ($LASTEXITCODE -ne 0) { throw 'Vue Workshop build failed.' }
+          }
+          finally {
+            Pop-Location
+          }

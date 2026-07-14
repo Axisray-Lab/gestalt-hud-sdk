@@ -18,6 +18,8 @@ var MockData = (function () {
     Experience:        '10000002',
     Ammo17mmCount:     '10000033',
     Ammo42mmCount:     '10000034',
+    AmmoDartCount:     '10000069',
+    AmmoLaserCount:    '10000070',
     TeamID:            '10000036',
     TeamNumber:        '10000037',
     FiringHeat1:       '10000011',
@@ -60,7 +62,6 @@ var MockData = (function () {
     TM_Coins:             '74000003',
 
     G_BaseId_0:           '80001000',
-    G_BaseId_1:           '80001001',
   };
 
   // ── Default state ──
@@ -73,6 +74,8 @@ var MockData = (function () {
     bufferEnergyMax: 60,
     ammo17mm: 300,
     ammo42mm: 0,
+    ammoDart: 0,
+    ammoLaser: 0,
     bulletType: 1,
     firingHeat: 0,
     firingHeatMax: 240,
@@ -117,6 +120,8 @@ var MockData = (function () {
     battle[Attr.BufferEnergyMax] = state.bufferEnergyMax;
     battle[Attr.Ammo17mmCount] = state.ammo17mm;
     battle[Attr.Ammo42mmCount] = state.ammo42mm;
+    battle[Attr.AmmoDartCount] = state.ammoDart;
+    battle[Attr.AmmoLaserCount] = state.ammoLaser;
     battle[Attr.BulletType] = state.bulletType;
     battle[Attr.FiringHeat1] = state.firingHeat;
     battle[Attr.FiringHeatMax1] = state.firingHeatMax;
@@ -148,18 +153,17 @@ var MockData = (function () {
     global[Attr.G_CurMatchStatus] = state.matchStatus;
     global[Attr.G_GameStartCountDown] = state.countdown;
     global[Attr.G_CurMapId] = 4;
-    global[Attr.G_BaseId_0] = 1;
-    global[Attr.G_BaseId_1] = 2;
     global[Attr.TM_Coins] = state.coins;
 
-    var base = {
-      '1': {},
-      '2': {},
-    };
-    base['1'][Attr.Health] = state.baseHp0;
-    base['1'][Attr.HealthMax] = state.baseHpMax0;
-    base['2'][Attr.Health] = state.baseHp1;
-    base['2'][Attr.HealthMax] = state.baseHpMax1;
+    var redBaseId = Attr.G_BaseId_0;
+    var blueBaseId = String(Number(Attr.G_BaseId_0) + 1);
+    var base = {};
+    base[redBaseId] = {};
+    base[blueBaseId] = {};
+    base[redBaseId][Attr.Health] = state.baseHp0;
+    base[redBaseId][Attr.HealthMax] = state.baseHpMax0;
+    base[blueBaseId][Attr.Health] = state.baseHp1;
+    base[blueBaseId][Attr.HealthMax] = state.baseHpMax1;
 
     return {
       global: global,

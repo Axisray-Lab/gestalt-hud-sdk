@@ -1,0 +1,4143 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "schemaVersion": 1,
+    "source": {
+      "repository": "gestalt_system",
+      "commit": "cfab7571284ab1ba379f97c0ed196986d792ec8e",
+      "path": "TypeScript/RobotBridgeDemo/FBS"
+    },
+    "normalization": {
+      "lineEndings": "LF",
+      "licenseHeader": "Public SDK Protocol Schema; distributed under the gestalt-hud-sdk repository LICENSE",
+      "comments": "Latin-1/UTF-8 mojibake repaired in comments only; enum and value tokens are unchanged",
+      "upstreamHashInput": "Git blob bytes at source.commit (independent of checkout line-ending conversion)"
+    },
+    "files": [
+      {
+        "name": "RobotBridgeDemoAttributeDefines.fbs",
+        "upstreamSha256": "d920a353e9c21348443e1e552e59e3c7e78668a5bd72b84a4e7bf184ab630005",
+        "vendoredSha256": "890693ee22cc046c69ba883a479bf36547d6095d5bc0ba890127290b600f63ca"
+      },
+      {
+        "name": "RobotBridgeDemoEntityDefine.fbs",
+        "upstreamSha256": "5cd460d84b7de7f4d67017d082cfbf92b4dab4ecc2c8de8e9875c0ae6a6b2ec4",
+        "vendoredSha256": "32e877884de308231b2f59b7078d990a92dec3bfe8c43d37129905bc6b774a34"
+      },
+      {
+        "name": "RobotBridgeDemoInputDefine.fbs",
+        "upstreamSha256": "78c0e91bf5cef4c6737cb6efd5d77616a001c76e738ec62e3ac797557a7a991c",
+        "vendoredSha256": "15e8446bc1a1e30d5d02c15287e81d0a5c405f0d7bed2c7d182c8f2663821c77"
+      },
+      {
+        "name": "RobotBridgeDemoMapDefine.fbs",
+        "upstreamSha256": "ebf42fd119f8461cb2fe8b3dcc463f5392397f3bc29db4308cab164b9fd9ab9d",
+        "vendoredSha256": "e5b4cdb9dd791e51724c55a4b1e696be2ab104d6cd41bdfe90052eb0e632f7f1"
+      },
+      {
+        "name": "RobotBridgeDemoResourceIdDefine.fbs",
+        "upstreamSha256": "e7c41d9d8544666a7260835faefa029a7e3a2c7edee766a3b07e00de982ddc85",
+        "vendoredSha256": "0970ac906b52c97c6ca538b64ff5b7eef3d6e0b6726a675fd3be2d8bb3bea0a4"
+      },
+      {
+        "name": "RobotBridgeDemoTransformIdDefine.fbs",
+        "upstreamSha256": "ffcddf92f4b7ff11cd4a839c33ef637873d62a1c2fea952b597a40dbbe5ddb14",
+        "vendoredSha256": "a1b5c083b9d6bbd24c992b696bb32aad82722c7f2bdeb9ebc93694d40b6b526b"
+      },
+      {
+        "name": "RobotBridgeDemoUniversalEventDefine.fbs",
+        "upstreamSha256": "40ccc58b051eab1f6f5c8dbe97dd3bc6e481592dfe8a6c09a54aab2027039626",
+        "vendoredSha256": "1e37be48e5e8c362dcfa63282cc59f983bc2f1f48edab049ad6175af6073476e"
+      }
+    ]
+  },
+  "namespaces": [
+    "RobotBridgeDemo"
+  ],
+  "enumCount": 18,
+  "valueCount": 552,
+  "enums": [
+    {
+      "name": "ERobotBridgeAreaID",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoAttributeDefines.fbs",
+      "sourceLine": 8,
+      "values": [
+        {
+          "name": "None",
+          "value": 0,
+          "literal": "00",
+          "implicit": false,
+          "sourceLine": 9
+        },
+        {
+          "name": "BuffTrigger",
+          "value": 1,
+          "literal": "01",
+          "implicit": false,
+          "sourceLine": 10
+        },
+        {
+          "name": "ControlZone",
+          "value": 2,
+          "literal": "02",
+          "implicit": false,
+          "sourceLine": 11
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoCareerId",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoAttributeDefines.fbs",
+      "sourceLine": 14,
+      "values": [
+        {
+          "name": "None",
+          "value": 0,
+          "literal": "0000",
+          "implicit": false,
+          "sourceLine": 15
+        },
+        {
+          "name": "Hero",
+          "value": 1001,
+          "literal": "1001",
+          "implicit": false,
+          "sourceLine": 16
+        },
+        {
+          "name": "Engineer",
+          "value": 1002,
+          "literal": "1002",
+          "implicit": false,
+          "sourceLine": 17
+        },
+        {
+          "name": "Infantry",
+          "value": 1003,
+          "literal": "1003",
+          "implicit": false,
+          "sourceLine": 18
+        },
+        {
+          "name": "Sentry",
+          "value": 1004,
+          "literal": "1004",
+          "implicit": false,
+          "sourceLine": 19
+        },
+        {
+          "name": "Aerial",
+          "value": 1005,
+          "literal": "1005",
+          "implicit": false,
+          "sourceLine": 20
+        },
+        {
+          "name": "Radar",
+          "value": 1006,
+          "literal": "1006",
+          "implicit": false,
+          "sourceLine": 21
+        },
+        {
+          "name": "Dart",
+          "value": 1007,
+          "literal": "1007",
+          "implicit": false,
+          "sourceLine": 22
+        },
+        {
+          "name": "Building",
+          "value": 2000,
+          "literal": "2000",
+          "implicit": false,
+          "sourceLine": 24
+        },
+        {
+          "name": "Base",
+          "value": 2001,
+          "literal": "2001",
+          "implicit": false,
+          "sourceLine": 25
+        },
+        {
+          "name": "Outpost",
+          "value": 2002,
+          "literal": "2002",
+          "implicit": false,
+          "sourceLine": 26
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoPurchaseID",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoAttributeDefines.fbs",
+      "sourceLine": 29,
+      "values": [
+        {
+          "name": "None",
+          "value": 0,
+          "literal": "000000",
+          "implicit": false,
+          "sourceLine": 30
+        },
+        {
+          "name": "Ammo17mm",
+          "value": 100001,
+          "literal": "100001",
+          "implicit": false,
+          "sourceLine": 31
+        },
+        {
+          "name": "Ammo42mm",
+          "value": 100002,
+          "literal": "100002",
+          "implicit": false,
+          "sourceLine": 32
+        },
+        {
+          "name": "RemoteAmmo17mm",
+          "value": 100003,
+          "literal": "100003",
+          "implicit": false,
+          "sourceLine": 33
+        },
+        {
+          "name": "RemoteAmmo42mm",
+          "value": 100004,
+          "literal": "100004",
+          "implicit": false,
+          "sourceLine": 34
+        },
+        {
+          "name": "RemoteHP",
+          "value": 100005,
+          "literal": "100005",
+          "implicit": false,
+          "sourceLine": 35
+        },
+        {
+          "name": "PurchaseRevival",
+          "value": 100006,
+          "literal": "100006",
+          "implicit": false,
+          "sourceLine": 36
+        },
+        {
+          "name": "AerialSupportTime",
+          "value": 100007,
+          "literal": "100007",
+          "implicit": false,
+          "sourceLine": 37
+        },
+        {
+          "name": "CS_BUY_AMMO_REFILL",
+          "value": 100101,
+          "literal": "100101",
+          "implicit": false,
+          "sourceLine": 40,
+          "description": "CS Bomb Defuse (workshop demo, map_id 0x80000001)"
+        },
+        {
+          "name": "CS_BUY_HP_TIER1",
+          "value": 100102,
+          "literal": "100102",
+          "implicit": false,
+          "sourceLine": 41
+        },
+        {
+          "name": "CS_BUY_HP_TIER2",
+          "value": 100103,
+          "literal": "100103",
+          "implicit": false,
+          "sourceLine": 42
+        },
+        {
+          "name": "CS_BUY_AMMO_CAP_TIER1",
+          "value": 100104,
+          "literal": "100104",
+          "implicit": false,
+          "sourceLine": 43
+        },
+        {
+          "name": "CS_BUY_AMMO_CAP_TIER2",
+          "value": 100105,
+          "literal": "100105",
+          "implicit": false,
+          "sourceLine": 44
+        },
+        {
+          "name": "CS_BUY_SPEED_TIER1",
+          "value": 100106,
+          "literal": "100106",
+          "implicit": false,
+          "sourceLine": 45
+        },
+        {
+          "name": "CS_BUY_SPEED_TIER2",
+          "value": 100107,
+          "literal": "100107",
+          "implicit": false,
+          "sourceLine": 46
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoAttributeId",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoAttributeDefines.fbs",
+      "sourceLine": 50,
+      "description": "定义属性ID，uint32类型",
+      "values": [
+        {
+          "name": "PlayerID_0",
+          "value": 0,
+          "literal": "00000000",
+          "implicit": false,
+          "sourceLine": 52,
+          "description": "玩家属性，以0开头"
+        },
+        {
+          "name": "PlayerID_MAX",
+          "value": 100000,
+          "literal": "00100000",
+          "implicit": false,
+          "sourceLine": 53
+        },
+        {
+          "name": "PlayerBattleAttributeMapID",
+          "value": 1000001,
+          "literal": "01000001",
+          "implicit": false,
+          "sourceLine": 55
+        },
+        {
+          "name": "PlayerBaseAttributeMapID",
+          "value": 1000002,
+          "literal": "01000002",
+          "implicit": false,
+          "sourceLine": 56
+        },
+        {
+          "name": "ValueAttributeID_Min",
+          "value": 10000000,
+          "literal": "10000000",
+          "implicit": false,
+          "sourceLine": 59,
+          "description": "值属性，以1开头"
+        },
+        {
+          "name": "EntityId",
+          "value": 10000001,
+          "literal": "10000001",
+          "implicit": false,
+          "sourceLine": 60
+        },
+        {
+          "name": "Experience",
+          "value": 10000002,
+          "literal": "10000002",
+          "implicit": false,
+          "sourceLine": 61
+        },
+        {
+          "name": "Health",
+          "value": 10000003,
+          "literal": "10000003",
+          "implicit": false,
+          "sourceLine": 62
+        },
+        {
+          "name": "BufferEnergy",
+          "value": 10000004,
+          "literal": "10000004",
+          "implicit": false,
+          "sourceLine": 63
+        },
+        {
+          "name": "CapacityEnergy",
+          "value": 10000005,
+          "literal": "10000005",
+          "implicit": false,
+          "sourceLine": 64
+        },
+        {
+          "name": "ChassisEnergy",
+          "value": 10000006,
+          "literal": "10000006",
+          "implicit": false,
+          "sourceLine": 65
+        },
+        {
+          "name": "ChassisPower",
+          "value": 10000007,
+          "literal": "10000007",
+          "implicit": false,
+          "sourceLine": 66
+        },
+        {
+          "name": "ChassisRealPower",
+          "value": 10000008,
+          "literal": "10000008",
+          "implicit": false,
+          "sourceLine": 67
+        },
+        {
+          "name": "ReviveCount",
+          "value": 10000009,
+          "literal": "10000009",
+          "implicit": false,
+          "sourceLine": 68
+        },
+        {
+          "name": "PurchaseReviveCount",
+          "value": 10000010,
+          "literal": "10000010",
+          "implicit": false,
+          "sourceLine": 69
+        },
+        {
+          "name": "FiringHeat1",
+          "value": 10000011,
+          "literal": "10000011",
+          "implicit": false,
+          "sourceLine": 70
+        },
+        {
+          "name": "FiringHeat2",
+          "value": 10000012,
+          "literal": "10000012",
+          "implicit": false,
+          "sourceLine": 71
+        },
+        {
+          "name": "Shield",
+          "value": 10000013,
+          "literal": "10000013",
+          "implicit": false,
+          "sourceLine": 72
+        },
+        {
+          "name": "ChargingPower",
+          "value": 10000014,
+          "literal": "10000014",
+          "implicit": false,
+          "sourceLine": 73
+        },
+        {
+          "name": "FiringHeatCoolingRate1",
+          "value": 10000017,
+          "literal": "10000017",
+          "implicit": false,
+          "sourceLine": 75
+        },
+        {
+          "name": "FiringHeatCoolingRate2",
+          "value": 10000018,
+          "literal": "10000018",
+          "implicit": false,
+          "sourceLine": 76
+        },
+        {
+          "name": "IsForceSpin",
+          "value": 10000019,
+          "literal": "10000019",
+          "implicit": false,
+          "sourceLine": 77
+        },
+        {
+          "name": "ForcedSpinSpeed",
+          "value": 10000020,
+          "literal": "10000020",
+          "implicit": false,
+          "sourceLine": 78
+        },
+        {
+          "name": "WirelessChargingPower",
+          "value": 10000021,
+          "literal": "10000021",
+          "implicit": false,
+          "sourceLine": 79
+        },
+        {
+          "name": "ReviveProgress",
+          "value": 10000022,
+          "literal": "10000022",
+          "implicit": false,
+          "sourceLine": 80
+        },
+        {
+          "name": "ReviveSpeed",
+          "value": 10000023,
+          "literal": "10000023",
+          "implicit": false,
+          "sourceLine": 81
+        },
+        {
+          "name": "SpawnIndex",
+          "value": 10000024,
+          "literal": "10000024",
+          "implicit": false,
+          "sourceLine": 82
+        },
+        {
+          "name": "ChassisMode",
+          "value": 10000025,
+          "literal": "10000025",
+          "implicit": false,
+          "sourceLine": 84
+        },
+        {
+          "name": "ShooterMode",
+          "value": 10000026,
+          "literal": "10000026",
+          "implicit": false,
+          "sourceLine": 85
+        },
+        {
+          "name": "HeroCombatMode",
+          "value": 10000027,
+          "literal": "10000027",
+          "implicit": false,
+          "sourceLine": 86
+        },
+        {
+          "name": "ShooterSpreadPara",
+          "value": 10000028,
+          "literal": "10000028",
+          "implicit": false,
+          "sourceLine": 88
+        },
+        {
+          "name": "ShooterSpeedSpreadPara",
+          "value": 10000029,
+          "literal": "10000029",
+          "implicit": false,
+          "sourceLine": 89
+        },
+        {
+          "name": "ShooterRealSpeed",
+          "value": 10000030,
+          "literal": "10000030",
+          "implicit": false,
+          "sourceLine": 90
+        },
+        {
+          "name": "Real17mmAmmoCount",
+          "value": 10000031,
+          "literal": "10000031",
+          "implicit": false,
+          "sourceLine": 92
+        },
+        {
+          "name": "Real42mmAmmoCount",
+          "value": 10000032,
+          "literal": "10000032",
+          "implicit": false,
+          "sourceLine": 93
+        },
+        {
+          "name": "Ammo17mmCount",
+          "value": 10000033,
+          "literal": "10000033",
+          "implicit": false,
+          "sourceLine": 95
+        },
+        {
+          "name": "Ammo42mmCount",
+          "value": 10000034,
+          "literal": "10000034",
+          "implicit": false,
+          "sourceLine": 96
+        },
+        {
+          "name": "PlayerID",
+          "value": 10000035,
+          "literal": "10000035",
+          "implicit": false,
+          "sourceLine": 98
+        },
+        {
+          "name": "POVRotationPitch",
+          "value": 10000038,
+          "literal": "10000038",
+          "implicit": false,
+          "sourceLine": 100
+        },
+        {
+          "name": "POVRotationYaw",
+          "value": 10000039,
+          "literal": "10000039",
+          "implicit": false,
+          "sourceLine": 101
+        },
+        {
+          "name": "POVTargetArmLength",
+          "value": 10000040,
+          "literal": "10000040",
+          "implicit": false,
+          "sourceLine": 102
+        },
+        {
+          "name": "TeamID",
+          "value": 10000036,
+          "literal": "10000036",
+          "implicit": false,
+          "sourceLine": 103
+        },
+        {
+          "name": "TeamNumber",
+          "value": 10000037,
+          "literal": "10000037",
+          "implicit": false,
+          "sourceLine": 104
+        },
+        {
+          "name": "SentryMode",
+          "value": 10000044,
+          "literal": "10000044",
+          "implicit": false,
+          "sourceLine": 107,
+          "description": "RMUC2026 哨兵姿态系统属性"
+        },
+        {
+          "name": "SentryModeLastTime_Move",
+          "value": 10000045,
+          "literal": "10000045",
+          "implicit": false,
+          "sourceLine": 108
+        },
+        {
+          "name": "SentryModeLastTime_Defense",
+          "value": 10000046,
+          "literal": "10000046",
+          "implicit": false,
+          "sourceLine": 109
+        },
+        {
+          "name": "SentryModeLastTime_Attack",
+          "value": 10000047,
+          "literal": "10000047",
+          "implicit": false,
+          "sourceLine": 110
+        },
+        {
+          "name": "SentryModeCooldownRemaining",
+          "value": 10000048,
+          "literal": "10000048",
+          "implicit": false,
+          "sourceLine": 111
+        },
+        {
+          "name": "GunMaxEnclosing",
+          "value": 10000049,
+          "literal": "10000049",
+          "implicit": false,
+          "sourceLine": 114,
+          "description": "枪口散布配置参数"
+        },
+        {
+          "name": "GunMinEnclosing",
+          "value": 10000050,
+          "literal": "10000050",
+          "implicit": false,
+          "sourceLine": 115
+        },
+        {
+          "name": "GunEnclosingRatio",
+          "value": 10000051,
+          "literal": "10000051",
+          "implicit": false,
+          "sourceLine": 116
+        },
+        {
+          "name": "GunTargetDistance",
+          "value": 10000052,
+          "literal": "10000052",
+          "implicit": false,
+          "sourceLine": 117
+        },
+        {
+          "name": "OutOfCombatCountdown",
+          "value": 10000053,
+          "literal": "10000053",
+          "implicit": false,
+          "sourceLine": 120,
+          "description": "脱战系统参数"
+        },
+        {
+          "name": "FiringMode",
+          "value": 10000054,
+          "literal": "10000054",
+          "implicit": false,
+          "sourceLine": 123,
+          "description": "发射模式 0:单发 1:三连发 2:持续连发 3:无保险连发"
+        },
+        {
+          "name": "RemoteAmmoPendingCount",
+          "value": 10000055,
+          "literal": "10000055",
+          "implicit": false,
+          "sourceLine": 125,
+          "description": "远程补给待到达状态"
+        },
+        {
+          "name": "RemoteAmmoCountdownMs",
+          "value": 10000056,
+          "literal": "10000056",
+          "implicit": false,
+          "sourceLine": 126
+        },
+        {
+          "name": "RemoteRepairPendingCount",
+          "value": 10000057,
+          "literal": "10000057",
+          "implicit": false,
+          "sourceLine": 127
+        },
+        {
+          "name": "RemoteRepairCountdownMs",
+          "value": 10000058,
+          "literal": "10000058",
+          "implicit": false,
+          "sourceLine": 128
+        },
+        {
+          "name": "AutoAimLocked",
+          "value": 10000059,
+          "literal": "10000059",
+          "implicit": false,
+          "sourceLine": 129
+        },
+        {
+          "name": "ConnectionUpdateFlag",
+          "value": 10000060,
+          "literal": "10000060",
+          "implicit": false,
+          "sourceLine": 131
+        },
+        {
+          "name": "ConnectionLanAddress",
+          "value": 10000061,
+          "literal": "10000061",
+          "implicit": false,
+          "sourceLine": 132
+        },
+        {
+          "name": "ConnectionPlatformAccountID",
+          "value": 10000062,
+          "literal": "10000062",
+          "implicit": false,
+          "sourceLine": 133
+        },
+        {
+          "name": "ConnectionRTT",
+          "value": 10000063,
+          "literal": "10000063",
+          "implicit": false,
+          "sourceLine": 134
+        },
+        {
+          "name": "ConnectionEntityConfigId",
+          "value": 10000064,
+          "literal": "10000064",
+          "implicit": false,
+          "sourceLine": 135
+        },
+        {
+          "name": "ConsecutiveLaserHitCount",
+          "value": 10000065,
+          "literal": "10000065",
+          "implicit": false,
+          "sourceLine": 138,
+          "description": "激光反制相关（对应 RMUC2026 规则 5.6.3 空中机器人被瞄准进度 P）"
+        },
+        {
+          "name": "AerialLockCount",
+          "value": 10000066,
+          "literal": "10000066",
+          "implicit": false,
+          "sourceLine": 139
+        },
+        {
+          "name": "RealDartAmmoCount",
+          "value": 10000067,
+          "literal": "10000067",
+          "implicit": false,
+          "sourceLine": 141
+        },
+        {
+          "name": "RealLaserAmmoCount",
+          "value": 10000068,
+          "literal": "10000068",
+          "implicit": false,
+          "sourceLine": 142
+        },
+        {
+          "name": "AmmoDartCount",
+          "value": 10000069,
+          "literal": "10000069",
+          "implicit": false,
+          "sourceLine": 143
+        },
+        {
+          "name": "AmmoLaserCount",
+          "value": 10000070,
+          "literal": "10000070",
+          "implicit": false,
+          "sourceLine": 144
+        },
+        {
+          "name": "DartControlTarget",
+          "value": 10000071,
+          "literal": "10000071",
+          "implicit": false,
+          "sourceLine": 145
+        },
+        {
+          "name": "DartBaseTargetMode",
+          "value": 10000072,
+          "literal": "10000072",
+          "implicit": false,
+          "sourceLine": 146
+        },
+        {
+          "name": "DartGateReady",
+          "value": 10000073,
+          "literal": "10000073",
+          "implicit": false,
+          "sourceLine": 147
+        },
+        {
+          "name": "DartRemainingShots",
+          "value": 10000074,
+          "literal": "10000074",
+          "implicit": false,
+          "sourceLine": 148
+        },
+        {
+          "name": "DartKeyNEnabled",
+          "value": 10000075,
+          "literal": "10000075",
+          "implicit": false,
+          "sourceLine": 149
+        },
+        {
+          "name": "DartKeyMEnabled",
+          "value": 10000076,
+          "literal": "10000076",
+          "implicit": false,
+          "sourceLine": 150
+        },
+        {
+          "name": "DartKeyJEnabled",
+          "value": 10000077,
+          "literal": "10000077",
+          "implicit": false,
+          "sourceLine": 151
+        },
+        {
+          "name": "DartAimYaw",
+          "value": 10000078,
+          "literal": "10000078",
+          "implicit": false,
+          "sourceLine": 152
+        },
+        {
+          "name": "DartAimPitch",
+          "value": 10000079,
+          "literal": "10000079",
+          "implicit": false,
+          "sourceLine": 153
+        },
+        {
+          "name": "EngineerCarriedTechCoreCount",
+          "value": 10000080,
+          "literal": "10000080",
+          "implicit": false,
+          "sourceLine": 154
+        },
+        {
+          "name": "DartGateCountdownMs",
+          "value": 10000081,
+          "literal": "10000081",
+          "implicit": false,
+          "sourceLine": 155
+        },
+        {
+          "name": "DartGateCountdownDurationMs",
+          "value": 10000082,
+          "literal": "10000082",
+          "implicit": false,
+          "sourceLine": 156
+        },
+        {
+          "name": "DartInterferenceEffectTrigger",
+          "value": 10000083,
+          "literal": "10000083",
+          "implicit": false,
+          "sourceLine": 157
+        },
+        {
+          "name": "EngineerInitialCoinBonusIndex",
+          "value": 10000084,
+          "literal": "10000084",
+          "implicit": false,
+          "sourceLine": 158
+        },
+        {
+          "name": "EngineerInitialCoinBonus",
+          "value": 10000085,
+          "literal": "10000085",
+          "implicit": false,
+          "sourceLine": 159
+        },
+        {
+          "name": "RadarMarkProgress",
+          "value": 10000086,
+          "literal": "10000086",
+          "implicit": false,
+          "sourceLine": 160
+        },
+        {
+          "name": "RadarMarkDelta",
+          "value": 10000087,
+          "literal": "10000087",
+          "implicit": false,
+          "sourceLine": 161
+        },
+        {
+          "name": "RadarMarkLastStatus",
+          "value": 10000088,
+          "literal": "10000088",
+          "implicit": false,
+          "sourceLine": 162
+        },
+        {
+          "name": "RadarMarkLevel",
+          "value": 10000089,
+          "literal": "10000089",
+          "implicit": false,
+          "sourceLine": 163
+        },
+        {
+          "name": "RadarDoubleVulnerabilityCharges",
+          "value": 10000090,
+          "literal": "10000090",
+          "implicit": false,
+          "sourceLine": 164
+        },
+        {
+          "name": "RadarDoubleVulnerabilityChargeProgressMs",
+          "value": 10000091,
+          "literal": "10000091",
+          "implicit": false,
+          "sourceLine": 165
+        },
+        {
+          "name": "RadarDoubleVulnerabilityChargeProgressMaxMs",
+          "value": 10000092,
+          "literal": "10000092",
+          "implicit": false,
+          "sourceLine": 166
+        },
+        {
+          "name": "DartAimArmorPlateId",
+          "value": 10000096,
+          "literal": "10000096",
+          "implicit": false,
+          "sourceLine": 167
+        },
+        {
+          "name": "AerialFreeSupportTimeMs",
+          "value": 10000097,
+          "literal": "10000097",
+          "implicit": false,
+          "sourceLine": 168
+        },
+        {
+          "name": "RadarDoubleVulnerabilityRemainingMs",
+          "value": 10000093,
+          "literal": "10000093",
+          "implicit": false,
+          "sourceLine": 169
+        },
+        {
+          "name": "RadarDoubleVulnerabilityUsedCount",
+          "value": 10000094,
+          "literal": "10000094",
+          "implicit": false,
+          "sourceLine": 170
+        },
+        {
+          "name": "RadarDetectionMode",
+          "value": 10000095,
+          "literal": "10000095",
+          "implicit": false,
+          "sourceLine": 171
+        },
+        {
+          "name": "RMUC2026_Tech_L1",
+          "value": 10000098,
+          "literal": "10000098",
+          "implicit": false,
+          "sourceLine": 172
+        },
+        {
+          "name": "RMUC2026_Tech_L2",
+          "value": 10000099,
+          "literal": "10000099",
+          "implicit": false,
+          "sourceLine": 173
+        },
+        {
+          "name": "RMUC2026_Tech_L3",
+          "value": 10000100,
+          "literal": "10000100",
+          "implicit": false,
+          "sourceLine": 174
+        },
+        {
+          "name": "RMUC2026_Tech_L4",
+          "value": 10000101,
+          "literal": "10000101",
+          "implicit": false,
+          "sourceLine": 175
+        },
+        {
+          "name": "BoostControlMode",
+          "value": 10000102,
+          "literal": "10000102",
+          "implicit": false,
+          "sourceLine": 176
+        },
+        {
+          "name": "SentryModeEnhancedRemaining_Move",
+          "value": 10000103,
+          "literal": "10000103",
+          "implicit": false,
+          "sourceLine": 177
+        },
+        {
+          "name": "IsAIControlled",
+          "value": 50000088,
+          "literal": "50000088",
+          "implicit": false,
+          "sourceLine": 178
+        },
+        {
+          "name": "AIMoveMode",
+          "value": 50000089,
+          "literal": "50000089",
+          "implicit": false,
+          "sourceLine": 179
+        },
+        {
+          "name": "AITargetMode",
+          "value": 50000090,
+          "literal": "50000090",
+          "implicit": false,
+          "sourceLine": 180
+        },
+        {
+          "name": "AIFireRateMilliHz",
+          "value": 50000091,
+          "literal": "50000091",
+          "implicit": false,
+          "sourceLine": 181
+        },
+        {
+          "name": "AIFireMaxErrorMilliDeg",
+          "value": 50000092,
+          "literal": "50000092",
+          "implicit": false,
+          "sourceLine": 182
+        },
+        {
+          "name": "IsInRuneZone",
+          "value": 50000093,
+          "literal": "50000093",
+          "implicit": false,
+          "sourceLine": 183
+        },
+        {
+          "name": "AIRequestJump",
+          "value": 50000094,
+          "literal": "50000094",
+          "implicit": false,
+          "sourceLine": 184
+        },
+        {
+          "name": "AIRequestSpecialAction1",
+          "value": 50000095,
+          "literal": "50000095",
+          "implicit": false,
+          "sourceLine": 185
+        },
+        {
+          "name": "AIRequestSpecialAction2",
+          "value": 50000096,
+          "literal": "50000096",
+          "implicit": false,
+          "sourceLine": 186
+        },
+        {
+          "name": "AIMoveTargetMarkerId",
+          "value": 50000097,
+          "literal": "50000097",
+          "implicit": false,
+          "sourceLine": 191,
+          "description": "Generic AI move target: a map marker id (ABTMarker.Id) the Coach sets so the GotoMarker AIMoveMode (mode 60) resolves the marker's live world position and navigates to it. <=0 = no target (mode disables path). Lets new locations be pure data + coach logic without a per-location C++ move mode."
+        },
+        {
+          "name": "SentryModeEnhancedRemaining_Defense",
+          "value": 10000104,
+          "literal": "10000104",
+          "implicit": false,
+          "sourceLine": 192
+        },
+        {
+          "name": "SentryModeEnhancedRemaining_Attack",
+          "value": 10000105,
+          "literal": "10000105",
+          "implicit": false,
+          "sourceLine": 193
+        },
+        {
+          "name": "HeroDeploymentModeCooldownRemainingMs",
+          "value": 10000106,
+          "literal": "10000106",
+          "implicit": false,
+          "sourceLine": 194
+        },
+        {
+          "name": "WorldPosX",
+          "value": 10000107,
+          "literal": "10000107",
+          "implicit": false,
+          "sourceLine": 205,
+          "description": "Issue #40 monitor telemetry: per-robot world pose, pushed at 10Hz by URobotEchoBridgeProxy::PushTelemetryToTS via PushAttributeToTypescript and read back through attribute.watchAttributeMaps (same channel as the HUD). Values are RAW native UE units with NO fixed-point scaling (attribute values are double end-to-end on the wire): WorldPosX/Y/Z : world location in UE centimeters (cm). ChassisYaw : chassis yaw in degrees, world frame, wrapped to [-180,180]. TurretYaw/Pitch: gun-muzzle (GunSocket) world rotation in degrees, world-absolute; monitor derives turret-relative-to-chassis."
+        },
+        {
+          "name": "WorldPosY",
+          "value": 10000108,
+          "literal": "10000108",
+          "implicit": false,
+          "sourceLine": 206
+        },
+        {
+          "name": "WorldPosZ",
+          "value": 10000109,
+          "literal": "10000109",
+          "implicit": false,
+          "sourceLine": 207
+        },
+        {
+          "name": "ChassisYaw",
+          "value": 10000110,
+          "literal": "10000110",
+          "implicit": false,
+          "sourceLine": 208
+        },
+        {
+          "name": "TurretYaw",
+          "value": 10000111,
+          "literal": "10000111",
+          "implicit": false,
+          "sourceLine": 209
+        },
+        {
+          "name": "TurretPitch",
+          "value": 10000112,
+          "literal": "10000112",
+          "implicit": false,
+          "sourceLine": 210
+        },
+        {
+          "name": "NavCapability",
+          "value": 10000113,
+          "literal": "10000113",
+          "implicit": false,
+          "sourceLine": 217,
+          "description": "Per-chassis navigation capability bitmask. Set by the TS spawn layer (which knows the entity type) and read C++-side (EchoBridge -> pawn -> AutoPath) to pick the nav query filter / link actions. Bits: 0x1 = tunnel (low clearance), 0x2 = climb (stairs), 0x4 = flyramp. Independent bits, so one chassis can hold any combination (e.g. tunnel+climb = 0x3)."
+        },
+        {
+          "name": "NavRoutePolicy",
+          "value": 10000114,
+          "literal": "10000114",
+          "implicit": false,
+          "sourceLine": 222,
+          "description": "Dynamic navigation route policy bitmask. Unlike NavCapability, this is strategy intent for the current match/tick, not chassis hardware ability. Bits: 0x1 = avoid red-side tunnel, 0x2 = avoid blue-side tunnel."
+        },
+        {
+          "name": "TagAttributeID_Min",
+          "value": 50000000,
+          "literal": "50000000",
+          "implicit": false,
+          "sourceLine": 225,
+          "description": "标签,以5开头"
+        },
+        {
+          "name": "OutOfCombat",
+          "value": 50000001,
+          "literal": "50000001",
+          "implicit": false,
+          "sourceLine": 226
+        },
+        {
+          "name": "Weakened",
+          "value": 50000002,
+          "literal": "50000002",
+          "implicit": false,
+          "sourceLine": 227
+        },
+        {
+          "name": "Overheated",
+          "value": 50000003,
+          "literal": "50000003",
+          "implicit": false,
+          "sourceLine": 228
+        },
+        {
+          "name": "Blocked",
+          "value": 50000004,
+          "literal": "50000004",
+          "implicit": false,
+          "sourceLine": 229
+        },
+        {
+          "name": "Reviving",
+          "value": 50000005,
+          "literal": "50000005",
+          "implicit": false,
+          "sourceLine": 230
+        },
+        {
+          "name": "FiringLocked",
+          "value": 50000006,
+          "literal": "50000006",
+          "implicit": false,
+          "sourceLine": 231
+        },
+        {
+          "name": "Defeated",
+          "value": 50000007,
+          "literal": "50000007",
+          "implicit": false,
+          "sourceLine": 232
+        },
+        {
+          "name": "PermanentFiringLocked",
+          "value": 50000008,
+          "literal": "50000008",
+          "implicit": false,
+          "sourceLine": 233
+        },
+        {
+          "name": "LowPower",
+          "value": 50000009,
+          "literal": "50000009",
+          "implicit": false,
+          "sourceLine": 234
+        },
+        {
+          "name": "CanSupply",
+          "value": 50000010,
+          "literal": "50000010",
+          "implicit": false,
+          "sourceLine": 235
+        },
+        {
+          "name": "CanRevive",
+          "value": 50000011,
+          "literal": "50000011",
+          "implicit": false,
+          "sourceLine": 236
+        },
+        {
+          "name": "CanOccupy",
+          "value": 50000012,
+          "literal": "50000012",
+          "implicit": false,
+          "sourceLine": 237
+        },
+        {
+          "name": "Invincible",
+          "value": 50000013,
+          "literal": "50000013",
+          "implicit": false,
+          "sourceLine": 238
+        },
+        {
+          "name": "IsChassisOnline",
+          "value": 50000014,
+          "literal": "50000014",
+          "implicit": false,
+          "sourceLine": 239
+        },
+        {
+          "name": "HasGun",
+          "value": 50000016,
+          "literal": "50000016",
+          "implicit": false,
+          "sourceLine": 240
+        },
+        {
+          "name": "IsInSupplyArea",
+          "value": 50000017,
+          "literal": "50000017",
+          "implicit": false,
+          "sourceLine": 241
+        },
+        {
+          "name": "IsPrepared",
+          "value": 50000018,
+          "literal": "50000018",
+          "implicit": false,
+          "sourceLine": 242
+        },
+        {
+          "name": "IsMatchStarted",
+          "value": 50000019,
+          "literal": "50000019",
+          "implicit": false,
+          "sourceLine": 243
+        },
+        {
+          "name": "RFIDDisabled",
+          "value": 50000020,
+          "literal": "50000020",
+          "implicit": false,
+          "sourceLine": 244
+        },
+        {
+          "name": "CanOperate",
+          "value": 50000021,
+          "literal": "50000021",
+          "implicit": false,
+          "sourceLine": 245
+        },
+        {
+          "name": "IsBoost",
+          "value": 50000022,
+          "literal": "50000022",
+          "implicit": false,
+          "sourceLine": 246
+        },
+        {
+          "name": "IsCharging",
+          "value": 50000023,
+          "literal": "50000023",
+          "implicit": false,
+          "sourceLine": 248
+        },
+        {
+          "name": "IsInBaseGainPoint",
+          "value": 50000024,
+          "literal": "50000024",
+          "implicit": false,
+          "sourceLine": 249
+        },
+        {
+          "name": "IsInRampGainPoint",
+          "value": 50000025,
+          "literal": "50000025",
+          "implicit": false,
+          "sourceLine": 250
+        },
+        {
+          "name": "TerrainCrossingStage1_Road",
+          "value": 50000026,
+          "literal": "50000026",
+          "implicit": false,
+          "sourceLine": 251
+        },
+        {
+          "name": "TerrainCrossingStage1_Ramp_Reverse",
+          "value": 50000027,
+          "literal": "50000027",
+          "implicit": false,
+          "sourceLine": 252
+        },
+        {
+          "name": "HasTerrainCrossing_Road",
+          "value": 50000028,
+          "literal": "50000028",
+          "implicit": false,
+          "sourceLine": 253
+        },
+        {
+          "name": "HasTerrainCrossing_Road_Buff",
+          "value": 50000029,
+          "literal": "50000029",
+          "implicit": false,
+          "sourceLine": 254
+        },
+        {
+          "name": "TerrainCrossingStage1_Highland",
+          "value": 50000030,
+          "literal": "50000030",
+          "implicit": false,
+          "sourceLine": 255
+        },
+        {
+          "name": "HasTerrainCrossing_Highland",
+          "value": 50000031,
+          "literal": "50000031",
+          "implicit": false,
+          "sourceLine": 256
+        },
+        {
+          "name": "HasTerrainCrossing_Highland_Buff",
+          "value": 50000032,
+          "literal": "50000032",
+          "implicit": false,
+          "sourceLine": 257
+        },
+        {
+          "name": "TerrainCrossingStage1_Ramp",
+          "value": 50000033,
+          "literal": "50000033",
+          "implicit": false,
+          "sourceLine": 258
+        },
+        {
+          "name": "HasTerrainCrossing_Ramp",
+          "value": 50000034,
+          "literal": "50000034",
+          "implicit": false,
+          "sourceLine": 259
+        },
+        {
+          "name": "HasTerrainCrossing_Ramp_Buff",
+          "value": 50000035,
+          "literal": "50000035",
+          "implicit": false,
+          "sourceLine": 260
+        },
+        {
+          "name": "HasTerrainCrossingDefenseBuff",
+          "value": 50000036,
+          "literal": "50000036",
+          "implicit": false,
+          "sourceLine": 261
+        },
+        {
+          "name": "HasTerrainCrossingRefreshBuff",
+          "value": 50000037,
+          "literal": "50000037",
+          "implicit": false,
+          "sourceLine": 262
+        },
+        {
+          "name": "IsInHighlandGainPoint",
+          "value": 50000038,
+          "literal": "50000038",
+          "implicit": false,
+          "sourceLine": 263
+        },
+        {
+          "name": "IsInOutpostGainPoint",
+          "value": 50000039,
+          "literal": "50000039",
+          "implicit": false,
+          "sourceLine": 264
+        },
+        {
+          "name": "IsInFortressGainPoint",
+          "value": 50000040,
+          "literal": "50000040",
+          "implicit": false,
+          "sourceLine": 265
+        },
+        {
+          "name": "IsInFortressOccupyPoint",
+          "value": 50000041,
+          "literal": "50000041",
+          "implicit": false,
+          "sourceLine": 266
+        },
+        {
+          "name": "IsInDeploymentArea",
+          "value": 50000042,
+          "literal": "50000042",
+          "implicit": false,
+          "sourceLine": 267
+        },
+        {
+          "name": "IsInDeploymentMode",
+          "value": 50000043,
+          "literal": "50000043",
+          "implicit": false,
+          "sourceLine": 268
+        },
+        {
+          "name": "IsDeploymentModeChanging",
+          "value": 50000044,
+          "literal": "50000044",
+          "implicit": false,
+          "sourceLine": 269
+        },
+        {
+          "name": "CanEnhancedSupply",
+          "value": 50000045,
+          "literal": "50000045",
+          "implicit": false,
+          "sourceLine": 270
+        },
+        {
+          "name": "HasTeamDefenseBuff",
+          "value": 50000046,
+          "literal": "50000046",
+          "implicit": false,
+          "sourceLine": 271
+        },
+        {
+          "name": "HasFortressAmmo",
+          "value": 50000047,
+          "literal": "50000047",
+          "implicit": false,
+          "sourceLine": 272
+        },
+        {
+          "name": "TerrainCrossingStage1_Tunnel",
+          "value": 50000048,
+          "literal": "50000048",
+          "implicit": false,
+          "sourceLine": 273
+        },
+        {
+          "name": "TerrainCrossingStage2_Tunnel",
+          "value": 50000049,
+          "literal": "50000049",
+          "implicit": false,
+          "sourceLine": 274
+        },
+        {
+          "name": "HasTerrainCrossing_Tunnel",
+          "value": 50000050,
+          "literal": "50000050",
+          "implicit": false,
+          "sourceLine": 275
+        },
+        {
+          "name": "HasTerrainCrossing_Tunnel_Buff",
+          "value": 50000051,
+          "literal": "50000051",
+          "implicit": false,
+          "sourceLine": 276
+        },
+        {
+          "name": "HasTerrainCrossing_Tunnel_ColdBuff",
+          "value": 50000052,
+          "literal": "50000052",
+          "implicit": false,
+          "sourceLine": 277
+        },
+        {
+          "name": "CanPurchaseRevive",
+          "value": 50000053,
+          "literal": "50000053",
+          "implicit": false,
+          "sourceLine": 278
+        },
+        {
+          "name": "IsInAssemblyArea",
+          "value": 50000054,
+          "literal": "50000054",
+          "implicit": false,
+          "sourceLine": 279
+        },
+        {
+          "name": "HasEngineerEarlyDefenseBuff",
+          "value": 50000055,
+          "literal": "50000055",
+          "implicit": false,
+          "sourceLine": 280
+        },
+        {
+          "name": "EngineerAssemblyInvincibleRemainingMs",
+          "value": 50000056,
+          "literal": "50000056",
+          "implicit": false,
+          "sourceLine": 281
+        },
+        {
+          "name": "EngineerEarlyDefenseRemainingMs",
+          "value": 50000057,
+          "literal": "50000057",
+          "implicit": false,
+          "sourceLine": 282
+        },
+        {
+          "name": "EngineerSelectedAssemblyLevel",
+          "value": 50000058,
+          "literal": "50000058",
+          "implicit": false,
+          "sourceLine": 283
+        },
+        {
+          "name": "HasSmallRuneBuff",
+          "value": 50000059,
+          "literal": "50000059",
+          "implicit": false,
+          "sourceLine": 284
+        },
+        {
+          "name": "EngineerTeamEnergyUnitStock",
+          "value": 50000060,
+          "literal": "50000060",
+          "implicit": false,
+          "sourceLine": 285
+        },
+        {
+          "name": "EngineerSupplyTaskState",
+          "value": 50000061,
+          "literal": "50000061",
+          "implicit": false,
+          "sourceLine": 286
+        },
+        {
+          "name": "EngineerSupplyTaskCountdownMs",
+          "value": 50000062,
+          "literal": "50000062",
+          "implicit": false,
+          "sourceLine": 287
+        },
+        {
+          "name": "EngineerSupplyTaskDurationMs",
+          "value": 50000063,
+          "literal": "50000063",
+          "implicit": false,
+          "sourceLine": 288
+        },
+        {
+          "name": "EngineerAssemblyTaskState",
+          "value": 50000064,
+          "literal": "50000064",
+          "implicit": false,
+          "sourceLine": 289
+        },
+        {
+          "name": "EngineerAssemblyTaskCountdownMs",
+          "value": 50000065,
+          "literal": "50000065",
+          "implicit": false,
+          "sourceLine": 290
+        },
+        {
+          "name": "EngineerAssemblyTaskDurationMs",
+          "value": 50000066,
+          "literal": "50000066",
+          "implicit": false,
+          "sourceLine": 291
+        },
+        {
+          "name": "EngineerAssemblyCooldownCountdownMs",
+          "value": 50000067,
+          "literal": "50000067",
+          "implicit": false,
+          "sourceLine": 292
+        },
+        {
+          "name": "EngineerAssemblyMaxCompletedLevel",
+          "value": 50000068,
+          "literal": "50000068",
+          "implicit": false,
+          "sourceLine": 293
+        },
+        {
+          "name": "DartBlocked2s",
+          "value": 50000069,
+          "literal": "50000069",
+          "implicit": false,
+          "sourceLine": 294
+        },
+        {
+          "name": "DartBlocked3s",
+          "value": 50000070,
+          "literal": "50000070",
+          "implicit": false,
+          "sourceLine": 295
+        },
+        {
+          "name": "DartBlocked5s",
+          "value": 50000071,
+          "literal": "50000071",
+          "implicit": false,
+          "sourceLine": 296
+        },
+        {
+          "name": "DartBlocked10s",
+          "value": 50000072,
+          "literal": "50000072",
+          "implicit": false,
+          "sourceLine": 297
+        },
+        {
+          "name": "RadarMarkAccurateTag",
+          "value": 50000073,
+          "literal": "50000073",
+          "implicit": false,
+          "sourceLine": 298
+        },
+        {
+          "name": "RadarDoubleVulnerabilityActive",
+          "value": 50000074,
+          "literal": "50000074",
+          "implicit": false,
+          "sourceLine": 299
+        },
+        {
+          "name": "RadarHasVulnerableTarget",
+          "value": 50000075,
+          "literal": "50000075",
+          "implicit": false,
+          "sourceLine": 300
+        },
+        {
+          "name": "SentryModeFatigued_Move",
+          "value": 50000076,
+          "literal": "50000076",
+          "implicit": false,
+          "sourceLine": 303,
+          "description": "哨兵姿态疲劳标记（低频 0/1，由 SentryModeFatiguedTagBuff 在累计时间 >=180000ms 时一次性置 1，效果 buff 据此切换 normal/weakened，避免直接监听 100ms 计时属性）"
+        },
+        {
+          "name": "SentryModeFatigued_Defense",
+          "value": 50000077,
+          "literal": "50000077",
+          "implicit": false,
+          "sourceLine": 304
+        },
+        {
+          "name": "SentryModeFatigued_Attack",
+          "value": 50000078,
+          "literal": "50000078",
+          "implicit": false,
+          "sourceLine": 305
+        },
+        {
+          "name": "EngineerEarlyDefenseActive",
+          "value": 50000079,
+          "literal": "50000079",
+          "implicit": false,
+          "sourceLine": 307,
+          "description": "工程倒计时阶段标记（低频 0/1，业务侧在开启倒计时时置 1，归零 ExpireBuff 置 0；效果 buff 据此切换，避免直接监听 100ms 计时属性）"
+        },
+        {
+          "name": "EngineerAssemblyInvincibleActive",
+          "value": 50000080,
+          "literal": "50000080",
+          "implicit": false,
+          "sourceLine": 308
+        },
+        {
+          "name": "AerialIsSupporting",
+          "value": 50000081,
+          "literal": "50000081",
+          "implicit": false,
+          "sourceLine": 309
+        },
+        {
+          "name": "BigRuneBuffArmCount",
+          "value": 50000082,
+          "literal": "50000082",
+          "implicit": false,
+          "sourceLine": 310
+        },
+        {
+          "name": "BigRuneBuffLightCount",
+          "value": 50000083,
+          "literal": "50000083",
+          "implicit": false,
+          "sourceLine": 311
+        },
+        {
+          "name": "DartCounterBuffSuspended",
+          "value": 50000084,
+          "literal": "50000084",
+          "implicit": false,
+          "sourceLine": 312
+        },
+        {
+          "name": "DartDetectionWindowClosed",
+          "value": 50000085,
+          "literal": "50000085",
+          "implicit": false,
+          "sourceLine": 313
+        },
+        {
+          "name": "IsBoostOverdraftAllowed",
+          "value": 50000086,
+          "literal": "50000086",
+          "implicit": false,
+          "sourceLine": 314
+        },
+        {
+          "name": "SentryModeEnhanced",
+          "value": 50000087,
+          "literal": "50000087",
+          "implicit": false,
+          "sourceLine": 315
+        },
+        {
+          "name": "IsActorHidden",
+          "value": 51000001,
+          "literal": "51000001",
+          "implicit": false,
+          "sourceLine": 318,
+          "description": "常用功能性标签，以51开头"
+        },
+        {
+          "name": "BindActorInstanceId",
+          "value": 51000002,
+          "literal": "51000002",
+          "implicit": false,
+          "sourceLine": 319
+        },
+        {
+          "name": "HP_Flash",
+          "value": 51000003,
+          "literal": "51000003",
+          "implicit": false,
+          "sourceLine": 320
+        },
+        {
+          "name": "HP_MainColorSwitch",
+          "value": 51000004,
+          "literal": "51000004",
+          "implicit": false,
+          "sourceLine": 321
+        },
+        {
+          "name": "HP_SideColorSwitch",
+          "value": 51000005,
+          "literal": "51000005",
+          "implicit": false,
+          "sourceLine": 322
+        },
+        {
+          "name": "HP_MainColorIntensity",
+          "value": 51000006,
+          "literal": "51000006",
+          "implicit": false,
+          "sourceLine": 323
+        },
+        {
+          "name": "HP_SideColorIntensity",
+          "value": 51000007,
+          "literal": "51000007",
+          "implicit": false,
+          "sourceLine": 324
+        },
+        {
+          "name": "HP_Progress",
+          "value": 51000008,
+          "literal": "51000008",
+          "implicit": false,
+          "sourceLine": 325
+        },
+        {
+          "name": "StateAttributeID_Min",
+          "value": 60000000,
+          "literal": "60000000",
+          "implicit": false,
+          "sourceLine": 329,
+          "description": "状态属性,以6开头 基本属性"
+        },
+        {
+          "name": "Class",
+          "value": 60000002,
+          "literal": "60000002",
+          "implicit": false,
+          "sourceLine": 330
+        },
+        {
+          "name": "Level",
+          "value": 60000003,
+          "literal": "60000003",
+          "implicit": false,
+          "sourceLine": 331
+        },
+        {
+          "name": "HealthMax",
+          "value": 60000004,
+          "literal": "60000004",
+          "implicit": false,
+          "sourceLine": 334,
+          "description": "上限属性"
+        },
+        {
+          "name": "BufferEnergyMax",
+          "value": 60000005,
+          "literal": "60000005",
+          "implicit": false,
+          "sourceLine": 335
+        },
+        {
+          "name": "CapacityEnergyMax",
+          "value": 60000006,
+          "literal": "60000006",
+          "implicit": false,
+          "sourceLine": 336
+        },
+        {
+          "name": "ChassisEnergyMax",
+          "value": 60000007,
+          "literal": "60000007",
+          "implicit": false,
+          "sourceLine": 337
+        },
+        {
+          "name": "ChassisPowerMax",
+          "value": 60000008,
+          "literal": "60000008",
+          "implicit": false,
+          "sourceLine": 338
+        },
+        {
+          "name": "ChassisOperatePower",
+          "value": 60000009,
+          "literal": "60000009",
+          "implicit": false,
+          "sourceLine": 339
+        },
+        {
+          "name": "AmmoCountMax",
+          "value": 60000010,
+          "literal": "60000010",
+          "implicit": false,
+          "sourceLine": 340
+        },
+        {
+          "name": "FiringHeatMax1",
+          "value": 60000011,
+          "literal": "60000011",
+          "implicit": false,
+          "sourceLine": 341
+        },
+        {
+          "name": "FiringHeatExceedMax1",
+          "value": 60000012,
+          "literal": "60000012",
+          "implicit": false,
+          "sourceLine": 342
+        },
+        {
+          "name": "FiringHeatMax2",
+          "value": 60000013,
+          "literal": "60000013",
+          "implicit": false,
+          "sourceLine": 343
+        },
+        {
+          "name": "FiringHeatExceedMax2",
+          "value": 60000014,
+          "literal": "60000014",
+          "implicit": false,
+          "sourceLine": 344
+        },
+        {
+          "name": "AirSupportTimeMax",
+          "value": 60000015,
+          "literal": "60000015",
+          "implicit": false,
+          "sourceLine": 345
+        },
+        {
+          "name": "WirelessChargingPowerMax",
+          "value": 60000016,
+          "literal": "60000016",
+          "implicit": false,
+          "sourceLine": 346
+        },
+        {
+          "name": "ReviveProgressMax",
+          "value": 60000017,
+          "literal": "60000017",
+          "implicit": false,
+          "sourceLine": 347
+        },
+        {
+          "name": "LevelMax",
+          "value": 60000018,
+          "literal": "60000018",
+          "implicit": false,
+          "sourceLine": 348
+        },
+        {
+          "name": "ExperienceMax",
+          "value": 60000019,
+          "literal": "60000019",
+          "implicit": false,
+          "sourceLine": 349
+        },
+        {
+          "name": "NextLevelExpMax",
+          "value": 60000020,
+          "literal": "60000020",
+          "implicit": false,
+          "sourceLine": 350
+        },
+        {
+          "name": "CapacityEnergyPowerMax",
+          "value": 60000021,
+          "literal": "60000021",
+          "implicit": false,
+          "sourceLine": 351
+        },
+        {
+          "name": "CapacityEnergyChargePowerMax",
+          "value": 60000022,
+          "literal": "60000022",
+          "implicit": false,
+          "sourceLine": 352
+        },
+        {
+          "name": "AttackMultiplierThou",
+          "value": 61000000,
+          "literal": "61000000",
+          "implicit": false,
+          "sourceLine": 356,
+          "description": "战斗属性"
+        },
+        {
+          "name": "DefenseMultiplierThou",
+          "value": 61000001,
+          "literal": "61000001",
+          "implicit": false,
+          "sourceLine": 357
+        },
+        {
+          "name": "DamageMultiplierThou",
+          "value": 61000002,
+          "literal": "61000002",
+          "implicit": false,
+          "sourceLine": 358
+        },
+        {
+          "name": "RecoverMultiplierThou",
+          "value": 61000003,
+          "literal": "61000003",
+          "implicit": false,
+          "sourceLine": 359
+        },
+        {
+          "name": "ColdMultiplierThou",
+          "value": 61000004,
+          "literal": "61000004",
+          "implicit": false,
+          "sourceLine": 360
+        },
+        {
+          "name": "PowerMultiplierThou",
+          "value": 61000005,
+          "literal": "61000005",
+          "implicit": false,
+          "sourceLine": 361
+        },
+        {
+          "name": "FortressCoolingValue",
+          "value": 61000006,
+          "literal": "61000006",
+          "implicit": false,
+          "sourceLine": 362
+        },
+        {
+          "name": "SentryDefenseMultiplierThou",
+          "value": 61000007,
+          "literal": "61000007",
+          "implicit": false,
+          "sourceLine": 366,
+          "description": "哨兵姿态专属战斗属性（按规则手册 §5.6.4 分层组合） 增益类：与同类通用增益取max（防御、易伤、冷却增益）"
+        },
+        {
+          "name": "SentryDamageMultiplierThou",
+          "value": 61000008,
+          "literal": "61000008",
+          "implicit": false,
+          "sourceLine": 367
+        },
+        {
+          "name": "SentryColdMultiplierThou",
+          "value": 61000011,
+          "literal": "61000011",
+          "implicit": false,
+          "sourceLine": 368
+        },
+        {
+          "name": "TerrainCrossingColdMultiplierThou",
+          "value": 61000012,
+          "literal": "61000012",
+          "implicit": false,
+          "sourceLine": 369
+        },
+        {
+          "name": "RadarDamageMultiplierThou",
+          "value": 61000013,
+          "literal": "61000013",
+          "implicit": false,
+          "sourceLine": 370
+        },
+        {
+          "name": "SentryColdCoefficientThou",
+          "value": 61000009,
+          "literal": "61000009",
+          "implicit": false,
+          "sourceLine": 372,
+          "description": "后置系数类：在基础值计算完成后乘算（冷却衰减、功率变化）"
+        },
+        {
+          "name": "SentryPowerCoefficientThou",
+          "value": 61000010,
+          "literal": "61000010",
+          "implicit": false,
+          "sourceLine": 373
+        },
+        {
+          "name": "BulletType",
+          "value": 62000000,
+          "literal": "62000000",
+          "implicit": false,
+          "sourceLine": 376,
+          "description": "子弹属性"
+        },
+        {
+          "name": "BulletSpeed",
+          "value": 62000001,
+          "literal": "62000001",
+          "implicit": false,
+          "sourceLine": 377
+        },
+        {
+          "name": "BulletSize",
+          "value": 62000004,
+          "literal": "62000004",
+          "implicit": false,
+          "sourceLine": 378
+        },
+        {
+          "name": "BulletOwnerActorID",
+          "value": 62000005,
+          "literal": "62000005",
+          "implicit": false,
+          "sourceLine": 379
+        },
+        {
+          "name": "BulletInitPacked32",
+          "value": 62000006,
+          "literal": "62000006",
+          "implicit": false,
+          "sourceLine": 380
+        },
+        {
+          "name": "ProjectileCountPerShot",
+          "value": 62000007,
+          "literal": "62000007",
+          "implicit": false,
+          "sourceLine": 381
+        },
+        {
+          "name": "DamageAppliedTotal",
+          "value": 63000000,
+          "literal": "63000000",
+          "implicit": false,
+          "sourceLine": 385,
+          "description": "统计属性"
+        },
+        {
+          "name": "DamageTakenTotal",
+          "value": 63000001,
+          "literal": "63000001",
+          "implicit": false,
+          "sourceLine": 386
+        },
+        {
+          "name": "BulletFiredTotal",
+          "value": 63000002,
+          "literal": "63000002",
+          "implicit": false,
+          "sourceLine": 387
+        },
+        {
+          "name": "BulletHitTotal",
+          "value": 63000003,
+          "literal": "63000003",
+          "implicit": false,
+          "sourceLine": 393,
+          "description": "Per-vehicle cumulative combat stats, collected in BASE systems (rule-year-agnostic): ArmourCollisionSystem increments BulletHitTotal on the attacker per armor hit; DamageSystem increments KillCount (attacker) + DeathCount (victim) on a lethal blow. Live on the combat map -> persist across revives = per-match cumulative. Hit rate = BulletHitTotal / BulletFiredTotal."
+        },
+        {
+          "name": "KillCount",
+          "value": 63000004,
+          "literal": "63000004",
+          "implicit": false,
+          "sourceLine": 394
+        },
+        {
+          "name": "DeathCount",
+          "value": 63000005,
+          "literal": "63000005",
+          "implicit": false,
+          "sourceLine": 395
+        },
+        {
+          "name": "BS_State",
+          "value": 70000001,
+          "literal": "70000001",
+          "implicit": false,
+          "sourceLine": 399,
+          "description": "场景交互，以7开头 能量站传入数据"
+        },
+        {
+          "name": "BS_IsSuccess",
+          "value": 70000002,
+          "literal": "70000002",
+          "implicit": false,
+          "sourceLine": 400
+        },
+        {
+          "name": "BS_CurOmega",
+          "value": 70000003,
+          "literal": "70000003",
+          "implicit": false,
+          "sourceLine": 401
+        },
+        {
+          "name": "BS_CurRoll",
+          "value": 70000004,
+          "literal": "70000004",
+          "implicit": false,
+          "sourceLine": 402
+        },
+        {
+          "name": "BS_SetTargetIndex",
+          "value": 70000005,
+          "literal": "70000005",
+          "implicit": false,
+          "sourceLine": 403
+        },
+        {
+          "name": "BS_SetTargetRingNum",
+          "value": 70000006,
+          "literal": "70000006",
+          "implicit": false,
+          "sourceLine": 404
+        },
+        {
+          "name": "BS_SetTargetState",
+          "value": 70000007,
+          "literal": "70000007",
+          "implicit": false,
+          "sourceLine": 405
+        },
+        {
+          "name": "BS_Target_0",
+          "value": 70000008,
+          "literal": "70000008",
+          "implicit": false,
+          "sourceLine": 406
+        },
+        {
+          "name": "BS_Target_1",
+          "value": 70000009,
+          "literal": "70000009",
+          "implicit": false,
+          "sourceLine": 407
+        },
+        {
+          "name": "BS_Target_2",
+          "value": 70000010,
+          "literal": "70000010",
+          "implicit": false,
+          "sourceLine": 408
+        },
+        {
+          "name": "BS_Target_3",
+          "value": 70000011,
+          "literal": "70000011",
+          "implicit": false,
+          "sourceLine": 409
+        },
+        {
+          "name": "BS_Target_4",
+          "value": 70000012,
+          "literal": "70000012",
+          "implicit": false,
+          "sourceLine": 410
+        },
+        {
+          "name": "BS_CurA",
+          "value": 70000013,
+          "literal": "70000013",
+          "implicit": false,
+          "sourceLine": 411
+        },
+        {
+          "name": "BS_CurW",
+          "value": 70000014,
+          "literal": "70000014",
+          "implicit": false,
+          "sourceLine": 412
+        },
+        {
+          "name": "BS_CurB",
+          "value": 70000015,
+          "literal": "70000015",
+          "implicit": false,
+          "sourceLine": 413
+        },
+        {
+          "name": "BS_PhaseMode",
+          "value": 70000016,
+          "literal": "70000016",
+          "implicit": false,
+          "sourceLine": 414
+        },
+        {
+          "name": "BS_RemainingChances",
+          "value": 70000017,
+          "literal": "70000017",
+          "implicit": false,
+          "sourceLine": 415
+        },
+        {
+          "name": "BS_NextActivatableInMs",
+          "value": 70000018,
+          "literal": "70000018",
+          "implicit": false,
+          "sourceLine": 416
+        },
+        {
+          "name": "BS_NextActivatableTotalMs",
+          "value": 70000019,
+          "literal": "70000019",
+          "implicit": false,
+          "sourceLine": 417
+        },
+        {
+          "name": "TP_CheckInterval",
+          "value": 71000001,
+          "literal": "71000001",
+          "implicit": false,
+          "sourceLine": 420,
+          "description": "交换站配置"
+        },
+        {
+          "name": "TP_CheckMinTime",
+          "value": 71000002,
+          "literal": "71000002",
+          "implicit": false,
+          "sourceLine": 421
+        },
+        {
+          "name": "TP_CheckMaxTime",
+          "value": 71000003,
+          "literal": "71000003",
+          "implicit": false,
+          "sourceLine": 422
+        },
+        {
+          "name": "TP_SuccessChance",
+          "value": 71000004,
+          "literal": "71000004",
+          "implicit": false,
+          "sourceLine": 423
+        },
+        {
+          "name": "TP_DetectorExtent_X",
+          "value": 71000005,
+          "literal": "71000005",
+          "implicit": false,
+          "sourceLine": 424
+        },
+        {
+          "name": "TP_DetectorExtent_Y",
+          "value": 71000006,
+          "literal": "71000006",
+          "implicit": false,
+          "sourceLine": 425
+        },
+        {
+          "name": "TP_DetectorExtent_Z",
+          "value": 71000007,
+          "literal": "71000007",
+          "implicit": false,
+          "sourceLine": 426
+        },
+        {
+          "name": "OP_AngularSpeed",
+          "value": 72000001,
+          "literal": "72000001",
+          "implicit": false,
+          "sourceLine": 429,
+          "description": "前哨站配置"
+        },
+        {
+          "name": "OP_RotationStopRequested",
+          "value": 72000002,
+          "literal": "72000002",
+          "implicit": false,
+          "sourceLine": 430
+        },
+        {
+          "name": "BC_State",
+          "value": 73000001,
+          "literal": "73000001",
+          "implicit": false,
+          "sourceLine": 433,
+          "description": "基地属性"
+        },
+        {
+          "name": "BC_DartDetectionMode",
+          "value": 73000002,
+          "literal": "73000002",
+          "implicit": false,
+          "sourceLine": 434
+        },
+        {
+          "name": "BC_DartModuleROM",
+          "value": 73000003,
+          "literal": "73000003",
+          "implicit": false,
+          "sourceLine": 435
+        },
+        {
+          "name": "BC_MoveInterval",
+          "value": 73000004,
+          "literal": "73000004",
+          "implicit": false,
+          "sourceLine": 436
+        },
+        {
+          "name": "BC_MoveTarget",
+          "value": 73000005,
+          "literal": "73000005",
+          "implicit": false,
+          "sourceLine": 437
+        },
+        {
+          "name": "TM_State",
+          "value": 74000001,
+          "literal": "74000001",
+          "implicit": false,
+          "sourceLine": 440,
+          "description": "團隊屬性"
+        },
+        {
+          "name": "TM_Color",
+          "value": 74000002,
+          "literal": "74000002",
+          "implicit": false,
+          "sourceLine": 441
+        },
+        {
+          "name": "TM_Coins",
+          "value": 74000003,
+          "literal": "74000003",
+          "implicit": false,
+          "sourceLine": 442
+        },
+        {
+          "name": "TM_LevelMax",
+          "value": 74000004,
+          "literal": "74000004",
+          "implicit": false,
+          "sourceLine": 443
+        },
+        {
+          "name": "TM_Ammo17mmMax",
+          "value": 74000005,
+          "literal": "74000005",
+          "implicit": false,
+          "sourceLine": 444
+        },
+        {
+          "name": "TM_Ammo42mmMax",
+          "value": 74000006,
+          "literal": "74000006",
+          "implicit": false,
+          "sourceLine": 445
+        },
+        {
+          "name": "TM_SupportCoins_70",
+          "value": 74000007,
+          "literal": "74000007",
+          "implicit": false,
+          "sourceLine": 448,
+          "description": "RMUL2026特有"
+        },
+        {
+          "name": "TM_SupportCoins_140",
+          "value": 74000008,
+          "literal": "74000008",
+          "implicit": false,
+          "sourceLine": 449
+        },
+        {
+          "name": "G_ControlZone_TeamID",
+          "value": 74000009,
+          "literal": "74000009",
+          "implicit": false,
+          "sourceLine": 450
+        },
+        {
+          "name": "G_ControlZone1_TeamID",
+          "value": 74000020,
+          "literal": "74000020",
+          "implicit": false,
+          "sourceLine": 451
+        },
+        {
+          "name": "G_ControlZone2_TeamID",
+          "value": 74000021,
+          "literal": "74000021",
+          "implicit": false,
+          "sourceLine": 452
+        },
+        {
+          "name": "TM_BaseDamageCount",
+          "value": 74000010,
+          "literal": "74000010",
+          "implicit": false,
+          "sourceLine": 455,
+          "description": "RMUC2026特有"
+        },
+        {
+          "name": "TM_OutPostRebuildCount",
+          "value": 74000011,
+          "literal": "74000011",
+          "implicit": false,
+          "sourceLine": 456
+        },
+        {
+          "name": "TM_SentrySupplyAmmo",
+          "value": 74000012,
+          "literal": "74000012",
+          "implicit": false,
+          "sourceLine": 457
+        },
+        {
+          "name": "TM_FortAmmo",
+          "value": 74000013,
+          "literal": "74000013",
+          "implicit": false,
+          "sourceLine": 458
+        },
+        {
+          "name": "G_BlueOutpostZone_TeamID",
+          "value": 74000014,
+          "literal": "74000014",
+          "implicit": false,
+          "sourceLine": 459
+        },
+        {
+          "name": "G_RedOutpostZone_TeamID",
+          "value": 74000015,
+          "literal": "74000015",
+          "implicit": false,
+          "sourceLine": 460
+        },
+        {
+          "name": "G_BlueBaseCountdown",
+          "value": 74000016,
+          "literal": "74000016",
+          "implicit": false,
+          "sourceLine": 461
+        },
+        {
+          "name": "G_RedBaseCountdown",
+          "value": 74000017,
+          "literal": "74000017",
+          "implicit": false,
+          "sourceLine": 462
+        },
+        {
+          "name": "G_BlueOutpostRepairProgress",
+          "value": 74000018,
+          "literal": "74000018",
+          "implicit": false,
+          "sourceLine": 463
+        },
+        {
+          "name": "G_RedOutpostRepairProgress",
+          "value": 74000019,
+          "literal": "74000019",
+          "implicit": false,
+          "sourceLine": 464
+        },
+        {
+          "name": "TM_FortAmmoCapMax",
+          "value": 74000022,
+          "literal": "74000022",
+          "implicit": false,
+          "sourceLine": 465
+        },
+        {
+          "name": "TM_DartOutpostHitCount",
+          "value": 74000023,
+          "literal": "74000023",
+          "implicit": false,
+          "sourceLine": 466
+        },
+        {
+          "name": "TM_DartBaseHitCount",
+          "value": 74000024,
+          "literal": "74000024",
+          "implicit": false,
+          "sourceLine": 467
+        },
+        {
+          "name": "TM_DartOutpostDamageTotal",
+          "value": 74000025,
+          "literal": "74000025",
+          "implicit": false,
+          "sourceLine": 468
+        },
+        {
+          "name": "TM_DartBaseDamageTotal",
+          "value": 74000026,
+          "literal": "74000026",
+          "implicit": false,
+          "sourceLine": 469
+        },
+        {
+          "name": "TM_DartSuppressedHitCount",
+          "value": 74000027,
+          "literal": "74000027",
+          "implicit": false,
+          "sourceLine": 470
+        },
+        {
+          "name": "TB_MarkerId",
+          "value": 75000001,
+          "literal": "75000001",
+          "implicit": false,
+          "sourceLine": 473,
+          "description": "区域控制器属性"
+        },
+        {
+          "name": "TB_BelongTeamID",
+          "value": 75000002,
+          "literal": "75000002",
+          "implicit": false,
+          "sourceLine": 474
+        },
+        {
+          "name": "TB_ControlSpeed",
+          "value": 75000003,
+          "literal": "75000003",
+          "implicit": false,
+          "sourceLine": 475
+        },
+        {
+          "name": "TB_ControlProgress",
+          "value": 75000004,
+          "literal": "75000004",
+          "implicit": false,
+          "sourceLine": 476
+        },
+        {
+          "name": "TB_ControlProgressMax",
+          "value": 75000005,
+          "literal": "75000005",
+          "implicit": false,
+          "sourceLine": 477
+        },
+        {
+          "name": "TB_ControlLostTime",
+          "value": 75000006,
+          "literal": "75000006",
+          "implicit": false,
+          "sourceLine": 478
+        },
+        {
+          "name": "TB_ControlLostDelay",
+          "value": 75000007,
+          "literal": "75000007",
+          "implicit": false,
+          "sourceLine": 479
+        },
+        {
+          "name": "G_MaxGameTime",
+          "value": 80000001,
+          "literal": "80000001",
+          "implicit": false,
+          "sourceLine": 482,
+          "description": "全局变量"
+        },
+        {
+          "name": "G_CurGameTime",
+          "value": 80000002,
+          "literal": "80000002",
+          "implicit": false,
+          "sourceLine": 483
+        },
+        {
+          "name": "G_CurMapId",
+          "value": 80000003,
+          "literal": "80000003",
+          "implicit": false,
+          "sourceLine": 485
+        },
+        {
+          "name": "G_CurMatchStatus",
+          "value": 80000005,
+          "literal": "80000005",
+          "implicit": false,
+          "sourceLine": 487
+        },
+        {
+          "name": "G_GameStartCountDown",
+          "value": 80000006,
+          "literal": "80000006",
+          "implicit": false,
+          "sourceLine": 488
+        },
+        {
+          "name": "G_BaseId_0",
+          "value": 80001000,
+          "literal": "80001000",
+          "implicit": false,
+          "sourceLine": 490
+        },
+        {
+          "name": "G_BaseId_MAX",
+          "value": 80001999,
+          "literal": "80001999",
+          "implicit": false,
+          "sourceLine": 491
+        },
+        {
+          "name": "G_OutpostId_0",
+          "value": 80002000,
+          "literal": "80002000",
+          "implicit": false,
+          "sourceLine": 493
+        },
+        {
+          "name": "G_OutpostId_MAX",
+          "value": 80002999,
+          "literal": "80002999",
+          "implicit": false,
+          "sourceLine": 494
+        },
+        {
+          "name": "CS_RoundPhase",
+          "value": 80003001,
+          "literal": "80003001",
+          "implicit": false,
+          "sourceLine": 497,
+          "description": "CS Bomb Defuse (workshop demo, map_id 0x80000001) global vars"
+        },
+        {
+          "name": "CS_RoundTimerMs",
+          "value": 80003002,
+          "literal": "80003002",
+          "implicit": false,
+          "sourceLine": 498
+        },
+        {
+          "name": "CS_RoundIndex",
+          "value": 80003003,
+          "literal": "80003003",
+          "implicit": false,
+          "sourceLine": 499
+        },
+        {
+          "name": "CS_DeployerEntityId",
+          "value": 80003004,
+          "literal": "80003004",
+          "implicit": false,
+          "sourceLine": 500
+        },
+        {
+          "name": "CS_DefuseProgress",
+          "value": 80003005,
+          "literal": "80003005",
+          "implicit": false,
+          "sourceLine": 501
+        },
+        {
+          "name": "CS_AttackerRoundsWon",
+          "value": 80003006,
+          "literal": "80003006",
+          "implicit": false,
+          "sourceLine": 502
+        },
+        {
+          "name": "CS_DefenderRoundsWon",
+          "value": 80003007,
+          "literal": "80003007",
+          "implicit": false,
+          "sourceLine": 503
+        },
+        {
+          "name": "G_BuffStationId_0",
+          "value": 80004000,
+          "literal": "80004000",
+          "implicit": false,
+          "sourceLine": 505
+        },
+        {
+          "name": "G_BuffStationId_MAX",
+          "value": 80004999,
+          "literal": "80004999",
+          "implicit": false,
+          "sourceLine": 506
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoEntityType",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoEntityDefine.fbs",
+      "sourceLine": 11,
+      "description": "entity类型",
+      "values": [
+        {
+          "name": "None",
+          "value": 0,
+          "literal": "0",
+          "implicit": false,
+          "sourceLine": 12
+        },
+        {
+          "name": "Buildings",
+          "value": 1,
+          "literal": "1",
+          "implicit": false,
+          "sourceLine": 13
+        },
+        {
+          "name": "Bullet",
+          "value": 2,
+          "literal": "2",
+          "implicit": false,
+          "sourceLine": 14
+        },
+        {
+          "name": "Vehicle",
+          "value": 3,
+          "literal": "3",
+          "implicit": false,
+          "sourceLine": 15
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoBuildingsType",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoEntityDefine.fbs",
+      "sourceLine": 21,
+      "description": "entity ID，一共7位，以6开头 建筑物类型，以61开头",
+      "values": [
+        {
+          "name": "None",
+          "value": 6100000,
+          "literal": "6100000",
+          "implicit": false,
+          "sourceLine": 22
+        },
+        {
+          "name": "DartSystem",
+          "value": 6100001,
+          "literal": "6100001",
+          "implicit": false,
+          "sourceLine": 23
+        },
+        {
+          "name": "RadarSystem",
+          "value": 6100002,
+          "literal": "6100002",
+          "implicit": false,
+          "sourceLine": 24
+        },
+        {
+          "name": "Outpost",
+          "value": 6100003,
+          "literal": "6100003",
+          "implicit": false,
+          "sourceLine": 25
+        },
+        {
+          "name": "MainBase",
+          "value": 6100004,
+          "literal": "6100004",
+          "implicit": false,
+          "sourceLine": 26
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoBulletType",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoEntityDefine.fbs",
+      "sourceLine": 30,
+      "description": "弹丸伤害类型，与 BulletType 属性值保持一致",
+      "values": [
+        {
+          "name": "Projectile42mm",
+          "value": 0,
+          "literal": "0",
+          "implicit": false,
+          "sourceLine": 31
+        },
+        {
+          "name": "Projectile17mm",
+          "value": 1,
+          "literal": "1",
+          "implicit": false,
+          "sourceLine": 32
+        },
+        {
+          "name": "Dart",
+          "value": 2,
+          "literal": "2",
+          "implicit": false,
+          "sourceLine": 33
+        },
+        {
+          "name": "Laser",
+          "value": 3,
+          "literal": "3",
+          "implicit": false,
+          "sourceLine": 34
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoVehicleType",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoEntityDefine.fbs",
+      "sourceLine": 38,
+      "description": "载具类型，以63开头",
+      "values": [
+        {
+          "name": "None",
+          "value": 6300000,
+          "literal": "6300000",
+          "implicit": false,
+          "sourceLine": 39
+        },
+        {
+          "name": "HeroRobot",
+          "value": 6300001,
+          "literal": "6300001",
+          "implicit": false,
+          "sourceLine": 40
+        },
+        {
+          "name": "InfantryRobot",
+          "value": 6300002,
+          "literal": "6300002",
+          "implicit": false,
+          "sourceLine": 41
+        },
+        {
+          "name": "SentryRobot",
+          "value": 6300003,
+          "literal": "6300003",
+          "implicit": false,
+          "sourceLine": 42
+        },
+        {
+          "name": "EngineerRobot",
+          "value": 6300004,
+          "literal": "6300004",
+          "implicit": false,
+          "sourceLine": 43
+        },
+        {
+          "name": "AerialRobot",
+          "value": 6300005,
+          "literal": "6300005",
+          "implicit": false,
+          "sourceLine": 44
+        },
+        {
+          "name": "RadarRobot",
+          "value": 6300006,
+          "literal": "6300006",
+          "implicit": false,
+          "sourceLine": 45
+        },
+        {
+          "name": "DartRobot",
+          "value": 6300007,
+          "literal": "6300007",
+          "implicit": false,
+          "sourceLine": 46
+        }
+      ]
+    },
+    {
+      "name": "EVehicleInputIndex",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "int",
+      "sourceFile": "RobotBridgeDemoInputDefine.fbs",
+      "sourceLine": 10,
+      "description": "VehicleInputData index enum (synced across C++ and TS via FlatBuffer codegen). When adding a new input action: add an entry here, then run generate-protol.ps1.",
+      "values": [
+        {
+          "name": "MoveX",
+          "value": 0,
+          "literal": "0",
+          "implicit": false,
+          "sourceLine": 11
+        },
+        {
+          "name": "MoveY",
+          "value": 1,
+          "literal": "1",
+          "implicit": false,
+          "sourceLine": 12
+        },
+        {
+          "name": "LookX",
+          "value": 2,
+          "literal": "2",
+          "implicit": false,
+          "sourceLine": 13
+        },
+        {
+          "name": "LookY",
+          "value": 3,
+          "literal": "3",
+          "implicit": false,
+          "sourceLine": 14
+        },
+        {
+          "name": "ViewModeToggle",
+          "value": 4,
+          "literal": "4",
+          "implicit": false,
+          "sourceLine": 15
+        },
+        {
+          "name": "Boost",
+          "value": 5,
+          "literal": "5",
+          "implicit": false,
+          "sourceLine": 16
+        },
+        {
+          "name": "SpinToggle",
+          "value": 6,
+          "literal": "6",
+          "implicit": false,
+          "sourceLine": 17
+        },
+        {
+          "name": "ReadyOrResetPosition",
+          "value": 7,
+          "literal": "7",
+          "implicit": false,
+          "sourceLine": 18
+        },
+        {
+          "name": "RespawnHero",
+          "value": 8,
+          "literal": "8",
+          "implicit": false,
+          "sourceLine": 19
+        },
+        {
+          "name": "RespawnInfantry",
+          "value": 9,
+          "literal": "9",
+          "implicit": false,
+          "sourceLine": 20
+        },
+        {
+          "name": "RespawnAsSentry",
+          "value": 10,
+          "literal": "10",
+          "implicit": false,
+          "sourceLine": 21
+        },
+        {
+          "name": "RespawnAsObserver",
+          "value": 11,
+          "literal": "11",
+          "implicit": false,
+          "sourceLine": 22
+        },
+        {
+          "name": "AltMode",
+          "value": 12,
+          "literal": "12",
+          "implicit": false,
+          "sourceLine": 23
+        },
+        {
+          "name": "Skill1",
+          "value": 13,
+          "literal": "13",
+          "implicit": false,
+          "sourceLine": 24
+        },
+        {
+          "name": "Skill2",
+          "value": 14,
+          "literal": "14",
+          "implicit": false,
+          "sourceLine": 25
+        },
+        {
+          "name": "RespawnDrone",
+          "value": 15,
+          "literal": "15",
+          "implicit": false,
+          "sourceLine": 26
+        },
+        {
+          "name": "Mode1",
+          "value": 16,
+          "literal": "16",
+          "implicit": false,
+          "sourceLine": 27
+        },
+        {
+          "name": "Mode2",
+          "value": 17,
+          "literal": "17",
+          "implicit": false,
+          "sourceLine": 28
+        },
+        {
+          "name": "Mode3",
+          "value": 18,
+          "literal": "18",
+          "implicit": false,
+          "sourceLine": 29
+        },
+        {
+          "name": "Handbrake",
+          "value": 19,
+          "literal": "19",
+          "implicit": false,
+          "sourceLine": 30
+        },
+        {
+          "name": "FireModeCycle",
+          "value": 20,
+          "literal": "20",
+          "implicit": false,
+          "sourceLine": 31
+        },
+        {
+          "name": "Skill3",
+          "value": 21,
+          "literal": "21",
+          "implicit": false,
+          "sourceLine": 32
+        },
+        {
+          "name": "RespawnSecondaryInfantry",
+          "value": 22,
+          "literal": "22",
+          "implicit": false,
+          "sourceLine": 33
+        },
+        {
+          "name": "PreferredHero",
+          "value": 23,
+          "literal": "23",
+          "implicit": false,
+          "sourceLine": 34
+        },
+        {
+          "name": "PreferredInfantry",
+          "value": 24,
+          "literal": "24",
+          "implicit": false,
+          "sourceLine": 35
+        },
+        {
+          "name": "PreferredSentry",
+          "value": 25,
+          "literal": "25",
+          "implicit": false,
+          "sourceLine": 36
+        },
+        {
+          "name": "AutoAim",
+          "value": 26,
+          "literal": "26",
+          "implicit": false,
+          "sourceLine": 37
+        },
+        {
+          "name": "MoveZ",
+          "value": 27,
+          "literal": "27",
+          "implicit": false,
+          "sourceLine": 38
+        },
+        {
+          "name": "PreferredAerial",
+          "value": 28,
+          "literal": "28",
+          "implicit": false,
+          "sourceLine": 39
+        },
+        {
+          "name": "RespawnEngineer",
+          "value": 29,
+          "literal": "29",
+          "implicit": false,
+          "sourceLine": 40
+        },
+        {
+          "name": "EnterRadar",
+          "value": 30,
+          "literal": "30",
+          "implicit": false,
+          "sourceLine": 41
+        },
+        {
+          "name": "EnterDart",
+          "value": 31,
+          "literal": "31",
+          "implicit": false,
+          "sourceLine": 42
+        },
+        {
+          "name": "Skill4",
+          "value": 32,
+          "literal": "32",
+          "implicit": false,
+          "sourceLine": 43
+        },
+        {
+          "name": "RespawnTertiaryInfantry",
+          "value": 33,
+          "literal": "33",
+          "implicit": false,
+          "sourceLine": 44
+        },
+        {
+          "name": "Jump",
+          "value": 34,
+          "literal": "34",
+          "implicit": false,
+          "sourceLine": 45
+        },
+        {
+          "name": "VID_MAX",
+          "value": 35,
+          "literal": "35",
+          "implicit": false,
+          "sourceLine": 46
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoMapType",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoMapDefine.fbs",
+      "sourceLine": 11,
+      "description": "entity类型",
+      "values": [
+        {
+          "name": "BlankLevel",
+          "value": 0,
+          "literal": "0",
+          "implicit": false,
+          "sourceLine": 12
+        },
+        {
+          "name": "GameStartLevel",
+          "value": 1,
+          "literal": "1",
+          "implicit": false,
+          "sourceLine": 13
+        },
+        {
+          "name": "L_Traning",
+          "value": 2,
+          "literal": "2",
+          "implicit": false,
+          "sourceLine": 14
+        },
+        {
+          "name": "L_Map2024",
+          "value": 3,
+          "literal": "3",
+          "implicit": false,
+          "sourceLine": 15
+        },
+        {
+          "name": "L_Map2026",
+          "value": 4,
+          "literal": "4",
+          "implicit": false,
+          "sourceLine": 16
+        },
+        {
+          "name": "L_MapRMUL2026",
+          "value": 5,
+          "literal": "5",
+          "implicit": false,
+          "sourceLine": 17
+        },
+        {
+          "name": "L_MapRMUL2026_IF",
+          "value": 6,
+          "literal": "6",
+          "implicit": false,
+          "sourceLine": 18
+        },
+        {
+          "name": "L_Map20261V1",
+          "value": 7,
+          "literal": "7",
+          "implicit": false,
+          "sourceLine": 19
+        },
+        {
+          "name": "L_Map2026_IF",
+          "value": 8,
+          "literal": "8",
+          "implicit": false,
+          "sourceLine": 20
+        },
+        {
+          "name": "EchoRobotBridgeDemoMapType_END",
+          "value": 9,
+          "literal": null,
+          "implicit": true,
+          "sourceLine": 21
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoBuildingsResourceId",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoResourceIdDefine.fbs",
+      "sourceLine": 13,
+      "description": "资源ID, 一共9位 建筑物资源ID",
+      "values": [
+        {
+          "name": "Start",
+          "value": 100000000,
+          "literal": "100000000",
+          "implicit": false,
+          "sourceLine": 14
+        },
+        {
+          "name": "BuffStation",
+          "value": 100000001,
+          "literal": "100000001",
+          "implicit": false,
+          "sourceLine": 15
+        },
+        {
+          "name": "TradePost",
+          "value": 100000002,
+          "literal": "100000002",
+          "implicit": false,
+          "sourceLine": 16
+        },
+        {
+          "name": "Outpost2026",
+          "value": 100000003,
+          "literal": "100000003",
+          "implicit": false,
+          "sourceLine": 17
+        },
+        {
+          "name": "BaseCore",
+          "value": 100000004,
+          "literal": "100000004",
+          "implicit": false,
+          "sourceLine": 18
+        },
+        {
+          "name": "EchoActor",
+          "value": 100000005,
+          "literal": "100000005",
+          "implicit": false,
+          "sourceLine": 19
+        },
+        {
+          "name": "GlobalVarsWatcher",
+          "value": 100000006,
+          "literal": "100000006",
+          "implicit": false,
+          "sourceLine": 20
+        },
+        {
+          "name": "EchoRobotBridgeDemoBuildingsResourceId_END",
+          "value": 100000007,
+          "literal": null,
+          "implicit": true,
+          "sourceLine": 21
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoBulletResourceId",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoResourceIdDefine.fbs",
+      "sourceLine": 25,
+      "description": "子弹资源ID",
+      "values": [
+        {
+          "name": "Start",
+          "value": 200000000,
+          "literal": "200000000",
+          "implicit": false,
+          "sourceLine": 26
+        },
+        {
+          "name": "BulletSmall",
+          "value": 200000001,
+          "literal": "200000001",
+          "implicit": false,
+          "sourceLine": 27
+        },
+        {
+          "name": "ProjectileSmall",
+          "value": 200000002,
+          "literal": "200000002",
+          "implicit": false,
+          "sourceLine": 28
+        },
+        {
+          "name": "ProjectileBig",
+          "value": 200000003,
+          "literal": "200000003",
+          "implicit": false,
+          "sourceLine": 29
+        },
+        {
+          "name": "ProjectileLaser",
+          "value": 200000004,
+          "literal": "200000004",
+          "implicit": false,
+          "sourceLine": 30
+        },
+        {
+          "name": "ProjectileDart",
+          "value": 200000005,
+          "literal": "200000005",
+          "implicit": false,
+          "sourceLine": 31
+        },
+        {
+          "name": "EchoRobotBridgeDemoBulletResourceId_END",
+          "value": 200000006,
+          "literal": null,
+          "implicit": true,
+          "sourceLine": 32
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoVehicleResourceId",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoResourceIdDefine.fbs",
+      "sourceLine": 36,
+      "description": "载具资源ID",
+      "values": [
+        {
+          "name": "Start",
+          "value": 300000000,
+          "literal": "300000000",
+          "implicit": false,
+          "sourceLine": 37
+        },
+        {
+          "name": "HeroRobot",
+          "value": 300000002,
+          "literal": "300000002",
+          "implicit": false,
+          "sourceLine": 38
+        },
+        {
+          "name": "InfantryRobot",
+          "value": 300000003,
+          "literal": "300000003",
+          "implicit": false,
+          "sourceLine": 39
+        },
+        {
+          "name": "LiftHeroRobot",
+          "value": 300000004,
+          "literal": "300000004",
+          "implicit": false,
+          "sourceLine": 40
+        },
+        {
+          "name": "Observer",
+          "value": 300000005,
+          "literal": "300000005",
+          "implicit": false,
+          "sourceLine": 41
+        },
+        {
+          "name": "SentryRobot",
+          "value": 300000006,
+          "literal": "300000006",
+          "implicit": false,
+          "sourceLine": 42
+        },
+        {
+          "name": "AssaultInfantryRobot",
+          "value": 300000007,
+          "literal": "300000007",
+          "implicit": false,
+          "sourceLine": 43
+        },
+        {
+          "name": "FourWheelInfantryRobot",
+          "value": 300000008,
+          "literal": "300000008",
+          "implicit": false,
+          "sourceLine": 44
+        },
+        {
+          "name": "EngineerRobot",
+          "value": 300000010,
+          "literal": "300000010",
+          "implicit": false,
+          "sourceLine": 45
+        },
+        {
+          "name": "RadarRobot",
+          "value": 300000011,
+          "literal": "300000011",
+          "implicit": false,
+          "sourceLine": 46
+        },
+        {
+          "name": "DartRobot",
+          "value": 300000012,
+          "literal": "300000012",
+          "implicit": false,
+          "sourceLine": 47
+        },
+        {
+          "name": "AssaultHeroRobot",
+          "value": 300000013,
+          "literal": "300000013",
+          "implicit": false,
+          "sourceLine": 48
+        },
+        {
+          "name": "EchoRobotBridgeDemoVehicleResourceId_END",
+          "value": 300000014,
+          "literal": "300000014",
+          "implicit": false,
+          "sourceLine": 49
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoComponentResourceId",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoResourceIdDefine.fbs",
+      "sourceLine": 53,
+      "description": "组件资源ID",
+      "values": [
+        {
+          "name": "Start",
+          "value": 400000000,
+          "literal": "400000000",
+          "implicit": false,
+          "sourceLine": 54
+        },
+        {
+          "name": "LargeArmour",
+          "value": 400000001,
+          "literal": "400000001",
+          "implicit": false,
+          "sourceLine": 56,
+          "description": "装甲组件"
+        },
+        {
+          "name": "BuffStationTargetComponent",
+          "value": 400000002,
+          "literal": "400000002",
+          "implicit": false,
+          "sourceLine": 57
+        },
+        {
+          "name": "CollisionProxy",
+          "value": 400000003,
+          "literal": "400000003",
+          "implicit": false,
+          "sourceLine": 58
+        },
+        {
+          "name": "SmallArmour",
+          "value": 400000004,
+          "literal": "400000004",
+          "implicit": false,
+          "sourceLine": 59
+        },
+        {
+          "name": "PowerCallback",
+          "value": 400000005,
+          "literal": "400000005",
+          "implicit": false,
+          "sourceLine": 60
+        },
+        {
+          "name": "BulletCallback",
+          "value": 400000006,
+          "literal": "400000006",
+          "implicit": false,
+          "sourceLine": 61
+        },
+        {
+          "name": "BuffTrigger",
+          "value": 400000007,
+          "literal": "400000007",
+          "implicit": false,
+          "sourceLine": 62
+        },
+        {
+          "name": "TriangleArmour",
+          "value": 400000008,
+          "literal": "400000008",
+          "implicit": false,
+          "sourceLine": 63
+        },
+        {
+          "name": "DroneLaserArmour",
+          "value": 400000009,
+          "literal": "400000009",
+          "implicit": false,
+          "sourceLine": 64
+        },
+        {
+          "name": "EchoRobotBridgeDemoComponentResourceId_END",
+          "value": 400000010,
+          "literal": null,
+          "implicit": true,
+          "sourceLine": 65
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoTransformId",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoTransformIdDefine.fbs",
+      "sourceLine": 10,
+      "description": "定义TransformId, 以97开头，并且一共7位",
+      "values": [
+        {
+          "name": "Start",
+          "value": 9700000,
+          "literal": "9700000",
+          "implicit": false,
+          "sourceLine": 11
+        },
+        {
+          "name": "RobotStartPositionFirst",
+          "value": 9700001,
+          "literal": "9700001",
+          "implicit": false,
+          "sourceLine": 12
+        },
+        {
+          "name": "RobotArmourPositionFirst",
+          "value": 9700002,
+          "literal": "9700002",
+          "implicit": false,
+          "sourceLine": 13
+        },
+        {
+          "name": "RobotBulletStartPosition",
+          "value": 9700003,
+          "literal": "9700003",
+          "implicit": false,
+          "sourceLine": 14
+        },
+        {
+          "name": "RobotBuffStationPosition",
+          "value": 9700004,
+          "literal": "9700004",
+          "implicit": false,
+          "sourceLine": 15
+        },
+        {
+          "name": "RobotBuffStationTargetPosition",
+          "value": 9700005,
+          "literal": "9700005",
+          "implicit": false,
+          "sourceLine": 16
+        },
+        {
+          "name": "NPCStartPositionFirst",
+          "value": 9700006,
+          "literal": "9700006",
+          "implicit": false,
+          "sourceLine": 17
+        },
+        {
+          "name": "BulletCollisionProxy",
+          "value": 9700007,
+          "literal": "9700007",
+          "implicit": false,
+          "sourceLine": 18
+        },
+        {
+          "name": "RobotBuffStationPositionTest",
+          "value": 9700008,
+          "literal": "9700008",
+          "implicit": false,
+          "sourceLine": 19
+        },
+        {
+          "name": "RobotStartPositionTest",
+          "value": 9700009,
+          "literal": "9700009",
+          "implicit": false,
+          "sourceLine": 20
+        },
+        {
+          "name": "NPCStartPositionTest",
+          "value": 9700010,
+          "literal": "9700010",
+          "implicit": false,
+          "sourceLine": 21
+        },
+        {
+          "name": "TradePostPositionTest",
+          "value": 9700011,
+          "literal": "9700011",
+          "implicit": false,
+          "sourceLine": 22
+        },
+        {
+          "name": "TradePostCollisionProxy",
+          "value": 9700012,
+          "literal": "9700012",
+          "implicit": false,
+          "sourceLine": 23
+        },
+        {
+          "name": "PlayerStart",
+          "value": 9700013,
+          "literal": "9700013",
+          "implicit": false,
+          "sourceLine": 24
+        },
+        {
+          "name": "Outpost2026_0",
+          "value": 9700014,
+          "literal": "9700014",
+          "implicit": false,
+          "sourceLine": 25
+        },
+        {
+          "name": "Outpost2026_1",
+          "value": 9700015,
+          "literal": "9700015",
+          "implicit": false,
+          "sourceLine": 26
+        },
+        {
+          "name": "BaseCore2026_0",
+          "value": 9700016,
+          "literal": "9700016",
+          "implicit": false,
+          "sourceLine": 27
+        },
+        {
+          "name": "BaseCore2026_1",
+          "value": 9700017,
+          "literal": "9700017",
+          "implicit": false,
+          "sourceLine": 28
+        },
+        {
+          "name": "BaseCoreTraining_0",
+          "value": 9700018,
+          "literal": "9700018",
+          "implicit": false,
+          "sourceLine": 29
+        },
+        {
+          "name": "BaseCoreTraining_1",
+          "value": 9700019,
+          "literal": "9700019",
+          "implicit": false,
+          "sourceLine": 30
+        },
+        {
+          "name": "OutpostTraining_0",
+          "value": 9700020,
+          "literal": "9700020",
+          "implicit": false,
+          "sourceLine": 31
+        },
+        {
+          "name": "OutpostTraining_1",
+          "value": 9700021,
+          "literal": "9700021",
+          "implicit": false,
+          "sourceLine": 32
+        },
+        {
+          "name": "BuffStationTraining_0",
+          "value": 9700022,
+          "literal": "9700022",
+          "implicit": false,
+          "sourceLine": 33
+        },
+        {
+          "name": "BaseCore2024_0",
+          "value": 9700023,
+          "literal": "9700023",
+          "implicit": false,
+          "sourceLine": 34
+        },
+        {
+          "name": "BaseCore2024_1",
+          "value": 9700024,
+          "literal": "9700024",
+          "implicit": false,
+          "sourceLine": 35
+        },
+        {
+          "name": "Outpost2024_0",
+          "value": 9700025,
+          "literal": "9700025",
+          "implicit": false,
+          "sourceLine": 36
+        },
+        {
+          "name": "Outpost2024_1",
+          "value": 9700026,
+          "literal": "9700026",
+          "implicit": false,
+          "sourceLine": 37
+        },
+        {
+          "name": "BuffStation2024_0",
+          "value": 9700027,
+          "literal": "9700027",
+          "implicit": false,
+          "sourceLine": 38
+        },
+        {
+          "name": "BuffStation2024_1",
+          "value": 9700028,
+          "literal": "9700028",
+          "implicit": false,
+          "sourceLine": 39
+        },
+        {
+          "name": "BaseCoreRMUL2026_0",
+          "value": 9700029,
+          "literal": "9700029",
+          "implicit": false,
+          "sourceLine": 40
+        },
+        {
+          "name": "BaseCoreRMUL2026_1",
+          "value": 9700030,
+          "literal": "9700030",
+          "implicit": false,
+          "sourceLine": 41
+        },
+        {
+          "name": "Radar2026_0",
+          "value": 9700031,
+          "literal": "9700031",
+          "implicit": false,
+          "sourceLine": 42
+        },
+        {
+          "name": "Radar2026_1",
+          "value": 9700032,
+          "literal": "9700032",
+          "implicit": false,
+          "sourceLine": 43
+        },
+        {
+          "name": "Dart2026_0",
+          "value": 9700033,
+          "literal": "9700033",
+          "implicit": false,
+          "sourceLine": 44
+        },
+        {
+          "name": "Dart2026_1",
+          "value": 9700034,
+          "literal": "9700034",
+          "implicit": false,
+          "sourceLine": 45
+        },
+        {
+          "name": "RobotEngineerArmourOffset",
+          "value": 9700035,
+          "literal": "9700035",
+          "implicit": false,
+          "sourceLine": 46
+        },
+        {
+          "name": "EchoRobotBridgeDemoTransformId_END",
+          "value": 9700036,
+          "literal": null,
+          "implicit": true,
+          "sourceLine": 47
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoTransformBaseId",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoTransformIdDefine.fbs",
+      "sourceLine": 51,
+      "description": "定义TransformBaseId, 以93开头，并且一共7位",
+      "values": [
+        {
+          "name": "Start",
+          "value": 9300000,
+          "literal": "9300000",
+          "implicit": false,
+          "sourceLine": 52
+        },
+        {
+          "name": "RobotStartPositionBaseFirst",
+          "value": 9300001,
+          "literal": "9300001",
+          "implicit": false,
+          "sourceLine": 53
+        },
+        {
+          "name": "RobotBuffStationTargetBase",
+          "value": 9300002,
+          "literal": "9300002",
+          "implicit": false,
+          "sourceLine": 54
+        },
+        {
+          "name": "RobotBulletStartPositionBase",
+          "value": 9300003,
+          "literal": "9300003",
+          "implicit": false,
+          "sourceLine": 55
+        },
+        {
+          "name": "RobotBulletCollisionProxyBase",
+          "value": 9300004,
+          "literal": "9300004",
+          "implicit": false,
+          "sourceLine": 56
+        },
+        {
+          "name": "RobotTradeStationCollisionProxyBase",
+          "value": 9300005,
+          "literal": "9300005",
+          "implicit": false,
+          "sourceLine": 57
+        },
+        {
+          "name": "EchoRobotBridgeDemoTransformBaseId_END",
+          "value": 9300006,
+          "literal": null,
+          "implicit": true,
+          "sourceLine": 58
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeDemoComponentTransformId",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoTransformIdDefine.fbs",
+      "sourceLine": 61,
+      "values": [
+        {
+          "name": "Start",
+          "value": 8700000,
+          "literal": "8700000",
+          "implicit": false,
+          "sourceLine": 62
+        },
+        {
+          "name": "TestComponentTransform",
+          "value": 8700001,
+          "literal": "8700001",
+          "implicit": false,
+          "sourceLine": 63
+        },
+        {
+          "name": "Armour0",
+          "value": 8700002,
+          "literal": "8700002",
+          "implicit": false,
+          "sourceLine": 64
+        },
+        {
+          "name": "Armour1",
+          "value": 8700003,
+          "literal": "8700003",
+          "implicit": false,
+          "sourceLine": 65
+        },
+        {
+          "name": "Armour2",
+          "value": 8700004,
+          "literal": "8700004",
+          "implicit": false,
+          "sourceLine": 66
+        },
+        {
+          "name": "Armour3",
+          "value": 8700005,
+          "literal": "8700005",
+          "implicit": false,
+          "sourceLine": 67
+        },
+        {
+          "name": "Armour4",
+          "value": 8700006,
+          "literal": "8700006",
+          "implicit": false,
+          "sourceLine": 68
+        },
+        {
+          "name": "Armour5",
+          "value": 8700007,
+          "literal": "8700007",
+          "implicit": false,
+          "sourceLine": 69
+        },
+        {
+          "name": "Armour6",
+          "value": 8700008,
+          "literal": "8700008",
+          "implicit": false,
+          "sourceLine": 70
+        },
+        {
+          "name": "Armour7",
+          "value": 8700009,
+          "literal": "8700009",
+          "implicit": false,
+          "sourceLine": 71
+        },
+        {
+          "name": "ERobotBridgeDemoComponentTransformId_END",
+          "value": 8700010,
+          "literal": null,
+          "implicit": true,
+          "sourceLine": 72
+        }
+      ]
+    },
+    {
+      "name": "ERobotBridgeUniversalEventType",
+      "namespace": "RobotBridgeDemo",
+      "underlyingType": "uint",
+      "sourceFile": "RobotBridgeDemoUniversalEventDefine.fbs",
+      "sourceLine": 13,
+      "description": "Project-level TS→C++ universal events. The numeric value of every entry MUST be strictly greater than Echo's EEchoUniversalEventType::GameProjectUniversalEvent (9900000); FEchoUniversalEventManager routes any incoming universal_event_type above that sentinel to FRobotBridgeUniversalEventManager via OnProjectUniversalEventDelegate.",
+      "values": [
+        {
+          "name": "SetPreferredVehicle",
+          "value": 9900001,
+          "literal": "9900001",
+          "implicit": false,
+          "sourceLine": 15,
+          "description": "Set local player preferred vehicle (TS→C++)"
+        },
+        {
+          "name": "RBStressPushInput",
+          "value": 9900002,
+          "literal": "9900002",
+          "implicit": false,
+          "sourceLine": 17,
+          "description": "RBStressTest dev/stress harness (TS→C++)"
+        },
+        {
+          "name": "RBStressSetFakeConnPreset",
+          "value": 9900003,
+          "literal": "9900003",
+          "implicit": false,
+          "sourceLine": 18
+        },
+        {
+          "name": "RBStressLogDiagnostic",
+          "value": 9900004,
+          "literal": "9900004",
+          "implicit": false,
+          "sourceLine": 19
+        },
+        {
+          "name": "RBStressDumpReport",
+          "value": 9900005,
+          "literal": "9900005",
+          "implicit": false,
+          "sourceLine": 20
+        },
+        {
+          "name": "RBStressCsvProfiler",
+          "value": 9900006,
+          "literal": "9900006",
+          "implicit": false,
+          "sourceLine": 22,
+          "description": "Start/stop the engine CsvProfiler during a stress run (TS→C++)."
+        },
+        {
+          "name": "RGBCameraApplySettings",
+          "value": 9900007,
+          "literal": "9900007",
+          "implicit": false,
+          "sourceLine": 26,
+          "description": "Apply RGB camera parameter settings (fire-and-forget; payload carries the settings JSON). TS→C++; replaces the old direct ApplyRGBCameraSettingsJson UFUNCTION call from the TS web bridge."
+        },
+        {
+          "name": "WorkshopGetGamemodes",
+          "value": 9900008,
+          "literal": "9900008",
+          "implicit": false,
+          "sourceLine": 31,
+          "description": "Request the installed Workshop gamemode index + bundle sources (TS→C++). C++ replies via the WorkshopGamemodesResult TypescriptCycleEvent. Replaces the old synchronous GetWorkshopGamemodeIndexJson/LoadWorkshopModBundleSource UFUNCTION calls from the TS workshop bridge."
+        },
+        {
+          "name": "UEConsoleExec",
+          "value": 9900009,
+          "literal": "9900009",
+          "implicit": false,
+          "sourceLine": 36,
+          "description": "Execute a native UE console command (TS→C++, fire-and-forget). Payload: { \"command\": string }. Dispatched by the TS `UEExec` console command so a headless WS client (console.exec \"UEExec r.TpsAim.ForceTps 1\") can flip UE cvars at runtime. The C++ listener refuses it in Shipping builds."
+        },
+        {
+          "name": "RobotBridgeUniversalEventType_END",
+          "value": 9900010,
+          "literal": null,
+          "implicit": true,
+          "sourceLine": 37
+        }
+      ]
+    }
+  ]
+}

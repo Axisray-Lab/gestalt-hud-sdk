@@ -1,0 +1,38 @@
+/**
+* @license: Public SDK Protocol Schema. Copyright (c) 2025 AXISRAY Lab Inc.
+* Distributed under the gestalt-hud-sdk repository LICENSE.
+*/
+
+namespace RobotBridgeDemo;
+
+/// Project-level TS→C++ universal events. The numeric value of every entry
+/// MUST be strictly greater than Echo's
+/// EEchoUniversalEventType::GameProjectUniversalEvent (9900000); FEchoUniversalEventManager
+/// routes any incoming universal_event_type above that sentinel to
+/// FRobotBridgeUniversalEventManager via OnProjectUniversalEventDelegate.
+enum ERobotBridgeUniversalEventType :uint {
+  // Set local player preferred vehicle (TS→C++)
+  SetPreferredVehicle = 9900001,
+  // RBStressTest dev/stress harness (TS→C++)
+  RBStressPushInput = 9900002,
+  RBStressSetFakeConnPreset = 9900003,
+  RBStressLogDiagnostic = 9900004,
+  RBStressDumpReport = 9900005,
+  // Start/stop the engine CsvProfiler during a stress run (TS→C++).
+  RBStressCsvProfiler = 9900006,
+  // Apply RGB camera parameter settings (fire-and-forget; payload carries the
+  // settings JSON). TS→C++; replaces the old direct ApplyRGBCameraSettingsJson
+  // UFUNCTION call from the TS web bridge.
+  RGBCameraApplySettings = 9900007,
+  // Request the installed Workshop gamemode index + bundle sources (TS→C++).
+  // C++ replies via the WorkshopGamemodesResult TypescriptCycleEvent. Replaces
+  // the old synchronous GetWorkshopGamemodeIndexJson/LoadWorkshopModBundleSource
+  // UFUNCTION calls from the TS workshop bridge.
+  WorkshopGetGamemodes = 9900008,
+  // Execute a native UE console command (TS→C++, fire-and-forget). Payload:
+  // { "command": string }. Dispatched by the TS `UEExec` console command so a
+  // headless WS client (console.exec "UEExec r.TpsAim.ForceTps 1") can flip UE
+  // cvars at runtime. The C++ listener refuses it in Shipping builds.
+  UEConsoleExec = 9900009,
+  RobotBridgeUniversalEventType_END,
+}

@@ -1,156 +1,199 @@
-# Workshop Upload Guide
+# Steam Workshop Upload Guide
 
-Upload your custom HUD to Steam Workshop so other players can subscribe and use it in Gestalt System.
+This workflow uploads a built HUD mod. It does not upload or distribute the npm SDK package.
 
 ## Prerequisites
 
-- **SteamCMD** installed (default path: `C:\steamcmd\steamcmd.exe`)
-- **Steam account** with Steamworks publishing permissions for the game
-- A completed HUD folder with a valid `manifest.json`
-- The game's **Steam App ID** (defaults to `4007690`)
+- A Steam account that owns or has publishing access to App ID `4007690`
+- SteamCMD installed, by default at `C:\steamcmd\steamcmd.exe`
+- PowerShell 7
+- A HUD-only schema v2 `manifest.json`
+- A PNG/JPEG preview image
 
-## HUD Package Structure
+Steam Guard may require interactive confirmation. The publisher deliberately has no `-SteamPass` option and never places a password on the command line.
 
-Your upload folder must contain at minimum:
+## Release directory
 
-```
-my-custom-hud/
-├── manifest.json                        # Required: HUD metadata
-├── index.html                           # Required: entry point
-├── style.css                            # Your styles
-├── hud.js                               # Your logic
-├── gestalt-hud-sdk.workshop.umd.js      # SDK bundle (if using UMD)
-└── preview.png                          # Recommended: Workshop preview (616x353 PNG)
-```
+Pure HTML example:
 
-### manifest.json
-
-Every HUD must have a valid manifest:
-
-```json
-{
-  "sdk_version": 1,
-  "name": "My Custom HUD",
-  "version": "1.0.0",
-  "author": "your_name",
-  "description": "A custom HUD overlay.",
-  "compatible_maps": ["L_MapRMUL2026", "L_MapRMUL2026_IF"],
-  "entry": "index.html"
-}
+```text
+my-hud/
+├── manifest.json
+├── manifest.js
+├── index.html
+├── hud.js
+├── style.css
+├── gestalt-hud-sdk.workshop.umd.js
+└── assets/
 ```
 
-### Files to Exclude
+Vue example: use `template-workshop-vue/dist/` after `npm run build:workshop`.
 
-Do **not** include in your upload folder:
+The publisher creates a separate staging directory and copies only runtime extensions. Source files, `node_modules`, `.git`, source maps, PowerShell scripts, and editor settings are not uploaded.
 
-- `node_modules/`
-- `.git/`
-- Source maps (`.map` files)
-- Build configs (`vite.config.ts`, `tsconfig.json`, etc.)
-- Development dependencies
+## 1. Build and synchronize
 
-## Upload Script
+For a repository static template:
 
-The upload tool is `upload-workshop-hud.ps1` at the SDK repository root.
+```powershell
+npm run build
+npm run workshop:sync
+npm run workshop:check
+```
 
-### First-Time Upload (Create New Item)
+For Vue:
+
+```powershell
+Set-Location .\template-workshop-vue
+npm run typecheck
+npm run build:workshop
+Set-Location ..
+```
+
+## 2. Validate
+
+```powershell
+pwsh -NoProfile -File .\scripts\validate-workshop-hud.ps1 `
+  -ContentFolder .\publish-test
+```
+
+Validation includes:
+
+- required manifest strings and semantic version;
+- `sdk_version: 2` and `provides: ["hud"]`;
+- safe local HTML entry;
+- production CSP with `connect-src 'none'`;
+- no inline scripts/handlers or remote HTML/CSS assets;
+- all referenced local HTML/CSS files exist;
+- `manifest.js` name/version matches `manifest.json`.
+
+## 3. Inspect a dry run
+
+Updating the official example candidate requires naming its ID explicitly:
 
 ```powershell
 .\upload-workshop-hud.ps1 `
-    -ContentFolder ".\my-custom-hud" `
-    -SteamUser <your_steam_username> `
-    -SteamPass <your_steam_password>
+  -ContentFolder .\publish-test `
+  -ItemId 3698375578 `
+  -Visibility Private `
+  -ChangeNote 'SDK v0.2 protocol update' `
+  -DryRun
 ```
 
-The App ID defaults to `4007690` (Gestalt System). SteamCMD will output the new Workshop item ID — **save this ID** for future updates.
+The script prints and retains:
 
-### Update an Existing Item
+- the allowlisted staging content;
+- the resolved manifest metadata;
+- target App ID and Item ID;
+- visibility and preview path;
+- UTF-8 `workshop-item.vdf`.
+
+Inspect those files before a real upload. `3698375578` is not built into the script and cannot be updated accidentally by omitting `-ItemId`.
+
+## 4. Upload an existing item
 
 ```powershell
 .\upload-workshop-hud.ps1 `
-    -ContentFolder ".\my-custom-hud" `
-    -ItemId 123456789 `
-    -ChangeNote "Fixed crosshair alignment" `
-    -SteamUser <your_steam_username> `
-    -SteamPass <your_steam_password>
+  -ContentFolder .\publish-test `
+  -ItemId 3698375578 `
+  -Visibility Private `
+  -ChangeNote 'SDK v0.2 protocol update' `
+  -SteamUser <account-name>
 ```
 
-### All Parameters
+The command has high-impact confirmation. SteamCMD then prompts interactively for the password and Steam Guard code when its cached session is insufficient.
 
-| Parameter | Required | Default | Description |
-|-----------|----------|---------|-------------|
-| `-ContentFolder` | Yes | — | Path to the HUD folder containing `manifest.json` |
-| `-AppId` | No | `4007690` | Steam App ID. Falls back to `STEAM_APP_ID` env var, then `version.json` |
-| `-ItemId` | No | `0` | Workshop item ID. `0` = create new, `>0` = update existing |
-| `-Title` | No | from manifest | Workshop item title |
-| `-Description` | No | from manifest | Workshop item description |
-| `-ChangeNote` | No | `"Update"` | Change log entry for this version |
-| `-PreviewImage` | No | auto-detect | Path to preview image. Auto-detects `preview.png` in content folder |
-| `-SteamCmdPath` | No | `C:\steamcmd\steamcmd.exe` | Path to SteamCMD executable |
-| `-SteamUser` | No* | `STEAM_BUILDER_USER` env var | Steam username |
-| `-SteamPass` | No* | `STEAM_BUILDER_PASS` env var | Steam password |
+For automation, `STEAM_BUILDER_USER` may provide only the account name. Keep authentication in SteamCMD's own credential/session mechanism; do not add passwords to scripts, environment variables, or CI logs.
 
-*Required either as parameter or environment variable.
+## 5. Create a new private item
 
-### Using Environment Variables
-
-To avoid passing credentials every time:
+Creation must also be explicit:
 
 ```powershell
-$env:STEAM_BUILDER_USER = "your_username"
-$env:STEAM_BUILDER_PASS = "your_password"
-
-.\upload-workshop-hud.ps1 -ContentFolder ".\my-custom-hud"
+.\upload-workshop-hud.ps1 `
+  -ContentFolder .\my-hud `
+  -CreateNew `
+  -Visibility Private `
+  -SteamUser <account-name>
 ```
 
-## What Happens During Upload
+Record the `publishedfileid` from SteamCMD output and use `-ItemId` on all future updates.
 
-1. The script reads `manifest.json` from your content folder
-2. Extracts `name` and `description` as the Workshop item title/description
-3. Generates a SteamCMD VDF file with the `"HUD"` tag
-4. If `preview.png` exists in the content folder (or `-PreviewImage` is specified), it's included as the Workshop preview
-5. Calls SteamCMD `workshop_build_item` to upload
-6. The HUD appears in the game's Workshop HUD management page (System Settings > Workshop HUD)
+## Visibility
 
-## Version Updates
+| Value | Steam value | Notes |
+| --- | ---: | --- |
+| `Private` | 2 | Default and recommended for QA |
+| `FriendsOnly` | 1 | Limited audience |
+| `Unlisted` | 3 | Link-accessible where Steam supports it |
+| `Public` | 0 | Requires the extra `-ConfirmPublic` switch |
 
-When releasing a new version of your HUD:
+Example public promotion after private validation:
 
-1. Update the `version` field in `manifest.json`
-2. Run the upload script with the same `-ItemId` and a descriptive `-ChangeNote`
-3. Players who have subscribed will receive the update automatically
+```powershell
+.\upload-workshop-hud.ps1 -ContentFolder .\publish-test `
+  -ItemId 3698375578 -Visibility Public -ConfirmPublic `
+  -ChangeNote 'Public SDK v0.2 HUD release' -SteamUser <account-name>
+```
 
-## Preview Image
+## Publisher parameters
 
-Workshop items with a preview image get significantly more visibility. Recommended:
+| Parameter | Meaning |
+| --- | --- |
+| `-ContentFolder` | Built/static HUD directory |
+| `-ItemId` | Existing target; required unless `-CreateNew` |
+| `-CreateNew` | Explicit new-item mode |
+| `-AppId` | Defaults to `4007690` |
+| `-Visibility` | Defaults to `Private` |
+| `-ConfirmPublic` | Required for public upload |
+| `-Title` / `-Description` | Override manifest metadata |
+| `-ChangeNote` | Workshop change note |
+| `-PreviewImage` | PNG/JPEG; defaults to `preview.png` in content |
+| `-SteamCmdPath` | Defaults to `C:\steamcmd\steamcmd.exe`, then PATH |
+| `-SteamUser` | Account name only; may use `STEAM_BUILDER_USER` |
+| `-StagingRoot` | Parent for unique safe staging directories |
+| `-DryRun` | Validate/stage only; never invokes SteamCMD |
+| `-KeepStaging` | Retain files after a successful upload |
 
-- **Format**: PNG
-- **Size**: 616 x 353 pixels
-- **Content**: Screenshot of your HUD in action, or a styled logo
+## What the script guarantees
 
-Place it as `preview.png` in your content folder — the script detects it automatically.
+- It refuses ambiguous create/update mode.
+- It refuses public visibility without explicit confirmation.
+- It validates both source and staged content.
+- It writes VDF as UTF-8 without BOM, preserving Chinese metadata.
+- It never accepts a command-line password.
+- It uses a uniquely named working directory and safety-checks cleanup.
+- Failed and dry-run staging is retained for investigation.
+
+## After upload
+
+1. Open the Workshop item in the signed-in Steam client.
+2. Confirm the intended account is subscribed.
+3. Allow Steam to download/update the content.
+4. Compare installed content hashes with staging.
+5. Launch the game through Steam and run the Workshop HUD E2E.
+6. Promote visibility only after the private item passes.
+
+SteamCMD uploading or downloading does not substitute for the Steam client's account subscription state.
 
 ## Troubleshooting
 
-### "manifest.json not found"
+### Target mode error
 
-Ensure `-ContentFolder` points to a directory containing `manifest.json`, not the parent directory.
+Pass either `-CreateNew` or `-ItemId`, never neither/both.
 
-### "Steam AppId required"
+### Validation reports stale `manifest.js`
 
-Provide the game's App ID via `-AppId`, the `STEAM_APP_ID` environment variable, or ensure `version.json` exists in the expected location.
+For repository templates, run `npm run workshop:sync`. For a custom static HUD, update local metadata from its manifest before staging.
 
-### "SteamCMD not found"
+### Missing UMD bundle
 
-Install SteamCMD or specify its path with `-SteamCmdPath`.
+Run `npm run build` followed by `npm run workshop:sync`, or copy the resulting `dist/workshop.umd.js` into the custom HUD under the filename referenced by its HTML.
 
-### "Steam credentials required"
+### SteamCMD authentication fails
 
-Provide credentials via `-SteamUser`/`-SteamPass` parameters or `STEAM_BUILDER_USER`/`STEAM_BUILDER_PASS` environment variables.
+Run SteamCMD interactively, complete Steam Guard, and retry. Do not work around this by passing the password in a command invocation.
 
-### Upload succeeds but HUD doesn't appear in game
+### Upload succeeds but the HUD is absent in game
 
-- Verify the Workshop item has the `"HUD"` tag (set automatically by the script)
-- Check that `compatible_maps` in your manifest includes the current map
-- Ensure `sdk_version` matches the game's expected version (currently `1`)
-- Restart the game after subscribing to a new Workshop item
+Check the signed-in client's subscription state, download completion, manifest validity, and map compatibility. Empty `compatible_maps` supports every built-in map.

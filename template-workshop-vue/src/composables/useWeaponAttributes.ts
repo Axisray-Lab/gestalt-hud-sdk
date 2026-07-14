@@ -6,38 +6,71 @@
  */
 
 import { computed, type Ref } from 'vue';
-import { ERobotBridgeDemoAttributeId } from '@axisray-lab/gestalt-hud-sdk/workshop';
+import {
+  ERobotBridgeDemoAttributeId,
+  ERobotBridgeDemoBulletType,
+} from '@axisray-lab/gestalt-hud-sdk/workshop';
 import { createNumberGetter, createEnumGetter } from '@/utils/attributeAccessors';
 
 export function useWeaponAttributes(battleAttributes: Ref<Record<string, number>>) {
-  /** 0 = 42mm, 1 = 17mm */
-  const bulletType = createEnumGetter(battleAttributes, ERobotBridgeDemoAttributeId.BulletType, 0);
+  /** 0 = 42mm, 1 = 17mm, 2 = dart, 3 = laser */
+  const bulletType = createEnumGetter(
+    battleAttributes,
+    ERobotBridgeDemoAttributeId.BulletType,
+    ERobotBridgeDemoBulletType.Projectile42mm,
+  );
   const firingHeat1 = createNumberGetter(battleAttributes, ERobotBridgeDemoAttributeId.FiringHeat1);
   const firingHeatMax1 = createNumberGetter(battleAttributes, ERobotBridgeDemoAttributeId.FiringHeatMax1);
   const bulletFiredTotal = createNumberGetter(battleAttributes, ERobotBridgeDemoAttributeId.BulletFiredTotal);
 
   const ammoCount = computed(() => {
-    if (bulletType.value === 0) {
-      const key = String(ERobotBridgeDemoAttributeId.Ammo42mmCount);
-      return battleAttributes.value?.[key] ?? 0;
-    } else {
-      const key = String(ERobotBridgeDemoAttributeId.Ammo17mmCount);
-      return battleAttributes.value?.[key] ?? 0;
+    let attributeId: ERobotBridgeDemoAttributeId;
+    switch (bulletType.value) {
+      case ERobotBridgeDemoBulletType.Projectile42mm:
+        attributeId = ERobotBridgeDemoAttributeId.Ammo42mmCount;
+        break;
+      case ERobotBridgeDemoBulletType.Projectile17mm:
+        attributeId = ERobotBridgeDemoAttributeId.Ammo17mmCount;
+        break;
+      case ERobotBridgeDemoBulletType.Dart:
+        attributeId = ERobotBridgeDemoAttributeId.AmmoDartCount;
+        break;
+      case ERobotBridgeDemoBulletType.Laser:
+        attributeId = ERobotBridgeDemoAttributeId.AmmoLaserCount;
+        break;
+      default:
+        return 0;
     }
+    return battleAttributes.value?.[String(attributeId)] ?? 0;
   });
 
   const ammoMax = computed(() => {
-    if (bulletType.value === 0) {
-      const key = String(ERobotBridgeDemoAttributeId.Real42mmAmmoCount);
-      return battleAttributes.value?.[key] ?? 0;
-    } else {
-      const key = String(ERobotBridgeDemoAttributeId.Real17mmAmmoCount);
-      return battleAttributes.value?.[key] ?? 0;
+    let attributeId: ERobotBridgeDemoAttributeId;
+    switch (bulletType.value) {
+      case ERobotBridgeDemoBulletType.Projectile42mm:
+        attributeId = ERobotBridgeDemoAttributeId.Real42mmAmmoCount;
+        break;
+      case ERobotBridgeDemoBulletType.Projectile17mm:
+        attributeId = ERobotBridgeDemoAttributeId.Real17mmAmmoCount;
+        break;
+      case ERobotBridgeDemoBulletType.Dart:
+        attributeId = ERobotBridgeDemoAttributeId.RealDartAmmoCount;
+        break;
+      case ERobotBridgeDemoBulletType.Laser:
+        attributeId = ERobotBridgeDemoAttributeId.RealLaserAmmoCount;
+        break;
+      default:
+        return 0;
     }
+    return battleAttributes.value?.[String(attributeId)] ?? 0;
   });
 
   /** 42mm → 100 heat per shot, 17mm → 10 heat per shot */
-  const heatDivisor = computed(() => (bulletType.value === 0 ? 100 : 10));
+  const heatDivisor = computed(() => {
+    if (bulletType.value === ERobotBridgeDemoBulletType.Projectile42mm) return 100;
+    if (bulletType.value === ERobotBridgeDemoBulletType.Projectile17mm) return 10;
+    return 1;
+  });
 
   const ammoSlotsTotal = computed(() => {
     const divisor = Math.max(1, heatDivisor.value);

@@ -1,225 +1,182 @@
 # Gestalt HUD SDK
 
-Build custom in-game HUD overlays for **Gestalt System** with real-time game data.
+Public SDK for building Steam Workshop HUD mods for Gestalt System.
 
-The SDK provides two development modes:
+Version 0.2 publishes the complete public FBS protocol surface and defines one supported mod boundary: a HUD runs in the game's sandboxed iframe and exchanges versioned `postMessage` messages through `GestaltHUDBridge`.
 
-- **WebSocket mode** — direct connection to the game engine for local development
-- **Workshop mode** — postMessage-based communication for Steam Workshop HUDs running in sandboxed iframes (`allow-scripts allow-same-origin`)
+The root `HUDBridge`/`AttributeStore` WebSocket client is retained only for trusted local tooling. It is not a Workshop API and must not be bundled into a Steam HUD.
 
-## Quick Start
+## What is public
 
-### Workshop HUD (recommended for new projects)
+- Raw source schemas: [`schemas/fbs/`](schemas/fbs/)
+- Schema provenance and hashes: [`schemas/source.json`](schemas/source.json)
+- Generated TypeScript enums/types: [`src/protocol/generated/`](src/protocol/generated/)
+- Machine-readable index: [`protocol/protocol-reference.json`](protocol/protocol-reference.json)
+- Human-readable FBS reference: [`docs/generated/fbs-reference.md`](docs/generated/fbs-reference.md)
+- Workshop bridge and message types: `@axisray-lab/gestalt-hud-sdk/workshop`
+- Protocol-only package entry: `@axisray-lab/gestalt-hud-sdk/protocol`
 
-```bash
-# Copy the minimal workshop template
-git clone https://github.com/Axisray-Lab/gestalt-hud-sdk.git
-cp -r gestalt-hud-sdk/template-workshop my-custom-hud
-cd my-custom-hud
+Generated protocol files must not be edited by hand. Regenerate them from the public schemas with `npm run protocol:generate`; CI-style drift checking is available through `npm run protocol:verify`.
+
+## Quick start: pure HTML/JS
+
+```powershell
+npm ci
+npm run build
+npm run workshop:sync
+Copy-Item -Recurse .\template-workshop ..\my-gestalt-hud
+npx serve . -l 8080
 ```
 
-Edit `manifest.json` with your HUD info, customize `hud.js` and `style.css`, then test using the DevTools preview or the game's local dev mode. See the [Workshop HUD Guide](docs/workshop-guide.md) for the full workflow.
+Open [http://localhost:8080/devtools/index.html](http://localhost:8080/devtools/index.html), then load:
 
-### WebSocket Development Mode
+```text
+http://127.0.0.1:8080/template-workshop/index.html
+```
 
-```bash
-cp -r gestalt-hud-sdk/template my-custom-hud
-cd my-custom-hud
+Using `localhost` for DevTools and `127.0.0.1` for the HUD deliberately keeps the two frames on different origins, like the game.
+
+Every static template is self-contained after `npm run workshop:sync`; its local UMD bundle is verified against `dist/workshop.umd.js` by `npm run workshop:check`.
+
+## Quick start: Vue 3
+
+Inside this repository, the Vue starter uses `file:..` so clone-based development works without a registry. SDK `0.2.0` is not currently published to npm. Before copying the starter elsewhere, package the SDK into the new project:
+
+```powershell
+$hud = New-Item -ItemType Directory ..\my-vue-hud -Force
+Get-ChildItem .\template-workshop-vue -Force |
+  Where-Object Name -NotIn @('node_modules', 'dist') |
+  Copy-Item -Destination $hud.FullName -Recurse
+New-Item -ItemType Directory ..\my-vue-hud\vendor -Force
+npm pack --pack-destination ..\my-vue-hud\vendor
+Set-Location ..\my-vue-hud
+npm install .\vendor\axisray-lab-gestalt-hud-sdk-0.2.0.tgz --save-exact
 npm install
 npm run dev
 ```
 
-Launch Gestalt System, and your HUD will connect automatically via WebSocket.
+Installing the tarball first rewrites the copied project's dependency away from `file:..`; do not run a plain install in the copied directory first.
 
-## Core Concepts
+Build the actual Workshop directory with:
 
-### Workshop Mode (postMessage)
+```powershell
+npm run typecheck
+npm run build:workshop
+```
 
-```typescript
-import { GestaltHUDBridge, ERobotBridgeDemoAttributeId as Attr } from '@axisray-lab/gestalt-hud-sdk/workshop';
+`build:workshop` places `manifest.json` beside the built `index.html` in `dist/`.
+
+## Workshop lifecycle
+
+```text
+Game parent                      Workshop HUD iframe
+    | ------- hud:init --------------------> |
+    | <------ hud:ready -------------------- |
+    | ------- hud:attribute_update --------> |
+    | ------- hud:game_event --------------> |
+    | <------ hud:action / hud:debug_log --- |
+```
+
+```ts
+import {
+  GestaltHUDBridge,
+  ERobotBridgeDemoAttributeId as Attr,
+} from '@axisray-lab/gestalt-hud-sdk/workshop';
 
 const bridge = new GestaltHUDBridge();
 
-bridge.onInit((msg) => {
-  console.log(`Map: ${msg.mapName}, Team: ${msg.teamId}`);
+bridge.onInit(() => {
   bridge.sendReady('My HUD', '1.0.0');
 });
 
 bridge.onAttributeUpdate((data) => {
-  const hp = data.battle[String(Attr.Health)] ?? 0;
-  const hpMax = data.battle[String(Attr.HealthMax)] ?? 0;
-  console.log(`HP: ${hp}/${hpMax}`);
+  const health = data.battle[String(Attr.Health)] ?? 0;
+  const healthMax = data.battle[String(Attr.HealthMax)] ?? 0;
+  renderHealth(health, healthMax);
 });
 ```
 
-### WebSocket Mode
+Attribute keys are JSON object keys and therefore strings at runtime. Treat each `hud:attribute_update` as a complete snapshot: replace every scope, including scopes that become empty, rather than merging forever.
 
-```typescript
-import { HUDBridge, AttributeStore, ERobotBridgeDemoAttributeId } from '@axisray-lab/gestalt-hud-sdk';
+`data.base` currently contains the two main-base entity maps only, keyed by `String(Attr.G_BaseId_0 + teamId)`. It does not contain additional outpost, buff-station, or zone maps.
 
-const bridge = new HUDBridge({ port: 18820 });
-const store = new AttributeStore(bridge);
-await bridge.connect();
-store.start();
+## Manifest v2
 
-store.onChange(() => {
-  const hp = store.getBattleAttribute(ERobotBridgeDemoAttributeId.Health);
-  const hpMax = store.getBattleAttribute(ERobotBridgeDemoAttributeId.HealthMax);
-  console.log(`HP: ${hp}/${hpMax}`);
-});
-```
-
-### Vanilla JS (no bundler)
-
-```html
-<script src="gestalt-hud-sdk.workshop.umd.js"></script>
-<script>
-  var bridge = new GestaltHUD.GestaltHUDBridge();
-  var Attr = GestaltHUD.ERobotBridgeDemoAttributeId;
-
-  bridge.onInit(function (msg) {
-    bridge.sendReady('My HUD', '1.0.0');
-  });
-
-  bridge.onAttributeUpdate(function (data) {
-    var hp = data.battle[Attr.Health] || 0;
-  });
-</script>
-```
-
-## Development Tools
-
-### DevTools — Offline HUD Preview
-
-Test your HUD with mock data without launching the game:
-
-```bash
-# Start a local server
-npx serve . -l 8080
-# Or without Node.js:
-python -m http.server 8080
-```
-
-Open `http://localhost:8080/devtools/` in your browser. Enter your HUD URL, and the DevTools simulates the game SPA — sending `hud:init` and `hud:attribute_update` with adjustable mock data.
-
-Features:
-- **Attribute sliders**: HP, ammo, match timer, level, team, base HP
-- **Tag toggles**: defeated, overheated, invincible, etc.
-- **Presets**: Match Start, Low HP, Defeated, Switch Team
-- **Bypass mode**: Skip `hud:ready` for faster iteration
-- **Message log**: Full bidirectional postMessage traffic
-
-### In-Game Local Development
-
-The game supports loading HUDs from local sources for rapid iteration:
+HUD-only releases use schema version 2 explicitly:
 
 ```json
-// UI/debug.config.json
 {
-  "enableDebug": true,
-  "workshopHUDDevUrl": "http://127.0.0.1:3000/index.html?gestalt-debug=1"
+  "sdk_version": 2,
+  "name": "My HUD",
+  "version": "1.0.0",
+  "author": "your_name",
+  "description": "My custom HUD",
+  "provides": ["hud"],
+  "compatible_maps": [],
+  "entry": "index.html"
 }
 ```
 
-> **Important:** Use `127.0.0.1` instead of `localhost` — the game's embedded browser (UE CEF) does not resolve `localhost`.
+An empty `compatible_maps` array means all current and future built-in maps. Manifest schema version 2 is separate from Workshop `postMessage` protocol version 1.
 
-Use `workshopHUDDevUrl` for hot-reload development with Vite, or `workshopHUDDevPath` to load from a local folder.
+Official release HTML carries a CSP with `connect-src 'none'`. A Workshop HUD should consume only parent-provided data and local packaged assets; it should not discover or connect to the game's WebSocket server.
 
-### Debug Mode
+## Validate and package
 
-```javascript
-// Enable diagnostic logging (visible in game's Shift+U log overlay)
-var bridge = new GestaltHUD.GestaltHUDBridge({ debug: true });
-// Or add ?gestalt-debug=1 to your URL — no code change needed
+```powershell
+npm test
+pwsh -NoProfile -File .\scripts\validate-workshop-hud.ps1 `
+  -ContentFolder .\publish-test
 ```
 
-Debug logs are forwarded to the game via `hud:debug_log` postMessage and appear as `console.warn` entries in the game's Shift+U debug panel.
+The validator checks the HUD-only manifest, entry file, local HTML/CSS assets, CSP, and generated `manifest.js` metadata. The publisher copies only runtime asset types into a fresh staging directory before SteamCMD sees the content.
 
-## Project Structure
+## Steam Workshop publishing
 
-```
-gestalt-hud-sdk/
-├── src/
-│   ├── bridge/
-│   │   ├── hud-bridge.ts          # WebSocket JSON-RPC client
-│   │   └── attribute-store.ts     # Reactive attribute tracking
-│   ├── workshop/
-│   │   ├── workshop-bridge.ts     # postMessage bridge for Workshop HUDs
-│   │   └── index.ts               # ./workshop export entry
-│   └── protocol/
-│       ├── attribute-id.ts        # Game attribute ID enum
-│       ├── types.ts               # WebSocket protocol types
-│       ├── workshop-types.ts      # postMessage protocol types
-│       ├── manifest.ts            # Workshop manifest schema
-│       └── map-type.ts            # Map type enum
-├── devtools/                      # Offline HUD preview & debug tool
-├── template/                      # WebSocket dev template (Vue 3 + Vite)
-├── template-workshop/             # Minimal Workshop HUD (pure HTML/JS)
-├── template-workshop-rmul2026/    # RMUL2026 3v3 competition HUD
-├── template-workshop-rmuc2026/    # RMUC2026 competition HUD (with remote supply)
-├── template-workshop-1v1/         # 1v1 duel HUD (simplified)
-└── docs/
-    ├── attribute-map.md           # Attribute ID reference
-    ├── workshop-guide.md          # Workshop HUD development guide
-    ├── workshop-upload.md         # Steam Workshop upload guide
-    ├── hud-api.md                 # WebSocket protocol docs
-    └── getting-started.md         # Step-by-step tutorial
+Steam receives a built HUD mod directory, not the npm SDK package. The repository's conformance HUD is [`publish-test/`](publish-test/).
+
+Always inspect a dry run first and name the target item explicitly:
+
+```powershell
+.\upload-workshop-hud.ps1 `
+  -ContentFolder .\publish-test `
+  -ItemId 3698375578 `
+  -Visibility Private `
+  -DryRun
 ```
 
-## Package Exports
+Remove `-DryRun` only after inspecting staging. The script defaults to Private, requires `-ConfirmPublic` for a public upload, writes UTF-8 VDF, and lets SteamCMD request credentials interactively. It has no password command-line parameter.
 
-```typescript
-// Main entry — WebSocket bridge + attribute store
-import { HUDBridge, AttributeStore } from '@axisray-lab/gestalt-hud-sdk';
+The ID `3698375578` is the current official example candidate; it is intentionally not a script default.
 
-// Protocol types only
-import { ERobotBridgeDemoAttributeId } from '@axisray-lab/gestalt-hud-sdk/protocol';
+See [`docs/workshop-upload.md`](docs/workshop-upload.md) for the full release procedure.
 
-// Workshop bridge + all Workshop types
-import { GestaltHUDBridge } from '@axisray-lab/gestalt-hud-sdk/workshop';
+## Repository layout
+
+```text
+schemas/fbs/                     Public source FBS files
+protocol/                        Machine-readable protocol index
+src/protocol/generated/          Generated TypeScript protocol
+src/workshop/                    Supported Workshop bridge
+template-workshop/               Minimal self-contained HUD
+template-workshop-{1v1,rmuc2026,rmul2026}/
+template-workshop-vue/           Vue 3 reference HUD
+devtools/                        Offline parent-frame simulator
+publish-test/                    Steam conformance HUD
+scripts/                         Generation, validation, sync, and E2E tools
+docs/                            Guides and generated reference
 ```
-
-## Framework Support
-
-The SDK core is **framework-agnostic** — use Vue, React, Svelte, or vanilla JS. The `template/` uses Vue 3 as an example; the Workshop templates use vanilla JS for maximum accessibility.
 
 ## Documentation
 
-- [Workshop HUD Guide](docs/workshop-guide.md) -- build, test, and publish Workshop HUDs
-- [Workshop Upload Guide](docs/workshop-upload.md) -- publish to Steam Workshop
-- [Attribute Map Reference](docs/attribute-map.md) -- all available game attributes
-- [Integration Notes](docs/integration-notes.md) -- lessons learned from SDK-game integration
-- [Getting Started](docs/getting-started.md) -- set up your first custom HUD (WebSocket mode)
-- [HUD Communication API](docs/hud-api.md) -- WebSocket protocol details
-
-## Templates
-
-| Template | Tech | Scope | Path |
-|----------|------|-------|------|
-| **Minimal** | Pure HTML/JS | Learning / starting from scratch | `template-workshop/` |
-| **RMUL2026** | Pure HTML/JS | Full 3v3 competition HUD | `template-workshop-rmul2026/` |
-| **RMUC2026** | Pure HTML/JS | RMUC with remote supply | `template-workshop-rmuc2026/` |
-| **1v1** | Pure HTML/JS | Simplified duel HUD | `template-workshop-1v1/` |
-
-These serve as basic examples with zero dependencies and no build tools required. A Vue 3 advanced template replicating the game's full HUD UI is planned for a future release.
-
-## Integration Notes
-
-Lessons learned from the SDK-game integration process. See [docs/integration-notes.md](docs/integration-notes.md) for the full reference.
-
-Key points:
-- The game sends pure JS objects via `postMessage` (no Proxy/Map/Set) -- SDK receives them directly
-- Debug logs flow through `hud:debug_log` postMessage to the game's Shift+U overlay
-- Use `127.0.0.1` (not `localhost`) in `workshopHUDDevUrl` for UE CEF compatibility
-- Attribute keys are stringified FBS enum IDs; values follow the "thousandths" convention for multipliers
-
-## Roadmap
-
-- **Phase 1** (stable): SDK + documentation + manual file replacement
-- **Phase 2** (stable): iframe-based HUD isolation inside the game UI
-- **Phase 3** (stable): Steam Workshop integration + DevTools
-- **Phase 4** (planned): Vue 3 advanced HUD template replicating the full game UI
+- [Getting started](docs/getting-started.md)
+- [Workshop development guide](docs/workshop-guide.md)
+- [Workshop message API](docs/hud-api.md)
+- [Attribute map and scope guide](docs/attribute-map.md)
+- [Generated complete FBS reference](docs/generated/fbs-reference.md)
+- [Steam upload guide](docs/workshop-upload.md)
+- [Integration and E2E notes](docs/integration-notes.md)
 
 ## License
 
-[MIT](LICENSE)
+MIT. See [LICENSE](LICENSE).

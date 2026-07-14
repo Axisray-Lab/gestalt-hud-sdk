@@ -4,7 +4,14 @@ import dts from 'vite-plugin-dts';
 
 export default defineConfig({
   plugins: [
-    dts({ rollupTypes: true }),
+    // Keep the declaration module graph instead of trying to roll three public
+    // entry points into one file. Rollup mode left the `protocol`/`workshop`
+    // entry declarations pointing at helper `.d.ts` files that were not emitted.
+    dts({
+      entryRoot: 'src',
+      outDir: 'dist',
+      rollupTypes: false,
+    }),
   ],
   build: {
     lib: {

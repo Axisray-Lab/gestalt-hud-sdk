@@ -1,149 +1,190 @@
-# HUD Communication API
+# Workshop HUD Communication API
 
-This document describes the WebSocket protocol used between the game engine and the HUD.
+The public mod API is a versioned `postMessage` exchange between the game parent and a sandboxed HUD iframe. Workshop protocol version is currently `1`; manifest schema version is `2`.
 
-## Connection
+Import everything needed by a HUD from:
 
-The game runs an embedded HTTP + WebSocket server.  By default the WebSocket endpoint is:
-
+```ts
+import {
+  GestaltHUDBridge,
+  type HUDInitMessage,
+  type HUDAttributeData,
+} from '@axisray-lab/gestalt-hud-sdk/workshop';
 ```
-ws://127.0.0.1:<port>
-```
 
-The port can be discovered two ways:
+## Parent to HUD
 
-1. **Embedded mode** (HUD running inside the game's CEF browser): the page is served from `http://127.0.0.1:<http_port>/`, and the WebSocket port is available at `GET /api/webserver_port` → `{ "port": 18820 }`.
-2. **External dev mode**: configure the port manually (default `18820`) or read from a `debug.config.json` file.
+### `hud:init`
 
-## JSON-RPC Framing
+Sent after the iframe is loaded.
 
-All messages are JSON objects with a `type` field:
-
-```typescript
-// Client → Server request
-{
-  "type": 0,        // JSONRPCType.Request
-  "id": 42,         // unique request ID
-  "method": "cycleobject.watchAttributeMaps",
-  "params": { ... }
-}
-
-// Server → Client response
-{
-  "type": 1,        // JSONRPCType.Response
-  "id": 42,
-  "result": { ... }
-  // or "error": { "code": -32601, "message": "Method not found" }
+```ts
+interface HUDInitMessage {
+  type: 'hud:init';
+  version: number;
+  mapId: number;
+  mapName: string;
+  playerId: number;
+  teamId: number;
+  gameMode: '3v3' | '1v1' | 'training';
 }
 ```
 
-The server can also send **requests** to the client (push notifications).  The client should respond with a `type: 1` message.
+`wsPort` is not part of this message and is not exposed to Workshop HUDs.
 
-## Key Server → Client Methods
+### `hud:attribute_update`
 
-These are requests the game pushes to the HUD.  Register handlers via `bridge.onRequest()`.
+```ts
+interface HUDAttributeUpdateMessage {
+  type: 'hud:attribute_update';
+  mapId: number;
+  data: HUDAttributeData;
+}
 
-### `cycleobject.GameGlobalVarsFinishSetup`
-
-Sent once when the game session initializes.  Contains the global attribute map ID.
-
-```json
-{
-  "global_var_att_map_id": 12345
+interface HUDAttributeData {
+  global: Record<string, number>;
+  player: Record<string, number>;
+  battle: Record<string, number>;
+  base: Record<string, Record<string, number>>;
+  playerBattle: Record<number, Record<string, number>>;
 }
 ```
 
-**Action**: use this to start watching the global attribute map.
+The data object is a complete snapshot. Consumers should replace every scope on every update.
 
-### `cycleobject.WatchAttributeMapsResult`
+`data.base` currently contains only main-base entity maps. Address them with `String(Attr.G_BaseId_0 + teamId)`; outpost, buff-station, and zone maps are not forwarded in this scope.
 
-Sent whenever watched attribute maps have updated values.
+### `hud:game_event`
 
-```json
-{
-  "watch_attribute_maps_results": [
-    {
-      "sync_type": 1,
-      "attribute_map_id": 12345,
-      "attributes": {
-        "80000002": 45000,
-        "80000005": 1
-      }
-    }
-  ]
+```ts
+interface HUDGameEventMessage {
+  type: 'hud:game_event';
+  event: string;
+  payload?: unknown;
 }
 ```
 
-**Action**: merge into your local attribute snapshots.  See [attribute-map.md](./attribute-map.md) for sync semantics.
+Event names are forward-compatible strings. Ignore unknown events.
 
-## Key Client → Server Methods
+## HUD to parent
 
-### `cycleobject.watchAttributeMaps`
+### `hud:ready`
 
-Start or stop watching attribute maps.
+Send after receiving `hud:init` and completing essential local setup:
 
-```json
-{
-  "attribute_map_ids": [12345, 67890],
-  "watch_type": 1
+```ts
+bridge.sendReady('My HUD', '1.0.0');
+```
+
+Wire shape:
+
+```ts
+interface HUDReadyMessage {
+  type: 'hud:ready';
+  name: string;
+  version: string;
 }
 ```
 
-`watch_type` values:
-| Value | Name | Description |
-|-------|------|-------------|
-| 0 | `WatchOnce` | Get a single snapshot then stop |
-| 1 | `WatchContinuous` | Receive updates until stopped |
-| 2 | `StopWatch` | Stop watching these maps |
+### `hud:action`
 
-### `echo.heartbeat`
+```ts
+type HUDAction =
+  | 'open_settings'
+  | 'exit_game'
+  | 'resume_game'
+  | 'exit_menu';
 
-Keep-alive ping (sent by the SDK automatically).
+bridge.sendAction('open_settings');
+```
 
-```json
-{
-  "timestamp": 1714000000000
+An action is a request to the host, not a guarantee of interaction. HUD iframes are normally non-pointer-interactive; design the HUD primarily as a display surface.
+
+### `hud:debug_log`
+
+The bridge may forward diagnostic messages to the host when debug mode is enabled. A HUD can also send an explicit bounded line with `bridge.sendDebugLog(message)`. Do not include secrets, account identifiers, or complete attribute snapshots in debug text.
+
+```ts
+interface HUDDebugLogMessage {
+  type: 'hud:debug_log';
+  message: string;
 }
 ```
 
-## Attribute Update Flow
+## `GestaltHUDBridge`
 
-```mermaid
-sequenceDiagram
-    participant Game as Game Engine
-    participant HUD as Custom HUD
-
-    Game->>HUD: GameGlobalVarsFinishSetup (global_var_att_map_id)
-    HUD->>Game: watchAttributeMaps([globalMapId], WatchContinuous)
-    Game->>HUD: WatchAttributeMapsResult (global attrs incl. player map IDs)
-    HUD->>Game: watchAttributeMaps([playerMapId], WatchContinuous)
-    Game->>HUD: WatchAttributeMapsResult (player attrs incl. battleMapId)
-    HUD->>Game: watchAttributeMaps([battleMapId], WatchContinuous)
-
-    loop Every game tick
-        Game->>HUD: WatchAttributeMapsResult (incremental updates)
-    end
-```
-
-## Error Codes
-
-| Code | Meaning |
-|------|---------|
-| `-32601` | Method not found |
-| `-32603` | Internal error |
-
-## SDK Abstraction
-
-The `AttributeStore` class in the SDK handles all of the above automatically.  You only need to:
-
-```typescript
-const bridge = new HUDBridge({ port: 18820 });
-const store = new AttributeStore(bridge);
-
-await bridge.connect();
-store.start();
-
-store.onChange((mapId, attributes) => {
-  // React to updates
+```ts
+const bridge = new GestaltHUDBridge({
+  debug: false,
+  targetOrigin: '*',
 });
 ```
+
+The game uses different loopback hostnames for parent and HUD content. The bridge additionally validates that inbound messages come from `window.parent` and match the supported runtime shape.
+
+### Handlers
+
+```ts
+const offInit = bridge.onInit((message) => {});
+const offAttributes = bridge.onAttributeUpdate((snapshot) => {});
+const offEvent = bridge.onGameEvent((event, payload) => {});
+```
+
+Each registration returns an unsubscribe function.
+
+### Outbound methods
+
+```ts
+bridge.sendReady(name, version);
+bridge.sendAction(action, payload);
+bridge.sendDebugLog(message);
+```
+
+### Teardown
+
+```ts
+offInit();
+offAttributes();
+offEvent();
+bridge.destroy();
+```
+
+## Protocol and runtime guards
+
+The protocol package exports runtime guards for parent messages and snapshots:
+
+```ts
+import {
+  isHUDInitMessage,
+  isHUDAttributeUpdateMessage,
+  isHUDGameEventMessage,
+} from '@axisray-lab/gestalt-hud-sdk/workshop';
+```
+
+Use these if implementing a framework-specific adapter outside `GestaltHUDBridge`.
+
+## Attribute enums
+
+The Workshop entry re-exports every public generated FBS enum. Prefer enum names to numeric literals:
+
+```ts
+import {
+  ERobotBridgeDemoAttributeId as Attr,
+  ERobotBridgeDemoBulletType,
+} from '@axisray-lab/gestalt-hud-sdk/workshop';
+
+const bulletType = snapshot.battle[String(Attr.BulletType)];
+if (bulletType === ERobotBridgeDemoBulletType.Dart) {
+  const dartAmmo = snapshot.battle[String(Attr.AmmoDartCount)] ?? 0;
+}
+```
+
+Complete references:
+
+- [`generated/fbs-reference.md`](generated/fbs-reference.md)
+- [`../protocol/protocol-reference.json`](../protocol/protocol-reference.json)
+- [`../schemas/fbs/`](../schemas/fbs/)
+
+## Trusted WebSocket tooling
+
+The package root retains `HUDBridge` and `AttributeStore` for controlled local monitor/tool development. Those APIs communicate with a privileged local JSON-RPC server and are deliberately outside the Workshop mod contract. Do not import them into Steam HUD content, and do not document their methods as public Workshop capabilities.

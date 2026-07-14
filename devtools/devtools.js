@@ -40,6 +40,7 @@
   var autoInterval = null;
   var totalMsgCount = 0;
   var hudLoaded = false;
+  var hudOrigin = '*';
 
   // ── Load HUD ──
 
@@ -51,6 +52,27 @@
   function loadHUD() {
     var url = urlInput.value.trim();
     if (!url) return;
+    var parsedUrl;
+    try {
+      parsedUrl = new URL(url, location.href);
+    } catch (error) {
+      addLog('system', null, 'Invalid HUD URL: ' + error.message, 'error');
+      return;
+    }
+    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+      addLog('system', null, 'HUD URL must use http:// or https://.', 'error');
+      return;
+    }
+    if (parsedUrl.origin === location.origin) {
+      addLog(
+        'system',
+        null,
+        'HUD must use a different origin from DevTools. Open DevTools on localhost and use 127.0.0.1 for the HUD URL.',
+        'error'
+      );
+      return;
+    }
+    hudOrigin = parsedUrl.origin;
     hudReady = false;
     hudLoaded = false;
     updateStatus('waiting', 'Loading HUD...');
@@ -85,6 +107,7 @@
   // ── Listen for messages from HUD ──
 
   window.addEventListener('message', function (event) {
+    if (event.source !== hudIframe.contentWindow || event.origin !== hudOrigin) return;
     var msg = event.data;
     if (!msg || typeof msg !== 'object' || typeof msg.type !== 'string') return;
     if (msg.type.indexOf('hud:') !== 0) return;
@@ -124,7 +147,7 @@
 
     var mapNames = {
       '2': 'L_Traning', '4': 'L_Map2026', '5': 'L_MapRMUL2026',
-      '6': 'L_MapRMUL2026_IF', '7': 'L_Map20261V1',
+      '6': 'L_MapRMUL2026_IF', '7': 'L_Map20261V1', '8': 'L_Map2026_IF',
     };
     var mapId = parseInt(selMap.value, 10);
     var msg = {
@@ -135,7 +158,6 @@
       playerId: parseInt(inpPlayer.value, 10) || 1,
       teamId: parseInt(selTeam.value, 10),
       gameMode: selMode.value,
-      wsPort: 0,
     };
 
     postToHUD(msg);
@@ -222,11 +244,14 @@
   // ── Sliders ──
 
   var sliderMap = [
+    { id: 'sl-bullet-type', key: 'bulletType',   max: null },
     { id: 'sl-hp',          key: 'hp',           max: 'hpMax' },
     { id: 'sl-hp-max',      key: 'hpMax',        max: null },
     { id: 'sl-shield',      key: 'shield',       max: null },
     { id: 'sl-ammo17',      key: 'ammo17mm',     max: null },
     { id: 'sl-ammo42',      key: 'ammo42mm',     max: null },
+    { id: 'sl-ammo-dart',   key: 'ammoDart',     max: null },
+    { id: 'sl-ammo-laser',  key: 'ammoLaser',    max: null },
     { id: 'sl-heat',        key: 'firingHeat',   max: 'firingHeatMax' },
     { id: 'sl-level',       key: 'level',        max: null },
     { id: 'sl-team',        key: 'teamId',       max: null },
@@ -249,6 +274,8 @@
           valEl.textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
         } else if (s.key === 'teamId') {
           valEl.textContent = v === 0 ? 'RED' : v === 1 ? 'BLUE' : 'SPEC';
+        } else if (s.key === 'bulletType') {
+          valEl.textContent = ['42mm', '17mm', 'DART', 'LASER'][v] || '?';
         } else {
           valEl.textContent = v;
         }
@@ -275,6 +302,8 @@
           valEl.textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
         } else if (s.key === 'teamId') {
           valEl.textContent = MockData.state[s.key] === 0 ? 'RED' : MockData.state[s.key] === 1 ? 'BLUE' : 'SPEC';
+        } else if (s.key === 'bulletType') {
+          valEl.textContent = ['42mm', '17mm', 'DART', 'LASER'][MockData.state[s.key]] || '?';
         } else {
           valEl.textContent = MockData.state[s.key];
         }
@@ -357,7 +386,7 @@
 
   function postToHUD(msg) {
     if (hudIframe.contentWindow) {
-      hudIframe.contentWindow.postMessage(msg, '*');
+      hudIframe.contentWindow.postMessage(msg, hudOrigin);
     }
   }
 

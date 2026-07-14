@@ -14,18 +14,13 @@
   var bridge = new GestaltHUD.GestaltHUDBridge();
   var Attr = GestaltHUD.ERobotBridgeDemoAttributeId;
 
-  // Load manifest — the promise is awaited before sending hud:ready
-  var manifestReady = fetch('./manifest.json')
-    .then(function (r) { return r.json(); })
-    .then(function (m) {
-      document.getElementById('version-badge').textContent =
-        'Workshop: ' + m.name + ' v' + m.version;
-      return m;
-    })
-    .catch(function () {
-      console.warn('[Workshop HUD] Could not load manifest.json');
-      return { name: 'Workshop HUD', version: '0.0.0' };
-    });
+  // Local metadata keeps the production CSP at connect-src 'none'.
+  var manifest = window.GESTALT_HUD_MANIFEST || {
+    name: 'Workshop HUD',
+    version: '0.0.0',
+  };
+  document.getElementById('version-badge').textContent =
+    'Workshop: ' + manifest.name + ' v' + manifest.version;
 
   // DOM references
   var elTimer = document.getElementById('match-timer');
@@ -59,9 +54,7 @@
     teamId = msg.teamId;
     updateTeamDisplay();
     if (diagEl) diagEl.textContent = 'init received, team=' + msg.teamId;
-    manifestReady.then(function (m) {
-      bridge.sendReady(m.name, m.version);
-    });
+    bridge.sendReady(manifest.name, manifest.version);
   });
 
   // ── Attribute updates ──
@@ -98,11 +91,9 @@
       updateTeamDisplay();
     }
 
-    // Ammo (pick 42mm or 17mm based on BulletType)
+    // Ammo follows ERobotBridgeDemoBulletType: 42mm, 17mm, dart, laser.
     var bulletType = num(battle[Attr.BulletType]);
-    var ammo = bulletType === 0
-      ? num(battle[Attr.Ammo42mmCount])
-      : num(battle[Attr.Ammo17mmCount]);
+    var ammo = ammoForBulletType(battle, bulletType);
     elAmmo.textContent = String(ammo);
 
     // Match timer
@@ -116,7 +107,7 @@
       elTimer.textContent = m + ':' + s;
     }
 
-    // Base status (from base sub-maps if available)
+    // Main bases are keyed by G_BaseId_0 + teamId.
     updateBaseStatus(data);
   });
 
@@ -124,6 +115,16 @@
 
   function num(v) {
     return typeof v === 'number' && isFinite(v) ? v : 0;
+  }
+
+  function ammoForBulletType(battle, bulletType) {
+    switch (bulletType) {
+      case 0: return num(battle[Attr.Ammo42mmCount]);
+      case 1: return num(battle[Attr.Ammo17mmCount]);
+      case 2: return num(battle[Attr.AmmoDartCount]);
+      case 3: return num(battle[Attr.AmmoLaserCount]);
+      default: return 0;
+    }
   }
 
   function healthColor(pct) {
@@ -145,19 +146,18 @@
 
   function updateBaseStatus(data) {
     var base = data.base || {};
-    var baseKeys = Object.keys(base);
+    var red = base[String(Attr.G_BaseId_0)] || {};
+    var blue = base[String(Attr.G_BaseId_0 + 1)] || {};
+    var redHp = num(red[Attr.Health]);
+    var redMax = num(red[Attr.HealthMax]);
+    var blueHp = num(blue[Attr.Health]);
+    var blueMax = num(blue[Attr.HealthMax]);
 
-    // Simple heuristic: first two base maps → red & blue
-    if (baseKeys.length >= 2) {
-      var b0 = base[baseKeys[0]] || {};
-      var b1 = base[baseKeys[1]] || {};
-      var hp0 = num(b0[Attr.Health]);
-      var hpMax0 = num(b0[Attr.HealthMax]);
-      var hp1 = num(b1[Attr.Health]);
-      var hpMax1 = num(b1[Attr.HealthMax]);
-
-      if (hpMax0 > 0) elRedBase.style.width = Math.min(100, (hp0 / hpMax0) * 100) + '%';
-      if (hpMax1 > 0) elBlueBase.style.width = Math.min(100, (hp1 / hpMax1) * 100) + '%';
-    }
+    elRedBase.style.width = redMax > 0
+      ? Math.min(100, (redHp / redMax) * 100) + '%'
+      : '0%';
+    elBlueBase.style.width = blueMax > 0
+      ? Math.min(100, (blueHp / blueMax) * 100) + '%'
+      : '0%';
   }
 })();

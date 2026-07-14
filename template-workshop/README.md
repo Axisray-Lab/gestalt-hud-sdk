@@ -1,72 +1,59 @@
 # Minimal Workshop HUD Template
 
-A starter template for creating custom Workshop HUDs for Gestalt System. Uses **pure HTML/CSS/JS** — no build tools or frameworks required.
+Pure HTML/CSS/JS starter for Gestalt HUD SDK 0.2. It is a HUD-only schema v2 mod and requires no application build step.
 
 ## Files
 
 | File | Purpose |
 | --- | --- |
-| `manifest.json` | HUD metadata — name, version, compatible maps |
-| `index.html` | Entry point loaded by the game's iframe |
-| `style.css` | HUD styling (transparent overlay, positioned elements) |
-| `hud.js` | Game data handling via `GestaltHUDBridge` |
-| `gestalt-hud-sdk.workshop.umd.js` | SDK library (copy from `dist/workshop.umd.js` after building the SDK) |
+| `manifest.json` | Workshop schema v2 metadata |
+| `manifest.js` | Local name/version generated from the manifest |
+| `index.html` | Sandboxed iframe entry with release CSP |
+| `style.css` | Local HUD styling |
+| `hud.js` | Bridge lifecycle and rendering |
+| `gestalt-hud-sdk.workshop.umd.js` | Vendored Workshop SDK |
 
-## Getting Started
+The CSP includes `connect-src 'none'`. All assets must be local, and the HUD must use only parent-provided `postMessage` data.
 
-1. **Copy this template** to a new folder:
+## Copy safely
 
-   ```bash
-   cp -r template-workshop my-custom-hud
-   ```
+From the SDK repository:
 
-2. **Copy the SDK UMD bundle** into your HUD folder:
+```powershell
+npm ci
+npm run build
+npm run workshop:sync
+Copy-Item -Recurse .\template-workshop ..\my-custom-hud
+```
 
-   ```bash
-   # From the SDK root, after running `npm run build`:
-   cp dist/workshop.umd.js my-custom-hud/gestalt-hud-sdk.workshop.umd.js
-   ```
+`workshop:sync` guarantees that the vendored UMD matches the current build and that `manifest.js` matches `manifest.json`.
 
-3. **Edit `manifest.json`** with your HUD's name, author, and compatible maps.
+After changing the manifest in a repository template, run the sync command again. In an independent project, generate equivalent local metadata or edit both files together; the release validator rejects stale metadata.
 
-4. **Customize the HUD** — edit `style.css` for layout and `hud.js` for data handling.
+## Test
 
-5. **Test locally** — place your HUD folder in the game's `WebContent/workshop-hud-dev/` directory and enable `workshopHUDDevPath` in `debug.config.json`.
+```powershell
+npx serve . -l 8080
+```
 
-## How It Works
+Open `http://localhost:8080/devtools/index.html` and load:
 
-The HUD runs inside a sandboxed iframe. Communication with the game happens through `postMessage`:
+```text
+http://127.0.0.1:8080/template-workshop/index.html
+```
 
-1. Game sends `hud:init` with match info (map, team, player ID)
-2. HUD responds with `hud:ready` (name + version)
-3. Game streams `hud:attribute_update` with real-time data (HP, ammo, timer, etc.)
-4. HUD can send `hud:action` for UI actions (open settings, exit game, etc.)
+Keep DevTools and HUD on different origins. Send Init with Bypass disabled to test the real `hud:init` → `hud:ready` handshake.
 
-### Available Actions
+## Validate
 
-| Action | Effect |
-| --- | --- |
-| `open_settings` | Open the settings page |
-| `exit_game` | Exit to desktop |
-| `resume_game` | Close ESC menu, resume game |
-| `exit_menu` | Return to main menu |
+```powershell
+pwsh -NoProfile -File .\scripts\validate-workshop-hud.ps1 `
+  -ContentFolder .\template-workshop
+```
 
-## Attribute Reference
+## Data notes
 
-Attribute values are raw numbers keyed by their FBS enum ID (as strings). Common attributes:
-
-| Attribute | Enum ID | Notes |
-| --- | --- | --- |
-| Health | `10000003` | Current HP |
-| HealthMax | `60000004` | Max HP |
-| Level | `60000003` | Player level |
-| Ammo17mmCount | `10000033` | 17mm ammo count |
-| Ammo42mmCount | `10000034` | 42mm ammo count |
-| G_MaxGameTime | `80000001` | Match duration (ms) |
-| G_CurGameTime | `80000002` | Elapsed time (ms) |
-| G_CurMatchStatus | `80000005` | 0=not started, 1=in progress, 2=finished |
-
-"Thousandths" attributes (like `AttackMultiplierThou`) use 1000 = 100%.
-Tag attributes (50000000+ range) are boolean: 0 = inactive, 1 = active.
-
-See the full reference in [`docs/attribute-map.md`](../docs/attribute-map.md).
+- Treat every attribute update as a complete snapshot.
+- Attribute object keys are string forms of numeric FBS IDs.
+- `BulletType` maps 0/1/2/3 to 42mm/17mm/dart/laser ammo.
+- Use [`../docs/generated/fbs-reference.md`](../docs/generated/fbs-reference.md) for the complete current public protocol.

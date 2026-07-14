@@ -1,0 +1,66 @@
+/**
+* @license: Public SDK Protocol Schema. Copyright (c) 2025 AXISRAY Lab Inc.
+* Distributed under the gestalt-hud-sdk repository LICENSE.
+* @date: 2025-09-08
+* @description: Robot Bridge Demo Resource Id Define
+*/
+
+namespace RobotBridgeDemo;
+
+// 资源ID, 一共9位
+
+// 建筑物资源ID
+enum ERobotBridgeDemoBuildingsResourceId :uint {
+  Start = 100000000,
+  BuffStation = 100000001,
+  TradePost = 100000002,
+  Outpost2026 = 100000003,
+  BaseCore = 100000004,
+  EchoActor = 100000005,
+  GlobalVarsWatcher = 100000006,
+  EchoRobotBridgeDemoBuildingsResourceId_END,
+}
+
+// 子弹资源ID
+enum ERobotBridgeDemoBulletResourceId :uint {
+  Start = 200000000,
+  BulletSmall = 200000001,
+  ProjectileSmall = 200000002,
+  ProjectileBig = 200000003,
+  ProjectileLaser = 200000004,
+  ProjectileDart = 200000005,
+  EchoRobotBridgeDemoBulletResourceId_END,
+}
+
+// 载具资源ID
+enum ERobotBridgeDemoVehicleResourceId :uint {
+  Start = 300000000,
+  HeroRobot = 300000002,
+  InfantryRobot = 300000003,
+  LiftHeroRobot = 300000004,
+  Observer = 300000005,
+  SentryRobot = 300000006,
+  AssaultInfantryRobot = 300000007,
+  FourWheelInfantryRobot = 300000008,
+  EngineerRobot = 300000010,
+  RadarRobot = 300000011,
+  DartRobot = 300000012,
+  AssaultHeroRobot = 300000013,
+  EchoRobotBridgeDemoVehicleResourceId_END = 300000014,
+}
+
+// 组件资源ID
+enum ERobotBridgeDemoComponentResourceId :uint {
+  Start = 400000000,
+  // 装甲组件
+  LargeArmour = 400000001, 
+  BuffStationTargetComponent = 400000002,
+  CollisionProxy = 400000003,
+  SmallArmour = 400000004,
+  PowerCallback = 400000005,
+  BulletCallback = 400000006,
+  BuffTrigger = 400000007,
+  TriangleArmour = 400000008,
+  DroneLaserArmour = 400000009,
+  EchoRobotBridgeDemoComponentResourceId_END,
+}

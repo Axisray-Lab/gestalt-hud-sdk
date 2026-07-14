@@ -1,3 +1,7 @@
+// Complete public FBS surface (generated from schemas/fbs).
+export * from './generated/fbs-enums';
+export * from './generated/fbs-types';
+
 export {
   ERobotBridgeDemoAttributeId,
   ERobotBridgeDemoCareerId,
@@ -23,21 +27,59 @@ export type {
 } from './types';
 
 // Workshop HUD protocol
-export { ERobotBridgeDemoMapType } from './map-type';
+export {
+  ERobotBridgeDemoMapType,
+  WorkshopMapType,
+  MAP_ID_TO_NAME,
+} from './map-type';
 export type { CompetitionMapName, MapName } from './map-type';
 
-export { WORKSHOP_HUD_PROTOCOL_VERSION } from './workshop-types';
+export {
+  WORKSHOP_HUD_PROTOCOL_VERSION,
+  WORKSHOP_HUD_ACTION_WHITELIST,
+  isHUDAttributeData,
+  isHUDInitMessage,
+  isHUDAttributeUpdateMessage,
+  isHUDGameEventMessage,
+  isSPAToHUDMessage,
+} from './workshop-types';
 export type {
+  HUDGameMode,
   HUDInitMessage,
   HUDAttributeUpdateMessage,
   HUDAttributeData,
+  HUDGameEventMessage,
   HUDEventMessage,
   HUDReadyMessage,
   HUDActionMessage,
+  HUDDebugLogMessage,
   HUDAction,
+  SPAToHUDMessage,
   ParentToHUDMessage,
+  HUDToSPAMessage,
   HUDToParentMessage,
   WorkshopHUDMessage,
 } from './workshop-types';
 
-export type { WorkshopManifest } from './manifest';
+export {
+  WORKSHOP_MANIFEST_SCHEMA_VERSION,
+  CAPABILITY_BIT_HUD,
+  CAPABILITY_BIT_MAP,
+  CAPABILITY_BIT_GAMEMODE,
+  checkRequiredMods,
+  validateManifest,
+} from './manifest';
+export type {
+  WorkshopManifest,
+  WorkshopHUDManifest,
+  WorkshopModManifest,
+  NormalizedWorkshopModManifest,
+  WorkshopModCapability,
+  WorkshopModMapSection,
+  WorkshopModGamemodeSection,
+  WorkshopManifestValidationResult,
+  RequiredModDescriptor,
+  LocalSubscribedMod,
+  ModCompatibilityReason,
+  ModCompatibilityResult,
+} from './manifest';

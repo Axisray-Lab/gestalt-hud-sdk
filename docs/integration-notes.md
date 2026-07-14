@@ -1,206 +1,127 @@
-# Integration Notes
+# Integration and E2E Notes
 
-Lessons learned from the SDK-game integration process. This document serves as a reference for both SDK maintainers and game-side developers.
+## Version matrix
 
-## 1. postMessage Data Format
+| Surface | Current SDK target |
+| --- | ---: |
+| npm package | `0.2.0` |
+| Workshop `postMessage` protocol | `1` |
+| Workshop manifest schema | `2` |
+| JavaScript build target | ES2020 |
+| Steam App ID | `4007690` |
 
-The game SPA sends attribute data to Workshop HUD iframes via `postMessage`. The data **must** be a plain JavaScript object — it cannot contain `Proxy`, `Map`, `Set`, or other types that are incompatible with the structured clone algorithm used by `postMessage`.
+Do not use one version number as a substitute for another. A schema v2 HUD still receives protocol v1 messages.
 
-**Game-side fix:** The game applies `JSON.parse(JSON.stringify(data))` before posting to ensure the data is a pure object tree. This strips any Vue reactivity proxies.
+## Parent/child origin model
 
-**SDK-side impact:** None. The SDK bridge receives plain objects directly and passes them to `onAttributeUpdate` callbacks without transformation.
+The game parent and Workshop HUD are served from distinct loopback hostnames. The development equivalent is:
 
-## 2. hud:debug_log Protocol
+- DevTools parent: `http://localhost:8080/devtools/index.html`
+- Static HUD child: `http://127.0.0.1:8080/template-workshop/index.html`
 
-The SDK bridge supports a `hud:debug_log` message type for forwarding diagnostic logs from the HUD iframe to the game's debug panel.
+The DevTools iframe uses `sandbox="allow-scripts allow-same-origin"`, rejects a same-origin child URL, checks `event.source`/origin, and targets messages to the loaded HUD origin.
 
-**Message format:**
+The official HUD templates add production CSP with `connect-src 'none'`. Static manifest metadata is therefore a local `manifest.js`; Vue imports `manifest.json` at build time. No official release HUD fetches metadata at runtime.
 
-```javascript
-window.parent.postMessage({
-  type: 'hud:debug_log',
-  message: '[Workshop HUD] some diagnostic info'
-}, '*');
-```
+## Snapshot semantics
 
-**Game-side behavior:** The game's `useWorkshopHUDBridge` composable listens for `hud:debug_log` messages and proxies them via `console.warn()`. These warnings are captured by the game's `logPersistence` system and displayed in the Shift+U debug overlay.
+`hud:attribute_update.data` always exposes these scopes:
 
-**SDK-side behavior:** When `GestaltHUDBridge` is constructed with `{ debug: true }` or the URL contains `?gestalt-debug=1`, all internal log/warn calls automatically send `hud:debug_log` messages to the parent. HUD developers see these logs in:
-- The browser console (when using DevTools offline preview)
-- The game's Shift+U debug panel (when running in-game)
-
-## 3. Local Development Workflow
-
-### DevTools Offline Preview
-
-The SDK includes a DevTools page (`devtools/index.html`) that simulates the game SPA in a browser. It sends `hud:init` and `hud:attribute_update` with configurable mock data.
-
-```bash
-npx serve . -l 8080
-```
-
-Open `http://localhost:8080/devtools/` and enter the HUD URL to load.
-
-**Caveat:** When using `npx serve`, ensure `serve.json` has `"cleanUrls": false`. The default `cleanUrls` behavior strips `.html` extensions, which changes the iframe's base URL and breaks relative script paths. The SDK repo includes a `serve.json` with this setting preconfigured.
-
-### In-Game Local Development
-
-The game reads `UI/debug.config.json` to load HUDs from local sources:
-
-```json
+```ts
 {
-  "enableDebug": true,
-  "workshopHUDDevUrl": "http://127.0.0.1:8080/my-hud/index.html?gestalt-debug=1"
+  global: Record<string, number>;
+  player: Record<string, number>;
+  battle: Record<string, number>;
+  base: Record<string, Record<string, number>>;
+  playerBattle: Record<number, Record<string, number>>;
 }
 ```
 
-**Dev server binding note:** The hostname must match the dev server's listen address. `npx serve` typically binds IPv4 (`127.0.0.1`), while Vite defaults to IPv6 only (`::1`). Use `localhost` for Vite, or add `server: { host: '0.0.0.0' }` to `vite.config.ts` so both work.
+Updates are complete snapshots. Framework stores must replace all five scopes, not merge only keys present in the previous state.
 
-**URL must include `index.html` explicitly.** The game loads the URL as-is; it does not append `index.html` for directory URLs.
+The `base` scope is not a general entity collection. It currently contains the two main bases keyed by `G_BaseId_0 + teamId`; no outpost, buff-station, or zone maps are appended.
 
-**Priority order:** `workshopHUDDevUrl` > `workshopHUDDevPath` > Steam Workshop subscription.
+## Protocol provenance
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `enableDebug` | boolean | Must be `true` for dev loading |
-| `workshopHUDDevUrl` | string | Full URL to the HUD entry page (highest priority) |
-| `workshopHUDDevPath` | string | Local folder path under `Content/WebContent/` |
+Public FBS files and generated products are linked by [`../schemas/source.json`](../schemas/source.json). The canonical release checks are:
 
-### Recommended Development Flow
-
-```
-1. Edit HUD code locally
-2. Test with DevTools offline preview (fast iteration, mock data)
-3. Test in-game with workshopHUDDevUrl + ?gestalt-debug=1 (real data, debug overlay)
-4. Publish to Steam Workshop when ready
+```powershell
+npm run protocol:verify
+npm run typecheck
+npm run build
+npm run test:runtime
+npm run test:consumer
 ```
 
-## 4. Attribute Data Format
+Generated artifacts:
 
-The attribute data delivered via `hud:attribute_update` follows these conventions:
+- [`../schemas/fbs/`](../schemas/fbs/) — raw source
+- [`../src/protocol/generated/`](../src/protocol/generated/) — TypeScript
+- [`../protocol/protocol-reference.json`](../protocol/protocol-reference.json) — machine index
+- [`generated/fbs-reference.md`](generated/fbs-reference.md) — human reference
 
-### Data Structure
+## Static asset synchronization
 
-```typescript
-{
-  global: Record<string, number>,       // Match-wide state (timer, status, zones)
-  player: Record<string, number>,       // Player slot metadata
-  battle: Record<string, number>,       // Local player's combat attributes
-  base: Record<string, Record<string, number>>,  // Base/outpost HP by map ID
-  playerBattle: Record<number, Record<string, number>>  // All players' battle attributes
-}
+Static templates vendor the UMD bundle so a copied or uploaded directory is self-contained:
+
+```powershell
+npm run workshop:sync
+npm run workshop:check
 ```
 
-### Key Conventions
+The check compares SHA-256 of every vendored UMD with `dist/workshop.umd.js` and verifies `manifest.js` against `manifest.json`.
 
-| Convention | Description | Example |
-|-----------|-------------|---------|
-| **Attribute keys** | Stringified FBS enum IDs | `"10000003"` for Health |
-| **Thousandths** (`61xxxxxx`) | 1000 = 100%, 1250 = 125% | `AttackMultiplierThou` |
-| **Tags** (`5xxxxxxx`) | Boolean: 0 = inactive, 1 = active | `Defeated`, `Overheated` |
-| **Time values** | Milliseconds | `G_MaxGameTime`, `G_CurGameTime` |
-| **Team IDs** | -1 = spectator, 0 = red, 1 = blue | `TeamID` |
+## Release validation
 
-### Confirmed Data Shape (from integration testing)
-
-On first push, typical key counts are:
-- `data.battle`: ~9 keys (HP, team, ammo, energy, etc.)
-- `data.global`: ~10 keys (match status, timer, zones, etc.)
-- `data.base`: keyed by base map ID, each containing `Health` / `HealthMax`
-- `data.playerBattle`: keyed by player ID, containing per-player battle attributes
-
-Key counts grow as the game updates more attributes during active gameplay.
-
-## 5. Workshop Upload
-
-### App ID
-
-The Steam App ID for Gestalt System is **4007690**. The upload script (`upload-workshop-hud.ps1`) defaults to this value.
-
-### Steamworks Backend Requirements
-
-Before uploading Workshop items, the following must be configured in the Steamworks Partner backend:
-
-1. **Workshop** must be enabled for App 4007690
-2. **ISteamUGC for file transfer** must be enabled under Workshop > General
-3. At least one **Item Type** (e.g. "HUD") must be configured
-4. The uploading Steam account must be a Steamworks Partner member or own the game
-
-Without these settings, uploads may succeed in creating item IDs but fail to transfer content files (error: "Invalid Parameter" or "no workshop depot found").
-
-### Workshop Tags
-
-The upload script automatically sets the Workshop tag to `"HUD"`. This tag is used by the game to filter and display Workshop items in the HUD management UI.
-
-## 6. SDK Bridge API Summary
-
-### Constructor
-
-```javascript
-var bridge = new GestaltHUD.GestaltHUDBridge({
-  targetOrigin: '*',     // postMessage target (default: '*')
-  debug: true            // enable diagnostic logging (default: auto-detect from URL)
-});
+```powershell
+pwsh -NoProfile -File .\scripts\validate-workshop-hud.ps1 `
+  -ContentFolder .\publish-test
 ```
 
-### Lifecycle
+The validation scope is intentionally HUD-only. It rejects map/gamemode capabilities, external resources, inline scripts, unsafe entries, missing assets, and release HTML without `connect-src 'none'`.
 
-| Method | Direction | Description |
-|--------|-----------|-------------|
-| `onInit(handler)` | Game -> HUD | Receive match initialization data |
-| `sendReady(name, version)` | HUD -> Game | Confirm HUD is loaded and ready |
-| `onAttributeUpdate(handler)` | Game -> HUD | Receive real-time attribute data |
-| `onGameEvent(handler)` | Game -> HUD | Receive game events (reserved for future) |
-| `sendAction(action, payload?)` | HUD -> Game | Send UI action to game |
-| `destroy()` | -- | Clean up listeners |
+## Conformance HUD diagnostics
 
-### Allowed Actions
+`publish-test` exposes a read-only `window.__GESTALT_HUD_DIAGNOSTICS__` object for Steam E2E. It contains:
 
-Only four actions are permitted in the current protocol version:
+- manifest `name` and `version`;
+- `initReceived`, `readySent`, `updateCount`, `lastUpdateAt`, `lastMapId`;
+- counts for the five snapshot scopes;
+- local core signals for health, max health, four ammo families, game time, match status, and team;
+- a bounded list of runtime error messages.
 
-| Action | Description |
-|--------|-------------|
-| `open_settings` | Open settings page |
-| `exit_game` | Exit to desktop |
-| `resume_game` | Close ESC menu, resume gameplay |
-| `exit_menu` | Return to main menu |
+The object is local to the HUD window and is never transmitted over the network. `updateCount` increases per snapshot and `lastUpdateAt` uses the monotonic `performance.now()` clock. The conformance HUD also sends the same bounded snapshot to its parent through the public `hud:debug_log` postMessage channel every five seconds. Hosts may choose to relay those records, but the current Shipping host does not write them to the UE log, so release acceptance must not depend on `GESTALT_HUD_E2E` log records.
 
-Attempting to send an unknown action throws an `Error`.
+CEF remote debugging is intentionally unavailable in Shipping builds. The Shipping acceptance harness therefore combines three independent observations: Workshop selection evidence from the new game-log window, a trusted local `HUDBridge`/`AttributeStore` probe against the dynamically announced loopback WebSocket port, and a screenshot of the real game window. The trusted probe lives in SDK test tooling only and is never included in uploaded Workshop content.
 
-## 7. Common Issues and Solutions
+This triangulation does not claim to intercept the Shipping iframe's `hud:attribute_update` message. Browser contract tests directly exercise the Workshop `postMessage` v1 path; the Shipping probe independently reconstructs the same match's source attribute chain while the log and screenshot prove that the selected Workshop HUD was loaded and rendered.
 
-### HUD loads but no data displays
+The full built-in map matrix can force a real Infantry combat payload instead of accepting observer defaults:
 
-1. Verify `bridge.sendReady()` is called after receiving `hud:init`
-2. Ensure `manifest.json` is valid and `fetch('./manifest.json')` succeeds
-3. Check attribute keys are stringified numeric IDs (e.g. `"10000003"`, not `"Health"`)
-4. Enable debug mode (`?gestalt-debug=1`) to confirm data arrival
+```powershell
+pwsh -NoProfile -File .\scripts\run-steam-workshop-e2e.ps1 `
+  -MapIds @(2,3,4,5,6,7,8) -Mode Log `
+  -CareerId 1003 -EntityId 66000002 `
+  -StabilitySeconds 60 -TimeoutSeconds 180 `
+  -InterMapDelaySeconds 15 -ForceStopExisting
+```
 
-### DevTools HUD iframe shows blank
+With the paired career/entity arguments, the runner explicitly respawns standalone player `0` into a validated team slot before requiring Health, HealthMax, BulletType, and active-ammo keys. Leaving both arguments at zero exercises the observer path, where an entirely absent combat payload is valid but a partially present one is not.
 
-- The DevTools iframe background is `#1a3a2a` (dark green). If your HUD renders white/light text on a transparent background, it should be visible.
-- Ensure the HTTP server is running and the HUD URL is accessible.
-- Check browser console for script loading errors.
-- Verify `serve.json` has `"cleanUrls": false` if using `npx serve`.
+## Steam acceptance sequence
 
-### Game shows directory listing instead of HUD
+1. Dry-run and inspect staged content/VDF.
+2. Upload as Private to an explicit Item ID.
+3. Confirm Steam client subscription/download for the signed-in account.
+4. Compare installed Workshop content with staging hashes.
+5. Launch App `4007690` through Steam.
+6. Enter the test map and inspect the HUD iframe via CDP in a development build. For Shipping, capture the game window and run the trusted local WebSocket probe while checking Workshop state, manifest, and selected-path evidence from the same launch's log window.
+7. Assert the requested map, increasing protocol updates, non-empty expected scopes, finite core signals, no RPC errors, the expected Workshop release, and a rendered HUD screenshot.
+8. Exercise map/load/restart and built-in HUD fallback behavior.
+9. Promote visibility only after the private build passes.
 
-The `workshopHUDDevUrl` must point to the full HTML file path (e.g. `http://127.0.0.1:8080/my-hud/index.html`), not a directory.
+The existing official candidate ID is `3698375578`, but every update command must name it explicitly.
 
-### Debug logs don't appear in game
+## Known public boundary
 
-- Debug logs use `hud:debug_log` postMessage, which the game proxies via `console.warn`
-- The game must have the `useWorkshopHUDBridge` handler for `hud:debug_log` (included since the integration update)
-- Check the Shift+U overlay is open
-
-### Script not found in iframe (404 for UMD bundle)
-
-- If using `npx serve`, the `cleanUrls` feature can redirect `index.html` to `index`, changing the base URL and breaking relative script paths
-- Solution: set `"cleanUrls": false` in `serve.json` (already configured in the SDK repo)
-- Add cache-busting parameters to iframe URLs if browser caching causes stale scripts
-
-### SteamCMD upload fails with "Invalid Parameter"
-
-- Ensure `ISteamUGC for file transfer` is enabled in Steamworks Partner backend
-- Verify the App ID is `4007690`
-- Check that the content folder contains `manifest.json`
+The root WebSocket bridge is a trusted-tool API and should not appear in a Workshop bundle. Steam HUD conformance tests should fail a release containing WebSocket/HTTP endpoints or lacking `connect-src 'none'`.

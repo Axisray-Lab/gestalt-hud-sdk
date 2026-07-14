@@ -11,23 +11,17 @@
 
   var bridge = new GestaltHUD.GestaltHUDBridge();
   var Attr = GestaltHUD.ERobotBridgeDemoAttributeId;
+  var Career = GestaltHUD.ERobotBridgeDemoCareerId;
 
-  var manifest = { name: 'RMUL2026 Competition HUD', version: '1.0.0' };
-
-  fetch('./manifest.json')
-    .then(function (r) {
-      return r.json();
-    })
-    .then(function (m) {
-      manifest = m;
-      var el = document.getElementById('version-badge');
-      if (el) {
-        el.textContent = 'Workshop: ' + m.name + ' v' + m.version;
-      }
-    })
-    .catch(function () {
-      console.warn('[RMUL2026 HUD] Could not load manifest.json');
-    });
+  var manifest = window.GESTALT_HUD_MANIFEST || {
+    name: 'RMUL2026 Competition HUD',
+    version: '0.0.0',
+  };
+  var readySent = false;
+  var versionBadge = document.getElementById('version-badge');
+  if (versionBadge) {
+    versionBadge.textContent = 'Workshop: ' + manifest.name + ' v' + manifest.version;
+  }
 
   var teamId = -1;
   var playerId = -1;
@@ -57,7 +51,10 @@
     teamId = msg.teamId;
     playerId = msg.playerId;
     updateTeamTag();
-    bridge.sendReady(manifest.name, manifest.version);
+    if (!readySent) {
+      readySent = true;
+      bridge.sendReady(manifest.name, manifest.version);
+    }
   });
 
   bridge.onAttributeUpdate(function (data) {
@@ -80,9 +77,14 @@
     return typeof v === 'number' && isFinite(v) ? v : 0;
   }
 
-  function hasAttr(b, id) {
-    var v = b[id];
-    return typeof v === 'number' && isFinite(v);
+  function ammoForBulletType(battle, bulletType) {
+    switch (bulletType) {
+      case 0: return num(battle[Attr.Ammo42mmCount]);
+      case 1: return num(battle[Attr.Ammo17mmCount]);
+      case 2: return num(battle[Attr.AmmoDartCount]);
+      case 3: return num(battle[Attr.AmmoLaserCount]);
+      default: return 0;
+    }
   }
 
   function pad2(n) {
@@ -98,18 +100,20 @@
 
   function careerName(classId) {
     switch (classId) {
-      case 1001:
+      case Career.Hero:
         return 'Hero';
-      case 1002:
+      case Career.Engineer:
         return 'Engineer';
-      case 1003:
+      case Career.Infantry:
         return 'Infantry';
-      case 1004:
+      case Career.Sentry:
         return 'Sentry';
-      case 1005:
+      case Career.Aerial:
         return 'Aerial';
-      case 1008:
-        return 'BalanceInfantry';
+      case Career.Radar:
+        return 'Radar';
+      case Career.Dart:
+        return 'Dart';
       default:
         return '—';
     }
@@ -244,67 +248,24 @@
     }
 
     var bulletType = num(battle[Attr.BulletType]);
-    var ammo =
-      bulletType === 0
-        ? num(battle[Attr.Ammo42mmCount])
-        : num(battle[Attr.Ammo17mmCount]);
+    var ammo = ammoForBulletType(battle, bulletType);
     elAmmo.textContent = String(ammo);
   }
 
   function resolveBases(baseData) {
-    var keys = Object.keys(baseData || {});
-    var red = { hp: 0, max: 0 };
-    var blue = { hp: 0, max: 0 };
-    var gotRed = false;
-    var gotBlue = false;
-    var i;
-    var k;
-    var b;
-    var team;
-    for (i = 0; i < keys.length; i++) {
-      k = keys[i];
-      b = baseData[k] || {};
-      if (hasAttr(b, Attr.TB_BelongTeamID)) {
-        team = num(b[Attr.TB_BelongTeamID]);
-      } else if (hasAttr(b, Attr.TeamID)) {
-        team = num(b[Attr.TeamID]);
-      } else {
-        team = -99;
-      }
-      if (team === 0) {
-        red.hp = num(b[Attr.Health]);
-        red.max = num(b[Attr.HealthMax]);
-        gotRed = true;
-      } else if (team === 1) {
-        blue.hp = num(b[Attr.Health]);
-        blue.max = num(b[Attr.HealthMax]);
-        gotBlue = true;
-      }
-    }
-    if (!gotRed || !gotBlue) {
-      keys.sort(function (a, b2) {
-        return parseInt(a, 10) - parseInt(b2, 10);
-      });
-      if (keys.length >= 2) {
-        if (!gotRed) {
-          b = baseData[keys[0]] || {};
-          red.hp = num(b[Attr.Health]);
-          red.max = num(b[Attr.HealthMax]);
-        }
-        if (!gotBlue) {
-          b = baseData[keys[1]] || {};
-          blue.hp = num(b[Attr.Health]);
-          blue.max = num(b[Attr.HealthMax]);
-        }
-      } else if (keys.length === 1) {
-        b = baseData[keys[0]] || {};
-        if (!gotRed) {
-          red.hp = num(b[Attr.Health]);
-          red.max = num(b[Attr.HealthMax]);
-        }
-      }
-    }
-    return { red: red, blue: blue };
+    var source = baseData || {};
+    var redAttributes = source[String(Attr.G_BaseId_0)] || {};
+    var blueAttributes = source[String(Attr.G_BaseId_0 + 1)] || {};
+    return {
+      red: {
+        hp: num(redAttributes[Attr.Health]),
+        max: num(redAttributes[Attr.HealthMax]),
+      },
+      blue: {
+        hp: num(blueAttributes[Attr.Health]),
+        max: num(blueAttributes[Attr.HealthMax]),
+      },
+    };
   }
 
   function updateBaseStatus(baseData) {

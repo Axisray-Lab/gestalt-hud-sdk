@@ -1,15 +1,10 @@
 {
-  "sdk_version": 1,
+  "sdk_version": 2,
   "name": "RMUC2026 Vue HUD",
   "version": "0.1.0",
   "author": "Gestalt SDK",
   "description": "Advanced Workshop HUD built with Vue 3 — open-source reference implementation of the game's competition HUD.",
-  "compatible_maps": [
-    "L_Traning",
-    "L_Map2026",
-    "L_MapRMUL2026",
-    "L_MapRMUL2026_IF",
-    "L_Map20261V1"
-  ],
+  "provides": ["hud"],
+  "compatible_maps": [],
   "entry": "index.html"
 }

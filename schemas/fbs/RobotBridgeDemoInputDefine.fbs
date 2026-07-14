@@ -1,0 +1,47 @@
+/**
+* @license: Public SDK Protocol Schema. Copyright (c) 2025 AXISRAY Lab Inc.
+* Distributed under the gestalt-hud-sdk repository LICENSE.
+*/
+
+namespace RobotBridgeDemo;
+
+/// VehicleInputData index enum (synced across C++ and TS via FlatBuffer codegen).
+/// When adding a new input action: add an entry here, then run generate-protol.ps1.
+enum EVehicleInputIndex :int {
+  MoveX = 0,
+  MoveY = 1,
+  LookX = 2,
+  LookY = 3,
+  ViewModeToggle = 4,
+  Boost = 5,
+  SpinToggle = 6,
+  ReadyOrResetPosition = 7,
+  RespawnHero = 8,
+  RespawnInfantry = 9,
+  RespawnAsSentry = 10,
+  RespawnAsObserver = 11,
+  AltMode = 12,
+  Skill1 = 13,
+  Skill2 = 14,
+  RespawnDrone = 15,
+  Mode1 = 16,
+  Mode2 = 17,
+  Mode3 = 18,
+  Handbrake = 19,
+  FireModeCycle = 20,
+  Skill3 = 21,
+  RespawnSecondaryInfantry = 22,
+  PreferredHero = 23,
+  PreferredInfantry = 24,
+  PreferredSentry = 25,
+  AutoAim = 26,
+  MoveZ = 27,
+  PreferredAerial = 28,
+  RespawnEngineer = 29,
+  EnterRadar = 30,
+  EnterDart = 31,
+  Skill4 = 32,
+  RespawnTertiaryInfantry = 33,
+  Jump = 34,
+  VID_MAX = 35
+}

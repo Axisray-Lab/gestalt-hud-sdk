@@ -6,7 +6,7 @@
  * for all game data inside a Workshop HUD Vue app.
  */
 
-import { ref, reactive, onUnmounted } from 'vue';
+import { ref, onUnmounted } from 'vue';
 import {
   GestaltHUDBridge,
   ERobotBridgeDemoAttributeId,
@@ -14,6 +14,7 @@ import {
   type HUDAttributeData,
   type HUDAction,
 } from '@axisray-lab/gestalt-hud-sdk/workshop';
+import manifest from '../../manifest.json';
 
 export interface BridgeContext {
   teamId: number;
@@ -39,21 +40,9 @@ export function useBridge() {
 
   const battleAttributes = ref<Record<string, number>>({});
   const globalAttributes = ref<Record<string, number>>({});
-  const baseAttributes = reactive<Record<string, Record<string, number>>>({});
-  const playerBattleAttributes = reactive<Record<number, Record<string, number>>>({});
-
-  let manifestName = 'Workshop HUD';
-  let manifestVersion = '0.0.0';
-
-  fetch('./manifest.json')
-    .then((r) => r.json())
-    .then((m) => {
-      manifestName = m.name ?? manifestName;
-      manifestVersion = m.version ?? manifestVersion;
-    })
-    .catch(() => {
-      console.warn('[Vue HUD] Could not load manifest.json');
-    });
+  const playerAttributes = ref<Record<string, number>>({});
+  const baseAttributes = ref<Record<string, Record<string, number>>>({});
+  const playerBattleAttributes = ref<Record<number, Record<string, number>>>({});
 
   const unsubInit = bridge.onInit((msg: HUDInitMessage) => {
     context.value = {
@@ -65,24 +54,20 @@ export function useBridge() {
       protocolVersion: msg.version,
     };
     initialized.value = true;
-    bridge.sendReady(manifestName, manifestVersion);
+    bridge.sendReady(manifest.name, manifest.version);
   });
 
   const unsubAttr = bridge.onAttributeUpdate((data: HUDAttributeData) => {
-    if (data.battle) battleAttributes.value = data.battle;
-    if (data.global) globalAttributes.value = data.global;
-
-    if (data.base) {
-      for (const [key, val] of Object.entries(data.base)) {
-        baseAttributes[key] = val as Record<string, number>;
-      }
-    }
-
-    if (data.playerBattle) {
-      for (const [key, val] of Object.entries(data.playerBattle)) {
-        playerBattleAttributes[Number(key)] = val as Record<string, number>;
-      }
-    }
+    // The host sends complete snapshots. Replace every scope, including an
+    // omitted/empty one, so keys removed by the game cannot remain stale.
+    battleAttributes.value = { ...(data.battle ?? {}) };
+    globalAttributes.value = { ...(data.global ?? {}) };
+    playerAttributes.value = { ...(data.player ?? {}) };
+    baseAttributes.value = cloneNested(data.base);
+    playerBattleAttributes.value = cloneNested(data.playerBattle) as Record<
+      number,
+      Record<string, number>
+    >;
 
     // Update teamId from battle attributes if changed
     const teamKey = String(ERobotBridgeDemoAttributeId.TeamID);
@@ -96,6 +81,17 @@ export function useBridge() {
     bridge.sendAction(action, payload);
   }
 
+  function cloneNested(
+    value: Record<string | number, Record<string, number>> | undefined,
+  ): Record<string, Record<string, number>> {
+    return Object.fromEntries(
+      Object.entries(value ?? {}).map(([key, attributes]) => [
+        key,
+        { ...attributes },
+      ]),
+    );
+  }
+
   onUnmounted(() => {
     unsubInit();
     unsubAttr();
@@ -107,6 +103,7 @@ export function useBridge() {
     context,
     battleAttributes,
     globalAttributes,
+    playerAttributes,
     baseAttributes,
     playerBattleAttributes,
     sendAction,

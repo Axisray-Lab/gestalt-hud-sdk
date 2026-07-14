@@ -83,7 +83,10 @@
  */
 
 import { computed, ref, watch, toRef } from 'vue';
-import { ERobotBridgeDemoAttributeId } from '@axisray-lab/gestalt-hud-sdk/workshop';
+import {
+  ERobotBridgeDemoAttributeId,
+  ERobotBridgeDemoBulletType,
+} from '@axisray-lab/gestalt-hud-sdk/workshop';
 
 import { useHUDAttributes } from '@/composables/useHUDAttributes';
 import type { BridgeContext } from '@/composables/useBridge';
@@ -130,10 +133,15 @@ const teamColor = computed(() => {
   if (tid === 1) return '#4ac2ff';
   return '#b9b9b9';
 });
-const ammoTypeLabel = computed(() => attrs.weapon.bulletType.value === 0 ? '42mm' : '17mm');
+const AMMO_TYPE_LABELS: Record<number, string> = {
+  [ERobotBridgeDemoBulletType.Projectile42mm]: '42mm',
+  [ERobotBridgeDemoBulletType.Projectile17mm]: '17mm',
+  [ERobotBridgeDemoBulletType.Dart]: 'DART',
+  [ERobotBridgeDemoBulletType.Laser]: 'LASER',
+};
+const ammoTypeLabel = computed(() => AMMO_TYPE_LABELS[attrs.weapon.bulletType.value] ?? '—');
 
-// ==================== Base / Outpost data ==================== //
-const baseKeys = computed(() => Object.keys(props.baseAttributes));
+// ==================== Base data ==================== //
 const A = ERobotBridgeDemoAttributeId;
 
 function extractBase(attrs: Record<string, number> | undefined) {
@@ -152,24 +160,18 @@ const leftTeamId = computed(() => {
 const rightTeamId = computed(() => leftTeamId.value === 0 ? 1 : 0);
 
 const leftBase = computed(() => {
-  const k = baseKeys.value[leftTeamId.value] ?? baseKeys.value[0];
-  return extractBase(props.baseAttributes[k]);
+  const key = String(A.G_BaseId_0 + leftTeamId.value);
+  return extractBase(props.baseAttributes[key]);
 });
 const rightBase = computed(() => {
-  const k = baseKeys.value[rightTeamId.value] ?? baseKeys.value[1];
-  return extractBase(props.baseAttributes[k]);
+  const key = String(A.G_BaseId_0 + rightTeamId.value);
+  return extractBase(props.baseAttributes[key]);
 });
 
-const leftOutpost = computed(() => {
-  const k = baseKeys.value[leftTeamId.value + 2];
-  if (!k) return undefined;
-  return extractBase(props.baseAttributes[k]);
-});
-const rightOutpost = computed(() => {
-  const k = baseKeys.value[rightTeamId.value + 2];
-  if (!k) return undefined;
-  return extractBase(props.baseAttributes[k]);
-});
+// The Workshop base scope currently forwards main bases only. Outpost state is
+// represented by explicit global attributes, not extra entries in data.base.
+const leftOutpost = computed(() => undefined);
+const rightOutpost = computed(() => undefined);
 
 // ==================== Status Banner ==================== //
 const bannerVisible = ref(false);

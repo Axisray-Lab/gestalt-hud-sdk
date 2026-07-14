@@ -46,8 +46,8 @@ export interface GameGlobalVars {
 export interface GameContext {
   /** Local player's unique ID within the match */
   localPlayerId: number | null;
-  /** Current map identifier string */
-  mapId: string | null;
+  /** Current ERobotBridgeDemoMapType numeric value */
+  mapId: number | null;
   /** Player's team: -1 = spectator, 0 = red, 1 = blue */
   teamId: number;
   /** Player's career/class type */

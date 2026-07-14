@@ -5,10 +5,9 @@
  * (`sandbox="allow-scripts allow-same-origin"`) and communicates with
  * the game's main SPA via `window.postMessage`.
  *
- * It is the Workshop counterpart of {@link HUDBridge} (WebSocket).
- * The two bridges expose similar callback signatures so that HUD
- * developers can switch between dev mode (WebSocket) and publish mode
- * (postMessage) with minimal code changes.
+ * This is the supported bridge for both Workshop development and published
+ * HUDs. The package's direct WebSocket client is a separate privileged,
+ * experimental API and must not be bundled into Workshop content.
  */
 
 import {
@@ -16,26 +15,23 @@ import {
   type HUDInitMessage,
   type HUDAttributeUpdateMessage,
   type HUDAttributeData,
-  type HUDEventMessage,
+  type HUDGameEventMessage,
   type HUDReadyMessage,
   type HUDActionMessage,
+  type HUDDebugLogMessage,
   type HUDAction,
+  WORKSHOP_HUD_ACTION_WHITELIST,
+  isSPAToHUDMessage,
 } from '../protocol/workshop-types';
-
-const VALID_ACTIONS: ReadonlySet<string> = new Set<HUDAction>([
-  'open_settings',
-  'exit_game',
-  'resume_game',
-  'exit_menu',
-]);
 
 const TAG = '[Workshop HUD]';
 
 export interface GestaltHUDBridgeOptions {
   /**
    * The `targetOrigin` parameter for `postMessage()`.
-   * Defaults to `'*'` for broadest compatibility with Workshop
-   * HUD deployment scenarios (local dev, Steam Workshop, etc.).
+   * By default this is derived from `document.referrer`. If the embedding
+   * origin cannot be determined, the bridge falls back to `'*'` while still
+   * requiring messages to come from this iframe's `window.parent`.
    */
   targetOrigin?: string;
 
@@ -54,6 +50,31 @@ export interface GestaltHUDBridgeOptions {
    * `?gestalt-debug=1` to the URL to enable debug without code changes.
    */
   debug?: boolean;
+}
+
+function inferParentOrigin(): string {
+  try {
+    if (document.referrer) {
+      const origin = new URL(document.referrer).origin;
+      if (origin && origin !== 'null') return origin;
+    }
+  } catch {
+    // Sandboxed/dev contexts may not expose a usable referrer.
+  }
+  return '*';
+}
+
+function normalizeTargetOrigin(origin: string): string {
+  if (origin === '*') return origin;
+  try {
+    const parsed = new URL(origin);
+    if (parsed.origin === 'null') throw new Error('opaque origin');
+    return parsed.origin;
+  } catch {
+    throw new TypeError(
+      `${TAG} targetOrigin must be "*" or an absolute http(s) origin`,
+    );
+  }
 }
 
 type InitHandler = (msg: HUDInitMessage) => void;
@@ -79,6 +100,7 @@ function scopeSummary(
 
 export class GestaltHUDBridge {
   private targetOrigin: string;
+  private readonly parentWindow: Window;
   private destroyed = false;
   private readonly debugEnabled: boolean;
 
@@ -101,7 +123,10 @@ export class GestaltHUDBridge {
   private lastMsgTime = 0;
 
   constructor(options?: GestaltHUDBridgeOptions) {
-    this.targetOrigin = options?.targetOrigin ?? '*';
+    this.targetOrigin = normalizeTargetOrigin(
+      options?.targetOrigin ?? inferParentOrigin(),
+    );
+    this.parentWindow = window.parent;
     this.debugEnabled =
       options?.debug !== undefined ? options.debug : detectDebugFromURL();
     this.boundListener = this.handleMessage.bind(this);
@@ -120,8 +145,12 @@ export class GestaltHUDBridge {
     console.log(`${TAG} ${message}`);
     try {
       if (window.parent && window.parent !== window) {
-        window.parent.postMessage(
-          { type: 'hud:debug_log', message: `${TAG} ${message}` },
+        const debugMessage: HUDDebugLogMessage = {
+          type: 'hud:debug_log',
+          message: `${TAG} ${message}`,
+        };
+        this.parentWindow.postMessage(
+          debugMessage,
           this.targetOrigin,
         );
       }
@@ -134,8 +163,12 @@ export class GestaltHUDBridge {
     console.warn(`${TAG} ${message}`);
     try {
       if (window.parent && window.parent !== window) {
-        window.parent.postMessage(
-          { type: 'hud:debug_log', message: `[WARN] ${TAG} ${message}` },
+        const debugMessage: HUDDebugLogMessage = {
+          type: 'hud:debug_log',
+          message: `[WARN] ${TAG} ${message}`,
+        };
+        this.parentWindow.postMessage(
+          debugMessage,
           this.targetOrigin,
         );
       }
@@ -216,10 +249,10 @@ export class GestaltHUDBridge {
    * @throws {Error} if `action` is not in the Sprint 1 whitelist.
    */
   sendAction(action: HUDAction, payload?: unknown): void {
-    if (!VALID_ACTIONS.has(action)) {
+    if (!WORKSHOP_HUD_ACTION_WHITELIST.has(action)) {
       throw new Error(
         `${TAG} Unknown action "${action}". ` +
-          `Allowed actions: ${[...VALID_ACTIONS].join(', ')}`,
+          `Allowed actions: ${[...WORKSHOP_HUD_ACTION_WHITELIST].join(', ')}`,
       );
     }
     this.postToParent<HUDActionMessage>({
@@ -227,6 +260,16 @@ export class GestaltHUDBridge {
       action,
       payload,
     });
+  }
+
+  /**
+   * Send a bounded diagnostic line to the game host.
+   *
+   * Do not include secrets, account identifiers, or complete attribute
+   * snapshots. The host may persist this text in its local log.
+   */
+  sendDebugLog(message: string): void {
+    this.debugLog(message);
   }
 
   // ── Cleanup ──
@@ -250,8 +293,38 @@ export class GestaltHUDBridge {
   private handleMessage(event: MessageEvent): void {
     if (this.destroyed) return;
 
+    // `event.origin` alone is not enough when the legacy host sends to `*`.
+    // The WindowProxy identity is stable across the cross-origin iframe boundary
+    // and rejects messages from sibling frames or unrelated windows.
+    if (event.source !== this.parentWindow) {
+      if (this.debugEnabled) {
+        console.warn(`${TAG} Ignored message not sent by window.parent`);
+      }
+      return;
+    }
+    if (this.targetOrigin !== '*' && event.origin !== this.targetOrigin) {
+      if (this.debugEnabled) {
+        console.warn(
+          `${TAG} Ignored message from unexpected origin "${event.origin}"`,
+        );
+      }
+      return;
+    }
+
     const msg = event.data;
-    if (!msg || typeof msg !== 'object' || typeof msg.type !== 'string') return;
+    if (!isSPAToHUDMessage(msg)) {
+      if (
+        this.debugEnabled &&
+        msg &&
+        typeof msg === 'object' &&
+        'type' in msg &&
+        typeof msg.type === 'string' &&
+        msg.type.startsWith('hud:')
+      ) {
+        console.warn(`${TAG} Ignored malformed message: ${msg.type}`);
+      }
+      return;
+    }
 
     this.msgCount++;
     const now = performance.now();
@@ -265,18 +338,14 @@ export class GestaltHUDBridge {
 
     switch (msg.type) {
       case 'hud:init':
-        this.handleInit(msg as HUDInitMessage);
+        this.handleInit(msg);
         break;
       case 'hud:attribute_update':
-        this.handleAttributeUpdate(msg as HUDAttributeUpdateMessage);
+        this.handleAttributeUpdate(msg);
         break;
       case 'hud:game_event':
-        this.handleGameEvent(msg as HUDEventMessage);
+        this.handleGameEvent(msg);
         break;
-      default:
-        if (this.debugEnabled) {
-          this.debugLog(`Unknown message type: ${msg.type}`);
-        }
     }
   }
 
@@ -353,7 +422,7 @@ export class GestaltHUDBridge {
     }
   }
 
-  private handleGameEvent(msg: HUDEventMessage): void {
+  private handleGameEvent(msg: HUDGameEventMessage): void {
     if (this.debugEnabled) {
       this.debugLog(`Game event: ${msg.event} ${JSON.stringify(msg.payload).substring(0, 200)}`);
     }
@@ -372,10 +441,10 @@ export class GestaltHUDBridge {
       console.warn(`${TAG} Attempted to send message after destroy()`);
       return;
     }
-    if (!window.parent || window.parent === window) {
+    if (!this.parentWindow || this.parentWindow === window) {
       console.warn(`${TAG} Not running inside an iframe — postMessage skipped`);
       return;
     }
-    window.parent.postMessage(message, this.targetOrigin);
+    this.parentWindow.postMessage(message, this.targetOrigin);
   }
 }

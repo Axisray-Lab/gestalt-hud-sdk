@@ -10,35 +10,15 @@
   var bridge = new GestaltHUD.GestaltHUDBridge();
   var Attr = GestaltHUD.ERobotBridgeDemoAttributeId;
 
-  var manifest = { name: '1v1 Duel HUD', version: '0.0.0' };
-  var initDone = false;
-  var manifestLoaded = false;
+  var manifest = window.GESTALT_HUD_MANIFEST || {
+    name: '1v1 Duel HUD',
+    version: '0.0.0',
+  };
   var readySent = false;
-
-  function trySendReady() {
-    if (readySent || !initDone || !manifestLoaded) return;
-    readySent = true;
-    bridge.sendReady(manifest.name, manifest.version);
+  var badge = document.getElementById('version-badge');
+  if (badge) {
+    badge.textContent = 'Workshop: ' + manifest.name + ' v' + manifest.version;
   }
-
-  fetch('./manifest.json')
-    .then(function (r) {
-      return r.json();
-    })
-    .then(function (m) {
-      manifest = m;
-      manifestLoaded = true;
-      var badge = document.getElementById('version-badge');
-      if (badge) {
-        badge.textContent = 'Workshop: ' + m.name + ' v' + m.version;
-      }
-      trySendReady();
-    })
-    .catch(function () {
-      console.warn('[1v1 Duel HUD] Could not load manifest.json');
-      manifestLoaded = true;
-      trySendReady();
-    });
 
   var elTimer = document.getElementById('match-timer');
   var elMatchStatus = document.getElementById('match-status');
@@ -50,8 +30,9 @@
   var elOverheated = document.getElementById('overheated-warning');
 
   bridge.onInit(function () {
-    initDone = true;
-    trySendReady();
+    if (readySent) return;
+    readySent = true;
+    bridge.sendReady(manifest.name, manifest.version);
   });
 
   bridge.onAttributeUpdate(function (data) {
@@ -68,10 +49,7 @@
     }
 
     var bulletType = num(battle[Attr.BulletType]);
-    var ammo =
-      bulletType === 0
-        ? num(battle[Attr.Ammo42mmCount])
-        : num(battle[Attr.Ammo17mmCount]);
+    var ammo = ammoForBulletType(battle, bulletType);
     elAmmo.textContent = String(ammo);
 
     var heat = num(battle[Attr.FiringHeat1]);
@@ -120,6 +98,16 @@
 
   function num(v) {
     return typeof v === 'number' && isFinite(v) ? v : 0;
+  }
+
+  function ammoForBulletType(battle, bulletType) {
+    switch (bulletType) {
+      case 0: return num(battle[Attr.Ammo42mmCount]);
+      case 1: return num(battle[Attr.Ammo17mmCount]);
+      case 2: return num(battle[Attr.AmmoDartCount]);
+      case 3: return num(battle[Attr.AmmoLaserCount]);
+      default: return 0;
+    }
   }
 
   function healthColor(pct) {

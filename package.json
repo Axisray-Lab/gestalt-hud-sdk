@@ -1,6 +1,6 @@
 {
   "name": "@axisray-lab/gestalt-hud-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "HUD modding SDK for Gestalt System — build custom in-game HUDs with real-time attribute data",
   "type": "module",
   "main": "dist/index.cjs",
@@ -21,19 +21,32 @@
       "types": "./dist/workshop/index.d.ts",
       "import": "./dist/workshop/index.js",
       "require": "./dist/workshop/index.cjs"
-    }
+    },
+    "./protocol-reference.json": "./protocol/protocol-reference.json",
+    "./schemas/*": "./schemas/*"
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "schemas",
+    "protocol",
+    "docs/generated"
   ],
   "scripts": {
-    "build": "npx vite build && npx vite build --config vite.config.workshop-umd.ts",
-    "build:lib": "npx vite build",
-    "build:umd": "npx vite build --config vite.config.workshop-umd.ts",
-    "dev": "npx vite build --watch",
+    "protocol:generate": "node scripts/generate-fbs-protocol.mjs",
+    "protocol:verify": "node scripts/generate-fbs-protocol.mjs --verify",
+    "build": "npm run protocol:verify && npm run typecheck && npm run build:lib && npm run build:umd",
+    "build:lib": "vite build",
+    "build:umd": "vite build --config vite.config.workshop-umd.ts",
+    "dev": "vite build --watch",
     "devtools": "npx serve . -l 8080",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "workshop:sync": "pwsh -NoProfile -File ./scripts/sync-workshop-assets.ps1",
+    "workshop:check": "pwsh -NoProfile -File ./scripts/sync-workshop-assets.ps1 -Check",
+    "workshop:validate:release": "pwsh -NoProfile -File ./scripts/validate-workshop-hud.ps1 -ContentFolder ./publish-test",
+    "test:runtime": "node --test tests/runtime-contract.test.mjs",
+    "test:consumer": "node scripts/test-package-consumer.mjs",
+    "test": "npm run build && npm run test:runtime && npm run test:consumer && npm run workshop:check && npm run workshop:validate:release"
   },
   "keywords": [
     "gestalt-system",
@@ -49,6 +62,13 @@
     "type": "git",
     "url": "https://github.com/Axisray-Lab/gestalt-hud-sdk.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "npm@11.9.0",
   "devDependencies": {
     "typescript": "^5.6.0",
     "vite": "^6.0.0",

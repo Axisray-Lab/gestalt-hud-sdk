@@ -11,32 +11,15 @@
 
   var bridge = new GestaltHUD.GestaltHUDBridge();
   var Attr = GestaltHUD.ERobotBridgeDemoAttributeId;
+  var Career = GestaltHUD.ERobotBridgeDemoCareerId;
 
-  var manifest = { name: 'RMUC2026 Competition HUD', version: '0.0.0' };
-  var manifestLoaded = false;
-  var initReceived = false;
-
-  function trySendReady() {
-    if (!manifestLoaded || !initReceived) return;
-    bridge.sendReady(manifest.name, manifest.version);
-  }
-
-  fetch('./manifest.json')
-    .then(function (r) {
-      return r.json();
-    })
-    .then(function (m) {
-      manifest = m;
-      manifestLoaded = true;
-      var badge = document.getElementById('version-badge');
-      badge.textContent = m.name + ' v' + m.version;
-      trySendReady();
-    })
-    .catch(function () {
-      console.warn('[RMUC2026 HUD] Could not load manifest.json');
-      manifestLoaded = true;
-      trySendReady();
-    });
+  var manifest = window.GESTALT_HUD_MANIFEST || {
+    name: 'RMUC2026 Competition HUD',
+    version: '0.0.0',
+  };
+  var readySent = false;
+  var badge = document.getElementById('version-badge');
+  if (badge) badge.textContent = manifest.name + ' v' + manifest.version;
 
   var elTimer = document.getElementById('match-timer');
   var elMatchStatus = document.getElementById('match-status');
@@ -75,20 +58,22 @@
 
   var teamId = -1;
 
-  var CAREER = {
-    1001: 'Hero',
-    1002: 'Engineer',
-    1003: 'Infantry',
-    1004: 'Sentry',
-    1005: 'Aerial',
-    1008: 'Balance Infantry',
-  };
+  var CAREER = {};
+  CAREER[Career.Hero] = 'Hero';
+  CAREER[Career.Engineer] = 'Engineer';
+  CAREER[Career.Infantry] = 'Infantry';
+  CAREER[Career.Sentry] = 'Sentry';
+  CAREER[Career.Aerial] = 'Aerial';
+  CAREER[Career.Radar] = 'Radar';
+  CAREER[Career.Dart] = 'Dart';
 
   bridge.onInit(function (msg) {
     teamId = msg.teamId;
     updateTeamDisplay();
-    initReceived = true;
-    trySendReady();
+    if (!readySent) {
+      readySent = true;
+      bridge.sendReady(manifest.name, manifest.version);
+    }
   });
 
   bridge.onAttributeUpdate(function (data) {
@@ -137,14 +122,14 @@
       updateTeamDisplay();
     }
 
-    // Ammo (0 → 42mm, else 17mm per workshop template convention)
+    // Ammo follows ERobotBridgeDemoBulletType: 42mm, 17mm, dart, laser.
     var bulletType = num(battle[Attr.BulletType]);
-    var use42 = bulletType === 0;
-    var ammo = use42 ? num(battle[Attr.Ammo42mmCount]) : num(battle[Attr.Ammo17mmCount]);
+    var ammoInfo = ammoForBulletType(battle, bulletType);
+    var ammo = ammoInfo.count;
     elAmmo.textContent = String(ammo);
     elAmmoPanel.textContent = String(ammo);
-    elAmmoTypeLabel.textContent = use42 ? '42mm' : '17mm';
-    elAmmoTitle.textContent = use42 ? '42mm' : '17mm';
+    elAmmoTypeLabel.textContent = ammoInfo.label;
+    elAmmoTitle.textContent = ammoInfo.label;
 
     // Team coins (battle or global)
     var coinsRaw = battle[Attr.TM_Coins];
@@ -172,6 +157,16 @@
 
   function num(v) {
     return typeof v === 'number' && isFinite(v) ? v : 0;
+  }
+
+  function ammoForBulletType(battle, bulletType) {
+    switch (bulletType) {
+      case 0: return { count: num(battle[Attr.Ammo42mmCount]), label: '42mm' };
+      case 1: return { count: num(battle[Attr.Ammo17mmCount]), label: '17mm' };
+      case 2: return { count: num(battle[Attr.AmmoDartCount]), label: 'DART' };
+      case 3: return { count: num(battle[Attr.AmmoLaserCount]), label: 'LASER' };
+      default: return { count: 0, label: '—' };
+    }
   }
 
   function tagOn(v) {
@@ -322,17 +317,14 @@
 
   function updateBaseStatus(data) {
     var base = data.base || {};
-    var baseKeys = Object.keys(base);
-    if (baseKeys.length >= 2) {
-      var b0 = base[baseKeys[0]] || {};
-      var b1 = base[baseKeys[1]] || {};
-      var hp0 = num(b0[Attr.Health]);
-      var hpMax0 = num(b0[Attr.HealthMax]);
-      var hp1 = num(b1[Attr.Health]);
-      var hpMax1 = num(b1[Attr.HealthMax]);
-      if (hpMax0 > 0) elRedBase.style.width = Math.min(100, (hp0 / hpMax0) * 100) + '%';
-      if (hpMax1 > 0) elBlueBase.style.width = Math.min(100, (hp1 / hpMax1) * 100) + '%';
-    }
+    var red = base[String(Attr.G_BaseId_0)] || {};
+    var blue = base[String(Attr.G_BaseId_0 + 1)] || {};
+    var redHp = num(red[Attr.Health]);
+    var redMax = num(red[Attr.HealthMax]);
+    var blueHp = num(blue[Attr.Health]);
+    var blueMax = num(blue[Attr.HealthMax]);
+    elRedBase.style.width = redMax > 0 ? Math.min(100, (redHp / redMax) * 100) + '%' : '0%';
+    elBlueBase.style.width = blueMax > 0 ? Math.min(100, (blueHp / blueMax) * 100) + '%' : '0%';
   }
 
   function toggleOverlay(el, on) {

@@ -12,7 +12,7 @@
   <div class="topbar">
     <h1>HUD DevTools</h1>
     <input type="text" id="hud-url"
-           placeholder="HUD URL, e.g. http://localhost:8080/template-workshop/index.html"
+           placeholder="HUD URL, e.g. http://127.0.0.1:8080/template-workshop/index.html"
            value="" />
     <button id="btn-load">Load</button>
     <button id="btn-refresh">Refresh</button>
@@ -35,6 +35,7 @@
             <option value="5">L_MapRMUL2026</option>
             <option value="6">L_MapRMUL2026_IF</option>
             <option value="7">L_Map20261V1</option>
+            <option value="8">L_Map2026_IF</option>
           </select>
         </div>
         <div class="init-row">
@@ -58,7 +59,7 @@
           </select>
         </div>
         <div class="bypass-check">
-          <input type="checkbox" id="chk-bypass" checked />
+          <input type="checkbox" id="chk-bypass" />
           <label for="chk-bypass">Bypass hud:ready (send data immediately)</label>
         </div>
         <div class="action-row">
@@ -89,6 +90,11 @@
 
         <h3 style="margin-top:8px">Ammo &amp; Heat</h3>
         <div class="slider-row">
+          <label>Bullet Type</label>
+          <input type="range" id="sl-bullet-type" min="0" max="3" value="1" step="1" />
+          <span class="slider-val" id="sl-bullet-type-val">17mm</span>
+        </div>
+        <div class="slider-row">
           <label>17mm Ammo</label>
           <input type="range" id="sl-ammo17" min="0" max="500" value="300" />
           <span class="slider-val" id="sl-ammo17-val">300</span>
@@ -97,6 +103,16 @@
           <label>42mm Ammo</label>
           <input type="range" id="sl-ammo42" min="0" max="200" value="0" />
           <span class="slider-val" id="sl-ammo42-val">0</span>
+        </div>
+        <div class="slider-row">
+          <label>Dart Ammo</label>
+          <input type="range" id="sl-ammo-dart" min="0" max="20" value="0" />
+          <span class="slider-val" id="sl-ammo-dart-val">0</span>
+        </div>
+        <div class="slider-row">
+          <label>Laser Ammo</label>
+          <input type="range" id="sl-ammo-laser" min="0" max="1000" value="0" step="10" />
+          <span class="slider-val" id="sl-ammo-laser-val">0</span>
         </div>
         <div class="slider-row">
           <label>Heat</label>
@@ -167,7 +183,9 @@
 
     <!-- Center: HUD iframe -->
     <div class="panel-center">
-      <iframe id="hud-iframe" src="about:blank"></iframe>
+      <iframe id="hud-iframe" src="about:blank"
+              sandbox="allow-scripts allow-same-origin"
+              referrerpolicy="no-referrer"></iframe>
       <div id="iframe-overlay" class="iframe-overlay">
         Enter a HUD URL and click Load
       </div>

@@ -1,121 +1,93 @@
-# RMUC2026 Vue Workshop HUD
+# Vue 3 Workshop HUD
 
-Advanced Workshop HUD template built with **Vue 3 + TypeScript + Vite** — an open-source reference implementation adapted from the game's competition HUD.
+Vue 3 + TypeScript reference HUD for Gestalt HUD SDK 0.2.
 
-This template complements the pure HTML/CSS/JS Workshop templates by demonstrating how to build a modular, component-based HUD with Vue.
+The template uses the supported Workshop `postMessage` bridge, complete snapshot replacement, all five attribute scopes, four bullet/ammo families, ES2020 output, and 1920×1080-derived root scaling.
 
-## Quick Start
+## Install
 
-```bash
-cd template-workshop-vue
+Inside the SDK clone, `file:..` resolves the local package. SDK `0.2.0` is not currently published to npm. For a copied project, first package the SDK into that project's `vendor/` directory:
+
+```powershell
+$hud = New-Item -ItemType Directory ..\my-vue-hud -Force
+Get-ChildItem .\template-workshop-vue -Force |
+  Where-Object Name -NotIn @('node_modules', 'dist') |
+  Copy-Item -Destination $hud.FullName -Recurse
+New-Item -ItemType Directory ..\my-vue-hud\vendor -Force
+npm pack --pack-destination ..\my-vue-hud\vendor
+Set-Location ..\my-vue-hud
+npm install .\vendor\axisray-lab-gestalt-hud-sdk-0.2.0.tgz --save-exact
 npm install
 npm run dev
 ```
 
-The dev server opens at `http://localhost:5175` (binds `0.0.0.0`, both IPv4 and IPv6). In development mode a "Waiting for game connection..." screen is shown until the game's iframe sends `hud:init`.
+Installing the tarball first replaces the copied template's `file:..` dependency with the packaged `0.2.0` artifact.
 
-To test with mock data, start `npx serve . -l 8080` from the SDK root and open `http://localhost:8080/devtools/index.html`, then load `http://localhost:5175/index.html` as the HUD URL.
+## Offline test
 
-## Build for Workshop
+Run SDK DevTools on `http://localhost:8080/devtools/index.html`, then load the Vue HUD at:
 
-```bash
-npm run build
+```text
+http://127.0.0.1:5175/index.html
 ```
 
-This produces a `dist/` folder with `index.html` + bundled assets. Copy the contents along with `manifest.json` into your Workshop HUD folder.
+The production HTML includes `connect-src 'none'`. Vite strips that CSP meta tag only in serve mode so local HMR can connect.
 
-## Project Structure
+## Workshop build
 
+```powershell
+npm run typecheck
+npm run build:workshop
 ```
+
+Always use `build:workshop`, not plain `build`, for a release. It places `manifest.json` beside the bundled entry under `dist/`.
+
+Validate the built directory:
+
+```powershell
+pwsh -NoProfile -File C:\path\to\gestalt-hud-sdk\scripts\validate-workshop-hud.ps1 `
+  -ContentFolder .\dist
+```
+
+## Bridge state
+
+`src/composables/useBridge.ts` exposes reactive state for:
+
+- `battleAttributes`
+- `globalAttributes`
+- `playerAttributes`
+- `baseAttributes`
+- `playerBattleAttributes`
+- init `context`
+
+Every `hud:attribute_update` replaces all scopes. This prevents attributes/entities removed by the host from persisting in Vue state.
+
+Manifest name/version is imported at build time; the release does not fetch it at runtime.
+
+## Project structure
+
+```text
 src/
-├── main.ts                     # Vue app bootstrap
-├── App.vue                     # Root: bridge init → HUD render
+├── main.ts
+├── App.vue
 ├── composables/
-│   ├── useBridge.ts            # GestaltHUDBridge wrapper (postMessage)
-│   ├── useHUDAttributes.ts     # Attribute aggregator
-│   ├── usePlayerAttributes.ts  # Health, level, XP, defeated
-│   ├── useWeaponAttributes.ts  # Ammo, heat, firing mode, speed
-│   ├── useEnergyAttributes.ts  # Chassis/capacity/buffer energy
-│   ├── useTeamAttributes.ts    # Team ID, class type, supply
-│   ├── useGlobalAttributes.ts  # Match status, timer, control zones
-│   ├── useModeAttributes.ts    # Chassis/shooter/hero mode
-│   └── useReviveAttributes.ts  # Revive speed/progress
+│   ├── useBridge.ts
+│   ├── useHUDAttributes.ts
+│   ├── usePlayerAttributes.ts
+│   ├── useWeaponAttributes.ts
+│   ├── useEnergyAttributes.ts
+│   ├── useTeamAttributes.ts
+│   ├── useGlobalAttributes.ts
+│   ├── useModeAttributes.ts
+│   └── useReviveAttributes.ts
 ├── components/
-│   ├── CrosshairHUD.vue        # Ring crosshair with ammo arc
-│   ├── BaseCoreStatus.vue      # Base/outpost HP bars + timer
-│   ├── PlayerBadge.vue         # Hex badge with AP + XP bars
-│   ├── EnergyBars.vue          # Chassis + capacity energy bars
-│   ├── GameStatusBanner.vue    # Match status overlay banner
-│   ├── HitScreenEffect.vue     # Hit flash + CRT death screen
-│   └── ScoreboardPanel.vue     # Tab scoreboard
-├── views/
-│   └── GameHUD.vue             # Main layout composing all above
-├── utils/
-│   └── attributeAccessors.ts   # Typed attribute getter factories
-└── assets/
-    └── img/hud/                # 50+ SVG icons from the game
+├── views/GameHUD.vue
+├── utils/attributeAccessors.ts
+└── assets/img/hud/
 ```
 
-## Architecture
+## Protocol reference
 
-```
-Game SPA (parent iframe)
-    │
-    │  postMessage: hud:init, hud:attribute_update
-    ▼
-useBridge.ts  ──→  reactive refs (battleAttributes, globalAttributes, ...)
-    │
-    ├─→ useHUDAttributes()  ──→  typed computed properties
-    │       ├── player.health, player.isDefeated, ...
-    │       ├── weapon.ammoCount, weapon.firingMode, ...
-    │       ├── energy.chassisEnergyPercent, ...
-    │       ├── team.teamID, team.careerName, ...
-    │       ├── global.matchTimeText, global.matchStatus, ...
-    │       └── revive.reviveRemainingTime, ...
-    │
-    └─→ GameHUD.vue  ──→  component props
-            ├── CrosshairHUD
-            ├── BaseCoreStatus
-            ├── PlayerBadge
-            ├── EnergyBars
-            ├── GameStatusBanner
-            └── HitScreenEffect
-```
+Import enums from `@axisray-lab/gestalt-hud-sdk/workshop` or the protocol-only entry. The complete generated reference is [`../docs/generated/fbs-reference.md`](../docs/generated/fbs-reference.md).
 
-## Customization
-
-### Adding/Removing Components
-
-Edit `src/views/GameHUD.vue` to add or remove components. Each component is self-contained with its own props interface.
-
-### Changing Attribute Mapping
-
-The composables in `src/composables/` map raw attribute IDs to typed properties. To add new attributes:
-
-1. Find the attribute ID in `ERobotBridgeDemoAttributeId` (from the SDK)
-2. Add a computed ref using `createNumberGetter()` or `createBooleanGetter()`
-3. Return it from the composable
-
-### Styling
-
-All components use scoped CSS. Modify the `<style scoped>` section of each component to change colors, sizes, animations, etc.
-
-### Manifest
-
-Edit `manifest.json` to update the HUD name, version, author, and compatible maps before publishing.
-
-## Differences from HTML Templates
-
-| Feature | HTML Templates | This Vue Template |
-|---------|---------------|-------------------|
-| Build step | None | `npm run build` (Vite) |
-| Language | JavaScript | TypeScript |
-| Reactivity | Manual DOM updates | Vue computed refs |
-| Components | Single file | Modular .vue files |
-| Attribute access | `data.battle[Attr.Health]` | `attrs.player.health.value` |
-| SVG icons | Not included | 50+ game SVGs |
-| Crosshair | Not included | Full ring crosshair |
-
-## License
-
-This template is part of the Gestalt HUD SDK. The Vue components and SVG assets are adapted from the game's internal UI and released under the same license as the SDK.
+Do not copy numeric IDs or generated enum files into the project.

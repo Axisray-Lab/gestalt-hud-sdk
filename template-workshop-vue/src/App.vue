@@ -53,6 +53,34 @@ html, body {
   background: transparent;
 }
 
+html {
+  font-size: clamp(7px, min(calc(100vw / 192), calc(100vh / 108)), 12px);
+}
+
+@media (min-aspect-ratio: 21/9) {
+  html {
+    font-size: clamp(7px, calc(100vh / 108), 12px);
+  }
+}
+
+@media (max-aspect-ratio: 4/3) {
+  html {
+    font-size: clamp(6px, calc(100vw / 144), 11px);
+  }
+}
+
+@media (max-width: 1366px) {
+  html {
+    font-size: clamp(6px, min(calc(100vw / 192), calc(100vh / 108)), 8px);
+  }
+}
+
+@media (min-width: 2560px) {
+  html {
+    font-size: clamp(9px, min(calc(100vw / 192), calc(100vh / 108)), 14px);
+  }
+}
+
 #app {
   width: 100%;
   height: 100%;

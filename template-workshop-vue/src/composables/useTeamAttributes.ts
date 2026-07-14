@@ -6,16 +6,20 @@
  */
 
 import { computed, type Ref } from 'vue';
-import { ERobotBridgeDemoAttributeId } from '@axisray-lab/gestalt-hud-sdk/workshop';
+import {
+  ERobotBridgeDemoAttributeId,
+  ERobotBridgeDemoCareerId,
+} from '@axisray-lab/gestalt-hud-sdk/workshop';
 import { createNumberGetter, createBooleanGetter } from '@/utils/attributeAccessors';
 
 export const CAREER_NAMES: Record<number, string> = {
-  1001: 'Hero',
-  1002: 'Engineer',
-  1003: 'Infantry',
-  1004: 'Sentry',
-  1005: 'Aerial',
-  1008: 'Balance Infantry',
+  [ERobotBridgeDemoCareerId.Hero]: 'Hero',
+  [ERobotBridgeDemoCareerId.Engineer]: 'Engineer',
+  [ERobotBridgeDemoCareerId.Infantry]: 'Infantry',
+  [ERobotBridgeDemoCareerId.Sentry]: 'Sentry',
+  [ERobotBridgeDemoCareerId.Aerial]: 'Aerial',
+  [ERobotBridgeDemoCareerId.Radar]: 'Radar',
+  [ERobotBridgeDemoCareerId.Dart]: 'Dart',
 };
 
 export function useTeamAttributes(battleAttributes: Ref<Record<string, number>>) {

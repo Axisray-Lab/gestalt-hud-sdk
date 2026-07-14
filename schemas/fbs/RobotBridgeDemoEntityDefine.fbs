@@ -1,0 +1,47 @@
+/**
+* @license: Public SDK Protocol Schema. Copyright (c) 2025 AXISRAY Lab Inc.
+* Distributed under the gestalt-hud-sdk repository LICENSE.
+* @date: 2025-09-08
+* @description: Robot Bridge Demo Entity Define
+*/
+
+namespace RobotBridgeDemo;
+
+// entity类型
+enum ERobotBridgeDemoEntityType :uint {
+  None = 0,
+  Buildings = 1,
+  Bullet = 2,
+  Vehicle = 3,
+}
+
+// entity ID，一共7位，以6开头
+
+// 建筑物类型，以61开头
+enum ERobotBridgeDemoBuildingsType :uint {
+  None = 6100000,
+  DartSystem = 6100001,
+  RadarSystem = 6100002,
+  Outpost = 6100003,
+  MainBase = 6100004,
+}
+
+// 弹丸伤害类型，与 BulletType 属性值保持一致
+enum ERobotBridgeDemoBulletType :uint {
+  Projectile42mm = 0,
+  Projectile17mm = 1,
+  Dart = 2,
+  Laser = 3,
+}
+
+// 载具类型，以63开头
+enum ERobotBridgeDemoVehicleType :uint {
+  None = 6300000,
+  HeroRobot = 6300001,
+  InfantryRobot = 6300002,
+  SentryRobot = 6300003,
+  EngineerRobot = 6300004,
+  AerialRobot = 6300005,
+  RadarRobot = 6300006,
+  DartRobot = 6300007,
+}

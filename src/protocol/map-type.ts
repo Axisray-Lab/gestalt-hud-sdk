@@ -1,25 +1,13 @@
 /**
- * Map type enum — mirrors the game engine's ERobotBridgeDemoMapType.
+ * Map types generated from the public FBS protocol snapshot.
  *
- * Used in {@link HUDInitMessage.mapId} and {@link WorkshopManifest.compatible_maps}.
- * HUD developers typically care about the active competition maps:
- *   - L_Map2026 (RMUC2026)
- *   - L_MapRMUL2026 (RMUL2026)
- *   - L_MapRMUL2026_IF (RMUL2026 International)
- *   - L_Map20261V1 (1v1)
- *   - L_Traning (Training)
+ * Used in HUD init messages and Workshop manifest compatibility declarations.
  */
-export enum ERobotBridgeDemoMapType {
-  BlankLevel = 0,
-  GameStartLevel = 1,
-  L_Traning = 2,
-  L_Map2024 = 3,
-  L_Map2026 = 4,
-  L_MapRMUL2026 = 5,
-  L_MapRMUL2026_IF = 6,
-  L_Map20261V1 = 7,
-  EchoRobotBridgeDemoMapType_END = 8,
-}
+import { ERobotBridgeDemoMapType } from './generated/fbs-enums';
+
+export { ERobotBridgeDemoMapType };
+/** Alias used by the host Workshop protocol source. */
+export { ERobotBridgeDemoMapType as WorkshopMapType };
 
 /** Map names that represent playable competition/training maps. */
 export type CompetitionMapName =
@@ -27,7 +15,21 @@ export type CompetitionMapName =
   | 'L_Map2026'
   | 'L_MapRMUL2026'
   | 'L_MapRMUL2026_IF'
-  | 'L_Map20261V1';
+  | 'L_Map20261V1'
+  | 'L_Map2026_IF';
 
-/** All valid map enum member names (string keys of ERobotBridgeDemoMapType). */
+/** All member names, including internal levels and the terminal sentinel. */
 export type MapName = keyof typeof ERobotBridgeDemoMapType;
+
+/** Reverse lookup used by the host when constructing `hud:init`. */
+export const MAP_ID_TO_NAME: Readonly<Record<number, MapName>> = {
+  [ERobotBridgeDemoMapType.BlankLevel]: 'BlankLevel',
+  [ERobotBridgeDemoMapType.GameStartLevel]: 'GameStartLevel',
+  [ERobotBridgeDemoMapType.L_Traning]: 'L_Traning',
+  [ERobotBridgeDemoMapType.L_Map2024]: 'L_Map2024',
+  [ERobotBridgeDemoMapType.L_Map2026]: 'L_Map2026',
+  [ERobotBridgeDemoMapType.L_MapRMUL2026]: 'L_MapRMUL2026',
+  [ERobotBridgeDemoMapType.L_MapRMUL2026_IF]: 'L_MapRMUL2026_IF',
+  [ERobotBridgeDemoMapType.L_Map20261V1]: 'L_Map20261V1',
+  [ERobotBridgeDemoMapType.L_Map2026_IF]: 'L_Map2026_IF',
+};

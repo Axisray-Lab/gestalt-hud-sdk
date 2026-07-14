@@ -1,0 +1,73 @@
+/**
+* @license: Public SDK Protocol Schema. Copyright (c) 2025 AXISRAY Lab Inc.
+* Distributed under the gestalt-hud-sdk repository LICENSE.
+* @date: 2025-09-08
+* @description: Robot Bridge Demo Transform Id Define
+*/
+namespace RobotBridgeDemo;
+
+// 定义TransformId, 以97开头，并且一共7位
+enum ERobotBridgeDemoTransformId :uint {
+  Start = 9700000,
+  RobotStartPositionFirst = 9700001,
+  RobotArmourPositionFirst = 9700002,
+  RobotBulletStartPosition = 9700003,
+  RobotBuffStationPosition = 9700004,
+  RobotBuffStationTargetPosition = 9700005,
+  NPCStartPositionFirst = 9700006,
+  BulletCollisionProxy = 9700007,
+  RobotBuffStationPositionTest = 9700008,
+  RobotStartPositionTest = 9700009, 
+  NPCStartPositionTest =  9700010, 
+  TradePostPositionTest = 9700011, 
+  TradePostCollisionProxy = 9700012, 
+  PlayerStart = 9700013, 
+  Outpost2026_0 = 9700014, 
+  Outpost2026_1 = 9700015,
+  BaseCore2026_0 = 9700016,
+  BaseCore2026_1 = 9700017, 
+  BaseCoreTraining_0 =  9700018,
+  BaseCoreTraining_1  =  9700019, 
+  OutpostTraining_0  = 9700020,
+  OutpostTraining_1  =  9700021,
+  BuffStationTraining_0  =  9700022,
+  BaseCore2024_0 =  9700023,
+  BaseCore2024_1  =  9700024, 
+  Outpost2024_0  = 9700025,
+  Outpost2024_1  =  9700026,
+  BuffStation2024_0  =  9700027,
+  BuffStation2024_1  =  9700028,
+  BaseCoreRMUL2026_0 = 9700029,
+  BaseCoreRMUL2026_1 = 9700030, 
+  Radar2026_0 = 9700031,
+  Radar2026_1 = 9700032,
+  Dart2026_0 = 9700033,
+  Dart2026_1 = 9700034,
+  RobotEngineerArmourOffset = 9700035,
+  EchoRobotBridgeDemoTransformId_END,
+}
+
+// 定义TransformBaseId, 以93开头，并且一共7位
+enum ERobotBridgeDemoTransformBaseId :uint {
+  Start = 9300000,
+  RobotStartPositionBaseFirst     =      9300001,
+  RobotBuffStationTargetBase       =     9300002,
+  RobotBulletStartPositionBase    =      9300003,
+  RobotBulletCollisionProxyBase    =     9300004,
+  RobotTradeStationCollisionProxyBase =  9300005,
+  EchoRobotBridgeDemoTransformBaseId_END,
+}
+
+enum ERobotBridgeDemoComponentTransformId: uint{
+  Start  =    8700000,
+  TestComponentTransform = 8700001, 
+  Armour0= 8700002,
+  Armour1 = 8700003,
+  Armour2 = 8700004,
+  Armour3 = 8700005,
+  Armour4 = 8700006,
+  Armour5 = 8700007,
+  Armour6 = 8700008,
+  Armour7 = 8700009,
+  ERobotBridgeDemoComponentTransformId_END,
+}
