@@ -42,7 +42,8 @@ function check(name, passed, detail = '') {
 async function main() {
   await mkdir(outDir, { recursive: true });
   const client = new CdpClient();
-  let workshopContextId = null;
+  let workshopFrameId = null;
+  const workshopContextIds = new Set();
   client.on('Runtime.exceptionThrown', (params) => {
     const exception = params?.exceptionDetails;
     report.exceptions.push({
@@ -52,6 +53,16 @@ async function main() {
       lineNumber: exception?.lineNumber,
       columnNumber: exception?.columnNumber,
     });
+  });
+  client.on('Runtime.executionContextCreated', (params) => {
+    const context = params?.context;
+    if (
+      workshopFrameId !== null &&
+      context?.auxData?.frameId === workshopFrameId &&
+      context?.auxData?.isDefault === true
+    ) {
+      workshopContextIds.add(context.id);
+    }
   });
 
   try {
@@ -120,19 +131,21 @@ async function main() {
     check('Workshop frame is present in CDP frame tree', Boolean(frame), frame?.url ?? '');
     if (!frame) throw new Error('Workshop frame never appeared');
 
-    const contextId = await client.getFrameContext(frame.id);
-    workshopContextId = contextId;
+    workshopFrameId = frame.id;
+    workshopContextIds.add(await client.getFrameContext(frame.id, { timeoutMs }));
     const hudReady = await client.waitFor(
       `() => {
         const d = globalThis.__GESTALT_HUD_DIAGNOSTICS__;
         return !!d && d.initReceived === true && d.readySent === true && d.updateCount > 0;
       }`,
-      { contextId, timeoutMs },
+      { frameId: frame.id, timeoutMs },
     );
     check('HUD completed init → ready → attribute_update', hudReady);
 
-    const readHudState = () => client.evaluate(
-      `() => {
+    const readHudState = async () => {
+      const state = await client.evaluateInFrame(
+        frame.id,
+        `() => {
         const d = globalThis.__GESTALT_HUD_DIAGNOSTICS__ ?? null;
         const resources = performance.getEntriesByType('resource').map((entry) => entry.name);
         return {
@@ -158,9 +171,14 @@ async function main() {
               };
             }),
         };
-      }`,
-      { contextId },
-    );
+        }`,
+        { timeoutMs },
+      );
+      workshopContextIds.add(
+        await client.getFrameContext(frame.id, { timeoutMs }),
+      );
+      return state;
+    };
     report.initialDiagnostics = await readHudState();
     await sleep(stabilityMs);
     report.diagnostics = await readHudState();
@@ -244,7 +262,7 @@ async function main() {
     );
     const workshopExceptions = report.exceptions.filter(
       (exception) =>
-        exception.executionContextId === workshopContextId ||
+        workshopContextIds.has(exception.executionContextId) ||
         /(?:workshop-hud|3698375578|publish-test)/i.test(exception.url),
     );
     check(

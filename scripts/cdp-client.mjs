@@ -2,6 +2,34 @@ import { writeFile } from 'node:fs/promises';
 
 export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const EXECUTION_CONTEXT_LOSS_PATTERNS = [
+  /Cannot find context with specified id/i,
+  /Cannot find execution context/i,
+  /Execution context was destroyed/i,
+  /Inspected target navigated or closed/i,
+];
+
+function isExecutionContextLoss(error) {
+  const message = String(error?.message ?? error ?? '');
+  // Runtime exceptions belong to page code even if their text happens to look
+  // like a DevTools navigation error. Only protocol-level failures are safe to
+  // retry against a replacement execution context.
+  if (message.startsWith('CDP evaluation failed:')) return false;
+  return EXECUTION_CONTEXT_LOSS_PATTERNS.some((pattern) => pattern.test(message));
+}
+
+function assertFrameContextOptions(frameId, timeoutMs, intervalMs) {
+  if (typeof frameId !== 'string' || frameId.length === 0) {
+    throw new TypeError('frameId must be a non-empty string');
+  }
+  if (!Number.isFinite(timeoutMs) || timeoutMs < 0) {
+    throw new TypeError('timeoutMs must be a non-negative finite number');
+  }
+  if (!Number.isFinite(intervalMs) || intervalMs <= 0) {
+    throw new TypeError('intervalMs must be a positive finite number');
+  }
+}
+
 async function fetchTargets(port) {
   const response = await fetch(`http://127.0.0.1:${port}/json/list`, {
     headers: { Host: `localhost:${port}` },
@@ -164,12 +192,35 @@ export class CdpClient {
     return response.result?.value;
   }
 
-  async waitFor(predicate, { contextId, timeoutMs = 30_000, intervalMs = 500 } = {}) {
+  async waitFor(
+    predicate,
+    { contextId, frameId, timeoutMs = 30_000, intervalMs = 500 } = {},
+  ) {
+    if (contextId !== undefined && frameId !== undefined) {
+      throw new TypeError('waitFor accepts either contextId or frameId, not both');
+    }
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
       try {
-        if (await this.evaluate(predicate, { contextId })) return true;
-      } catch {
+        const matched = frameId === undefined
+          ? await this.evaluate(predicate, { contextId })
+          : await this.evaluateInFrame(frameId, predicate, {
+              timeoutMs: Math.max(0, deadline - Date.now()),
+              intervalMs: Math.min(intervalMs, 100),
+            });
+        if (matched) return true;
+      } catch (error) {
+        if (frameId !== undefined) {
+          if (
+            Date.now() >= deadline &&
+            /Timed out waiting for default execution context/i.test(
+              String(error?.message ?? error),
+            )
+          ) {
+            return false;
+          }
+          throw error;
+        }
         // The frame may be navigating; retry until the deadline.
       }
       await sleep(intervalMs);
@@ -186,19 +237,63 @@ export class CdpClient {
     );
   }
 
-  async getFrameContext(frameId) {
-    const defaultContext = [...this.contexts.values()].find(
-      (context) =>
-        context.auxData?.frameId === frameId && context.auxData?.isDefault,
-    );
-    if (defaultContext) return defaultContext.id;
+  async getFrameContext(
+    frameId,
+    { timeoutMs = 15_000, intervalMs = 50 } = {},
+  ) {
+    assertFrameContextOptions(frameId, timeoutMs, intervalMs);
+    const deadline = Date.now() + timeoutMs;
+    do {
+      const defaultContext = [...this.contexts.values()].find(
+        (context) =>
+          context.auxData?.frameId === frameId &&
+          context.auxData?.isDefault === true,
+      );
+      if (defaultContext) return defaultContext.id;
 
-    const isolated = await this.send('Page.createIsolatedWorld', {
-      frameId,
-      worldName: 'gestalt-hud-sdk-e2e',
-      grantUniveralAccess: true,
-    });
-    return isolated.executionContextId;
+      const remainingMs = deadline - Date.now();
+      if (remainingMs <= 0) break;
+      await sleep(Math.min(intervalMs, remainingMs));
+    } while (Date.now() <= deadline);
+
+    throw new Error(
+      `Timed out waiting for default execution context for frame ${frameId}`,
+    );
+  }
+
+  async evaluateInFrame(
+    frameId,
+    expression,
+    { timeoutMs = 15_000, intervalMs = 50 } = {},
+  ) {
+    assertFrameContextOptions(frameId, timeoutMs, intervalMs);
+    const deadline = Date.now() + timeoutMs;
+    let lastContextError = null;
+
+    do {
+      const contextId = await this.getFrameContext(frameId, {
+        timeoutMs: Math.max(0, deadline - Date.now()),
+        intervalMs,
+      });
+      try {
+        return await this.evaluate(expression, { contextId });
+      } catch (error) {
+        if (!isExecutionContextLoss(error)) throw error;
+        lastContextError = error;
+        this.contexts.delete(contextId);
+      }
+
+      const remainingMs = deadline - Date.now();
+      if (remainingMs <= 0) break;
+      await sleep(Math.min(intervalMs, remainingMs));
+    } while (Date.now() <= deadline);
+
+    const detail = lastContextError
+      ? `: ${String(lastContextError?.message ?? lastContextError)}`
+      : '';
+    throw new Error(
+      `Timed out evaluating default execution context for frame ${frameId}${detail}`,
+    );
   }
 
   async screenshot(path) {

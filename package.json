@@ -44,7 +44,7 @@
     "workshop:sync": "pwsh -NoProfile -File ./scripts/sync-workshop-assets.ps1",
     "workshop:check": "pwsh -NoProfile -File ./scripts/sync-workshop-assets.ps1 -Check",
     "workshop:validate:release": "pwsh -NoProfile -File ./scripts/validate-workshop-hud.ps1 -ContentFolder ./publish-test",
-    "test:runtime": "node --test tests/runtime-contract.test.mjs",
+    "test:runtime": "node --test tests/runtime-contract.test.mjs tests/cdp-client.test.mjs",
     "test:consumer": "node scripts/test-package-consumer.mjs",
     "test": "npm run build && npm run test:runtime && npm run test:consumer && npm run workshop:check && npm run workshop:validate:release"
   },
