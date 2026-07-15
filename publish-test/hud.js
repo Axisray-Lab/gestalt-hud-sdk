@@ -80,6 +80,16 @@
     enumerable: true,
     get: function () { return currentTransportDiagnostics(); },
   });
+  Object.defineProperty(publicDiagnostics, 'lastSequence', {
+    enumerable: true,
+    get: function () { return currentTransportDiagnostics().lastSequence; },
+  });
+  Object.defineProperty(publicDiagnostics, 'lastTransportLatencyMs', {
+    enumerable: true,
+    get: function () {
+      return currentTransportDiagnostics().lastTransportLatencyMs;
+    },
+  });
   Object.freeze(publicDiagnostics);
   Object.defineProperty(window, '__GESTALT_HUD_DIAGNOSTICS__', {
     configurable: false,

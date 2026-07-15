@@ -88,6 +88,8 @@ The validation scope is intentionally HUD-only. It rejects map/gamemode capabili
 - `initReceived`, `readySent`, `updateCount`, `lastUpdateAt`, `lastMapId`;
 - counts for the five snapshot scopes;
 - local core signals for health, max health, four ammo families, game time, match status, and team;
+- transport counters/timing under `transport`, plus the stable E2E aliases
+  `lastSequence` and `lastTransportLatencyMs`;
 - a bounded list of runtime error messages.
 
 The object is local to the HUD window and is never transmitted over the network. `updateCount` increases per snapshot and `lastUpdateAt` uses the monotonic `performance.now()` clock. The conformance HUD also sends the same bounded snapshot to its parent through the public `hud:debug_log` postMessage channel every five seconds. Hosts may choose to relay those records, but the current Shipping host does not write them to the UE log, so release acceptance must not depend on `GESTALT_HUD_E2E` log records.

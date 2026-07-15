@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import vm from 'node:vm';
 
 import {
   ERobotBridgeDemoAttributeId,
@@ -310,6 +312,199 @@ test('HUDCountdownClock removes transport latency and interpolates locally', () 
   clock.reset();
   assert.equal(clock.hasAnchor, false);
   assert.equal(clock.getRemainingMs(11_000), null);
+});
+
+test('conformance HUD ignores identical 30 Hz timer anchors and skips unchanged DOM writes', () => {
+  let nowMs = 1_000;
+  const animationFrames = [];
+
+  function createElement(initialText = '') {
+    let text = initialText;
+    let textWrites = 0;
+    const styleValues = Object.create(null);
+    let styleWrites = 0;
+    const style = new Proxy(styleValues, {
+      get(target, property) {
+        return target[property] ?? '';
+      },
+      set(target, property, value) {
+        styleWrites++;
+        target[property] = value;
+        return true;
+      },
+    });
+    return {
+      style,
+      get textContent() {
+        return text;
+      },
+      set textContent(value) {
+        textWrites++;
+        text = value;
+      },
+      get writeCount() {
+        return textWrites + styleWrites;
+      },
+    };
+  }
+
+  const elements = {
+    'version-badge': createElement('Workshop HUD'),
+    'match-timer': createElement('00:00'),
+    'team-tag': createElement('--'),
+    level: createElement('Lv.0'),
+    'health-bar-fill': createElement(),
+    'health-text': createElement('0 / 0'),
+    'ammo-count': createElement('0'),
+    'red-base-hp': createElement(),
+    'blue-base-hp': createElement(),
+  };
+
+  class StubBridge {
+    static instance;
+
+    constructor() {
+      StubBridge.instance = this;
+      this.transport = {
+        received: 0,
+        accepted: 0,
+        dropped: 0,
+        lastSequence: null,
+        lastSentAtMs: null,
+        lastReceivedAtMs: null,
+        lastTransportLatencyMs: null,
+      };
+    }
+
+    get diagnostics() {
+      return Object.freeze({ ...this.transport });
+    }
+
+    onInit(handler) {
+      this.initHandler = handler;
+    }
+
+    onAttributeUpdate(handler) {
+      this.attributeHandler = handler;
+    }
+
+    sendReady() {}
+    sendDebugLog() {}
+
+    emitInit(message) {
+      this.initHandler(message);
+    }
+
+    emitAttributes(data, sequence) {
+      this.transport = {
+        received: sequence,
+        accepted: sequence,
+        dropped: 0,
+        lastSequence: sequence,
+        lastSentAtMs: 1_750_000_000_000 + nowMs,
+        lastReceivedAtMs: 1_750_000_000_000 + nowMs + 8,
+        lastTransportLatencyMs: 8,
+      };
+      this.attributeHandler(data, {
+        sequence,
+        sentAtMs: this.transport.lastSentAtMs,
+        receivedAtMs: this.transport.lastReceivedAtMs,
+        transportLatencyMs: 8,
+      });
+    }
+  }
+
+  const fakeWindow = {
+    GESTALT_HUD_MANIFEST: {
+      name: 'Gestalt HUD SDK - Example',
+      version: '2.0.1',
+    },
+    addEventListener() {},
+  };
+  const context = {
+    window: fakeWindow,
+    document: {
+      body: { appendChild() {} },
+      createElement: () => createElement(),
+      getElementById: (id) => elements[id] ?? null,
+    },
+    location: { search: '' },
+    performance: { now: () => nowMs },
+    requestAnimationFrame(callback) {
+      animationFrames.push(callback);
+      return animationFrames.length;
+    },
+    console: { log() {}, warn() {}, error() {} },
+    GestaltHUD: {
+      GestaltHUDBridge: StubBridge,
+      HUDCountdownClock,
+      MatchStatus: { InProgress: 1 },
+      ERobotBridgeDemoAttributeId,
+    },
+  };
+  vm.runInNewContext(
+    readFileSync(new URL('../publish-test/hud.js', import.meta.url), 'utf8'),
+    context,
+    { filename: 'publish-test/hud.js' },
+  );
+
+  const bridge = StubBridge.instance;
+  bridge.emitInit({ mapId: 8, teamId: 0 });
+  const attrs = ERobotBridgeDemoAttributeId;
+  const data = {
+    global: {
+      [attrs.G_MaxGameTime]: 300_000,
+      [attrs.G_CurGameTime]: 10_000,
+      [attrs.G_CurMatchStatus]: 1,
+    },
+    player: {},
+    battle: {
+      [attrs.Health]: 100,
+      [attrs.HealthMax]: 200,
+      [attrs.Level]: 3,
+      [attrs.TeamID]: 0,
+      [attrs.BulletType]: 1,
+      [attrs.Ammo17mmCount]: 42,
+    },
+    base: {},
+    playerBattle: {},
+  };
+
+  bridge.emitAttributes(data, 1);
+  assert.equal(elements['match-timer'].textContent, '04:50');
+  const stableElementIds = [
+    'team-tag',
+    'level',
+    'health-bar-fill',
+    'health-text',
+    'ammo-count',
+    'red-base-hp',
+    'blue-base-hp',
+  ];
+  const writesAfterFirstSnapshot = Object.fromEntries(
+    stableElementIds.map((id) => [id, elements[id].writeCount]),
+  );
+
+  for (let sequence = 2; sequence <= 31; sequence++) {
+    nowMs += 34;
+    bridge.emitAttributes(data, sequence);
+  }
+  assert.deepEqual(
+    Object.fromEntries(
+      stableElementIds.map((id) => [id, elements[id].writeCount]),
+    ),
+    writesAfterFirstSnapshot,
+  );
+
+  const frame = animationFrames.shift();
+  assert.equal(typeof frame, 'function');
+  frame(nowMs);
+  assert.equal(elements['match-timer'].textContent, '04:49');
+  assert.equal(fakeWindow.__GESTALT_HUD_DIAGNOSTICS__.lastSequence, 31);
+  assert.equal(
+    fakeWindow.__GESTALT_HUD_DIAGNOSTICS__.lastTransportLatencyMs,
+    8,
+  );
 });
 
 test('Workshop bridge accepts only valid messages from its parent window', () => {
