@@ -34,11 +34,11 @@ Get-ChildItem .\template-workshop-vue -Force |
 New-Item -ItemType Directory ..\my-vue-hud\vendor -Force
 npm pack --pack-destination ..\my-vue-hud\vendor
 Set-Location ..\my-vue-hud
-npm install .\vendor\axisray-lab-gestalt-hud-sdk-0.2.0.tgz --save-exact
+npm install .\vendor\axisray-lab-gestalt-hud-sdk-0.2.1.tgz --save-exact
 npm install
 ```
 
-The repository template intentionally uses `file:..` for clone-based local development. SDK `0.2.0` is not currently published to npm, so an external copy must install the generated tarball before a plain `npm install`. The tarball command rewrites the copied dependency to its local `vendor/` file instead of resolving the copied folder's parent by mistake.
+The repository template intentionally uses `file:..` for clone-based local development. SDK `0.2.1` is not currently published to npm, so an external copy must install the generated tarball before a plain `npm install`. The tarball command rewrites the copied dependency to its local `vendor/` file instead of resolving the copied folder's parent by mistake.
 
 ## 2. Edit the manifest
 

@@ -78,7 +78,41 @@ function normalizeTargetOrigin(origin: string): string {
 }
 
 type InitHandler = (msg: HUDInitMessage) => void;
-type AttributeUpdateHandler = (data: HUDAttributeData) => void;
+
+/** Timing and ordering metadata associated with an accepted HUD snapshot. */
+export interface HUDAttributeUpdateMetadata {
+  /** Host-provided sequence, when supported by the embedding game build. */
+  readonly sequence?: number;
+  /** Host send timestamp in Unix-epoch milliseconds, when provided. */
+  readonly sentAtMs?: number;
+  /** SDK receive timestamp in Unix-epoch milliseconds. */
+  readonly receivedAtMs: number;
+  /** Non-negative receive-minus-send latency, when `sentAtMs` was provided. */
+  readonly transportLatencyMs?: number;
+}
+
+/** Read-only snapshot of Workshop attribute transport diagnostics. */
+export interface GestaltHUDBridgeDiagnostics {
+  /** Valid attribute messages observed, including sequence-filtered frames. */
+  readonly received: number;
+  /** Attribute messages delivered to registered callbacks. */
+  readonly accepted: number;
+  /** Duplicate or backward sequenced messages discarded by the bridge. */
+  readonly dropped: number;
+  /** Most recent accepted host sequence, or `null` for a legacy-only stream. */
+  readonly lastSequence: number | null;
+  /** Send timestamp of the most recently accepted snapshot, when provided. */
+  readonly lastSentAtMs: number | null;
+  /** Receive timestamp of the most recently accepted snapshot. */
+  readonly lastReceivedAtMs: number | null;
+  /** Transport latency of the most recently accepted timestamped snapshot. */
+  readonly lastTransportLatencyMs: number | null;
+}
+
+export type AttributeUpdateHandler = (
+  data: HUDAttributeData,
+  metadata: HUDAttributeUpdateMetadata,
+) => void;
 type GameEventHandler = (event: string, payload: unknown) => void;
 
 function detectDebugFromURL(): boolean {
@@ -96,6 +130,17 @@ function scopeSummary(
   if (!data) return `${scope}(-)`;
   const keys = Object.keys(data);
   return `${scope}(${keys.length})`;
+}
+
+function epochNowMs(): number {
+  if (typeof performance !== 'undefined') {
+    const now = performance.now();
+    const timeOrigin = performance.timeOrigin;
+    if (Number.isFinite(now) && Number.isFinite(timeOrigin)) {
+      return timeOrigin + now;
+    }
+  }
+  return Date.now();
 }
 
 export class GestaltHUDBridge {
@@ -121,6 +166,13 @@ export class GestaltHUDBridge {
   private msgCount = 0;
   private firstUpdateLogged = false;
   private lastMsgTime = 0;
+  private receivedAttributeUpdates = 0;
+  private acceptedAttributeUpdates = 0;
+  private droppedAttributeUpdates = 0;
+  private lastAcceptedSequence: number | null = null;
+  private lastAcceptedSentAtMs: number | null = null;
+  private lastAcceptedReceivedAtMs: number | null = null;
+  private lastAcceptedTransportLatencyMs: number | null = null;
 
   constructor(options?: GestaltHUDBridgeOptions) {
     this.targetOrigin = normalizeTargetOrigin(
@@ -135,6 +187,22 @@ export class GestaltHUDBridge {
     if (this.debugEnabled) {
       this.debugLog('Debug mode ON');
     }
+  }
+
+  /**
+   * Current read-only attribute transport counters and timing values.
+   * A fresh frozen snapshot is returned on every access.
+   */
+  get diagnostics(): GestaltHUDBridgeDiagnostics {
+    return Object.freeze({
+      received: this.receivedAttributeUpdates,
+      accepted: this.acceptedAttributeUpdates,
+      dropped: this.droppedAttributeUpdates,
+      lastSequence: this.lastAcceptedSequence,
+      lastSentAtMs: this.lastAcceptedSentAtMs,
+      lastReceivedAtMs: this.lastAcceptedReceivedAtMs,
+      lastTransportLatencyMs: this.lastAcceptedTransportLatencyMs,
+    });
   }
 
   /**
@@ -209,7 +277,9 @@ export class GestaltHUDBridge {
 
   /**
    * Register a handler for `hud:attribute_update` messages.
-   * Called whenever the game pushes new attribute data.
+   * Called whenever the game pushes new attribute data. The optional host
+   * ordering/timing fields are exposed through the second callback argument.
+   * One-argument callbacks remain fully supported.
    * Returns an unsubscribe function.
    */
   onAttributeUpdate(handler: AttributeUpdateHandler): () => void {
@@ -377,6 +447,47 @@ export class GestaltHUDBridge {
   }
 
   private handleAttributeUpdate(msg: HUDAttributeUpdateMessage): void {
+    const receivedAtMs = epochNowMs();
+    this.receivedAttributeUpdates++;
+
+    if (
+      msg.sequence !== undefined &&
+      this.lastAcceptedSequence !== null &&
+      msg.sequence <= this.lastAcceptedSequence
+    ) {
+      this.droppedAttributeUpdates++;
+      if (
+        this.debugEnabled &&
+        (this.droppedAttributeUpdates <= 3 ||
+          this.droppedAttributeUpdates % 60 === 0)
+      ) {
+        this.debugWarn(
+          `Dropped stale attribute_update sequence ${msg.sequence} ` +
+            `(last=${this.lastAcceptedSequence})`,
+        );
+      }
+      return;
+    }
+
+    const transportLatencyMs =
+      msg.sentAtMs === undefined
+        ? undefined
+        : Math.max(0, receivedAtMs - msg.sentAtMs);
+    const metadata: HUDAttributeUpdateMetadata = Object.freeze({
+      sequence: msg.sequence,
+      sentAtMs: msg.sentAtMs,
+      receivedAtMs,
+      transportLatencyMs,
+    });
+
+    this.acceptedAttributeUpdates++;
+    if (msg.sequence !== undefined) {
+      this.lastAcceptedSequence = msg.sequence;
+    }
+    this.lastAcceptedSentAtMs = msg.sentAtMs ?? null;
+    this.lastAcceptedReceivedAtMs = receivedAtMs;
+    this.lastAcceptedTransportLatencyMs = transportLatencyMs ?? null;
+
     const data = msg.data;
 
     if (this.debugEnabled) {
@@ -409,7 +520,7 @@ export class GestaltHUDBridge {
     for (const handler of this.attributeUpdateHandlers) {
       try {
         const t0 = this.debugEnabled ? performance.now() : 0;
-        handler(data);
+        handler(data, metadata);
         if (this.debugEnabled) {
           const elapsed = performance.now() - t0;
           if (elapsed > 16) {

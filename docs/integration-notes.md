@@ -4,7 +4,7 @@
 
 | Surface | Current SDK target |
 | --- | ---: |
-| npm package | `0.2.0` |
+| npm package | `0.2.1` |
 | Workshop `postMessage` protocol | `1` |
 | Workshop manifest schema | `2` |
 | JavaScript build target | ES2020 |

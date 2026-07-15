@@ -40,7 +40,7 @@ Every static template is self-contained after `npm run workshop:sync`; its local
 
 ## Quick start: Vue 3
 
-Inside this repository, the Vue starter uses `file:..` so clone-based development works without a registry. SDK `0.2.0` is not currently published to npm. Before copying the starter elsewhere, package the SDK into the new project:
+Inside this repository, the Vue starter uses `file:..` so clone-based development works without a registry. SDK `0.2.1` is not currently published to npm. Before copying the starter elsewhere, package the SDK into the new project:
 
 ```powershell
 $hud = New-Item -ItemType Directory ..\my-vue-hud -Force
@@ -50,7 +50,7 @@ Get-ChildItem .\template-workshop-vue -Force |
 New-Item -ItemType Directory ..\my-vue-hud\vendor -Force
 npm pack --pack-destination ..\my-vue-hud\vendor
 Set-Location ..\my-vue-hud
-npm install .\vendor\axisray-lab-gestalt-hud-sdk-0.2.0.tgz --save-exact
+npm install .\vendor\axisray-lab-gestalt-hud-sdk-0.2.1.tgz --save-exact
 npm install
 npm run dev
 ```

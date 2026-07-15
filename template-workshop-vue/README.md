@@ -6,7 +6,7 @@ The template uses the supported Workshop `postMessage` bridge, complete snapshot
 
 ## Install
 
-Inside the SDK clone, `file:..` resolves the local package. SDK `0.2.0` is not currently published to npm. For a copied project, first package the SDK into that project's `vendor/` directory:
+Inside the SDK clone, `file:..` resolves the local package. SDK `0.2.1` is not currently published to npm. For a copied project, first package the SDK into that project's `vendor/` directory:
 
 ```powershell
 $hud = New-Item -ItemType Directory ..\my-vue-hud -Force
@@ -16,12 +16,12 @@ Get-ChildItem .\template-workshop-vue -Force |
 New-Item -ItemType Directory ..\my-vue-hud\vendor -Force
 npm pack --pack-destination ..\my-vue-hud\vendor
 Set-Location ..\my-vue-hud
-npm install .\vendor\axisray-lab-gestalt-hud-sdk-0.2.0.tgz --save-exact
+npm install .\vendor\axisray-lab-gestalt-hud-sdk-0.2.1.tgz --save-exact
 npm install
 npm run dev
 ```
 
-Installing the tarball first replaces the copied template's `file:..` dependency with the packaged `0.2.0` artifact.
+Installing the tarball first replaces the copied template's `file:..` dependency with the packaged `0.2.1` artifact.
 
 ## Offline test
 

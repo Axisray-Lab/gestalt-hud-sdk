@@ -30,6 +30,18 @@ export interface HUDAttributeUpdateMessage {
   type: 'hud:attribute_update';
   /** ERobotBridgeDemoMapType numeric value. */
   mapId: number;
+  /**
+   * Optional monotonically increasing snapshot sequence assigned by the host.
+   * Legacy hosts may omit it. HUD bridges use it to discard duplicate or
+   * out-of-order snapshots when present.
+   */
+  sequence?: number;
+  /**
+   * Optional host send timestamp in Unix-epoch milliseconds. Legacy hosts may
+   * omit it. Use an epoch-based monotonic clock such as
+   * `performance.timeOrigin + performance.now()` when available.
+   */
+  sentAtMs?: number;
   data: HUDAttributeData;
 }
 
@@ -179,7 +191,19 @@ export function isHUDAttributeUpdateMessage(
   value: unknown,
 ): value is HUDAttributeUpdateMessage {
   if (!isRecord(value) || value.type !== 'hud:attribute_update') return false;
-  return isFiniteNumber(value.mapId) && isHUDAttributeData(value.data);
+  const validSequence =
+    value.sequence === undefined ||
+    (typeof value.sequence === 'number' &&
+      Number.isSafeInteger(value.sequence) &&
+      value.sequence > 0);
+  const validSentAtMs =
+    value.sentAtMs === undefined || isFiniteNumber(value.sentAtMs);
+  return (
+    isFiniteNumber(value.mapId) &&
+    validSequence &&
+    validSentAtMs &&
+    isHUDAttributeData(value.data)
+  );
 }
 
 /** Runtime guard for the reserved `hud:game_event` message. */

@@ -7,6 +7,8 @@ Import everything needed by a HUD from:
 ```ts
 import {
   GestaltHUDBridge,
+  HUDCountdownClock,
+  MatchStatus,
   type HUDInitMessage,
   type HUDAttributeData,
 } from '@axisray-lab/gestalt-hud-sdk/workshop';
@@ -38,6 +40,8 @@ interface HUDInitMessage {
 interface HUDAttributeUpdateMessage {
   type: 'hud:attribute_update';
   mapId: number;
+  sequence?: number;
+  sentAtMs?: number;
   data: HUDAttributeData;
 }
 
@@ -50,7 +54,7 @@ interface HUDAttributeData {
 }
 ```
 
-The data object is a complete snapshot. Consumers should replace every scope on every update.
+The data object is a complete snapshot. Consumers should replace every scope on every accepted update. New hosts may include a positive, monotonically increasing `sequence` and an epoch-based `sentAtMs`; both fields remain optional for protocol v1 compatibility. `GestaltHUDBridge` discards duplicate or backward sequenced snapshots automatically.
 
 `data.base` currently contains only main-base entity maps. Address them with `String(Attr.G_BaseId_0 + teamId)`; outpost, buff-station, and zone maps are not forwarded in this scope.
 
@@ -126,11 +130,27 @@ The game uses different loopback hostnames for parent and HUD content. The bridg
 
 ```ts
 const offInit = bridge.onInit((message) => {});
-const offAttributes = bridge.onAttributeUpdate((snapshot) => {});
+const offAttributes = bridge.onAttributeUpdate((snapshot, metadata) => {
+  // metadata: sequence?, sentAtMs?, receivedAtMs, transportLatencyMs?
+});
 const offEvent = bridge.onGameEvent((event, payload) => {});
 ```
 
 Each registration returns an unsubscribe function.
+
+`bridge.diagnostics` returns a frozen snapshot containing accepted/received/dropped counters, the last accepted sequence, and the latest transport timing values. One-argument attribute callbacks remain supported.
+
+For a smooth match timer, `HUDCountdownClock` interpolates between authoritative updates and can subtract `metadata.transportLatencyMs` when re-anchoring:
+
+```ts
+const countdown = new HUDCountdownClock();
+countdown.reanchor(maxTimeMs, currentTimeMs, {
+  running: matchStatus === MatchStatus.InProgress,
+  nowMs: performance.now(),
+  transportLatencyMs: metadata.transportLatencyMs,
+});
+const remainingMs = countdown.getRemainingMs(performance.now());
+```
 
 ### Outbound methods
 

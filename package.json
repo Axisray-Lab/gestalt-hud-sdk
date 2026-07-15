@@ -1,6 +1,6 @@
 {
   "name": "@axisray-lab/gestalt-hud-sdk",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "HUD modding SDK for Gestalt System — build custom in-game HUDs with real-time attribute data",
   "type": "module",
   "main": "dist/index.cjs",

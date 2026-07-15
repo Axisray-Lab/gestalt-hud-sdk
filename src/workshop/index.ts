@@ -1,6 +1,14 @@
 // Workshop HUD bridge
 export { GestaltHUDBridge } from './workshop-bridge';
-export type { GestaltHUDBridgeOptions } from './workshop-bridge';
+export type {
+  GestaltHUDBridgeOptions,
+  GestaltHUDBridgeDiagnostics,
+  HUDAttributeUpdateMetadata,
+  AttributeUpdateHandler,
+} from './workshop-bridge';
+
+export { HUDCountdownClock } from './countdown-clock';
+export type { HUDCountdownReanchorOptions } from './countdown-clock';
 
 // Protocol types (re-exported for convenience — Workshop HUD authors
 // only need to import from '@axisray-lab/gestalt-hud-sdk/workshop')
@@ -13,6 +21,8 @@ export {
   MAP_ID_TO_NAME,
 } from '../protocol/map-type';
 export type { CompetitionMapName, MapName } from '../protocol/map-type';
+
+export { MatchStatus } from '../protocol/types';
 
 export {
   WORKSHOP_HUD_PROTOCOL_VERSION,

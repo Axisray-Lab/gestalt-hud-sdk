@@ -9,6 +9,8 @@ import {
 } from '@axisray-lab/gestalt-hud-sdk/protocol';
 import {
   GestaltHUDBridge,
+  HUDCountdownClock,
+  type HUDAttributeUpdateMetadata,
   type HUDDebugLogMessage,
 } from '@axisray-lab/gestalt-hud-sdk/workshop';
 import {
@@ -32,6 +34,8 @@ isHUDInitMessage({});
 void CAPABILITY_BIT_HUD;
 void MAP_ID_TO_NAME;
 void GestaltHUDBridge;
+void HUDCountdownClock;
+void (null as HUDAttributeUpdateMetadata | null);
 void AttributeStore;
 void HUDBridge;
 void TrustedWebSocketMethod;

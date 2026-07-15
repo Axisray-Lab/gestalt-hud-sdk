@@ -8,6 +8,7 @@ import {
   WORKSHOP_HUD_ACTION_WHITELIST,
   WORKSHOP_MANIFEST_SCHEMA_VERSION,
   checkRequiredMods,
+  isHUDAttributeUpdateMessage,
   isHUDInitMessage,
   isSPAToHUDMessage,
   validateManifest,
@@ -18,7 +19,10 @@ import {
   TrustedWebSocketEvent,
   TrustedWebSocketMethod,
 } from '../dist/index.js';
-import { GestaltHUDBridge } from '../dist/workshop/index.js';
+import {
+  GestaltHUDBridge,
+  HUDCountdownClock,
+} from '../dist/workshop/index.js';
 
 test('v1 HUD manifests remain backward compatible', () => {
   const result = validateManifest({
@@ -135,6 +139,177 @@ test('hud:init guard matches current postMessage v1 (no wsPort)', () => {
   assert.equal(isHUDInitMessage(init), true);
   assert.equal(isSPAToHUDMessage(init), true);
   assert.equal(isHUDInitMessage({ ...init, gameMode: 'unknown' }), false);
+});
+
+test('hud:attribute_update guard accepts legacy messages and validates optional metadata', () => {
+  const data = {
+    global: {},
+    player: {},
+    battle: {},
+    base: {},
+    playerBattle: {},
+  };
+  const legacy = {
+    type: 'hud:attribute_update',
+    mapId: 8,
+    data,
+  };
+
+  assert.equal(isHUDAttributeUpdateMessage(legacy), true);
+  assert.equal(isHUDAttributeUpdateMessage({
+    ...legacy,
+    sequence: 1,
+    sentAtMs: 1_750_000_000_000.25,
+  }), true);
+
+  for (const sequence of [0, -1, 1.5, Infinity, Number.MAX_SAFE_INTEGER + 1]) {
+    assert.equal(isHUDAttributeUpdateMessage({ ...legacy, sequence }), false);
+  }
+  for (const sentAtMs of [NaN, Infinity, -Infinity, 'now']) {
+    assert.equal(isHUDAttributeUpdateMessage({ ...legacy, sentAtMs }), false);
+  }
+});
+
+test('Workshop bridge filters non-monotonic sequences and exposes transport metadata', () => {
+  const originalWindow = globalThis.window;
+  const originalDocument = globalThis.document;
+  const originalPerformance = Object.getOwnPropertyDescriptor(
+    globalThis,
+    'performance',
+  );
+  let listener;
+  const parent = { postMessage() {} };
+  const fakeWindow = {
+    parent,
+    addEventListener(type, handler) {
+      if (type === 'message') listener = handler;
+    },
+    removeEventListener() {},
+  };
+  const data = {
+    global: {},
+    player: {},
+    battle: {},
+    base: {},
+    playerBattle: {},
+  };
+  globalThis.window = fakeWindow;
+  globalThis.document = { referrer: 'http://localhost:8123/game' };
+  Object.defineProperty(globalThis, 'performance', {
+    configurable: true,
+    value: {
+      timeOrigin: 1_000,
+      now: () => 250,
+    },
+  });
+
+  try {
+    const bridge = new GestaltHUDBridge({ debug: false });
+    const updates = [];
+    bridge.onAttributeUpdate((snapshot, metadata) => {
+      updates.push({ snapshot, metadata });
+    });
+    const send = (extra = {}) => listener({
+      source: parent,
+      origin: 'http://localhost:8123',
+      data: {
+        type: 'hud:attribute_update',
+        mapId: 8,
+        data,
+        ...extra,
+      },
+    });
+
+    send();
+    send({ sequence: 2, sentAtMs: 1_200 });
+    send({ sequence: 2, sentAtMs: 1_210 });
+    send({ sequence: 1, sentAtMs: 1_220 });
+    send({ sequence: 3, sentAtMs: 1_225 });
+
+    assert.equal(updates.length, 3);
+    assert.deepEqual(updates[0].metadata, {
+      sequence: undefined,
+      sentAtMs: undefined,
+      receivedAtMs: 1_250,
+      transportLatencyMs: undefined,
+    });
+    assert.equal(Object.isFrozen(updates[0].metadata), true);
+    assert.deepEqual(updates[1].metadata, {
+      sequence: 2,
+      sentAtMs: 1_200,
+      receivedAtMs: 1_250,
+      transportLatencyMs: 50,
+    });
+    assert.deepEqual(updates[2].metadata, {
+      sequence: 3,
+      sentAtMs: 1_225,
+      receivedAtMs: 1_250,
+      transportLatencyMs: 25,
+    });
+    assert.deepEqual(bridge.diagnostics, {
+      received: 5,
+      accepted: 3,
+      dropped: 2,
+      lastSequence: 3,
+      lastSentAtMs: 1_225,
+      lastReceivedAtMs: 1_250,
+      lastTransportLatencyMs: 25,
+    });
+    assert.equal(Object.isFrozen(bridge.diagnostics), true);
+
+    // A legacy host can continue sending unsequenced snapshots even after a
+    // sequenced frame; only messages that opt into ordering are filtered.
+    send();
+    assert.equal(updates.length, 4);
+    assert.deepEqual(bridge.diagnostics, {
+      received: 6,
+      accepted: 4,
+      dropped: 2,
+      lastSequence: 3,
+      lastSentAtMs: null,
+      lastReceivedAtMs: 1_250,
+      lastTransportLatencyMs: null,
+    });
+    bridge.destroy();
+  } finally {
+    globalThis.window = originalWindow;
+    globalThis.document = originalDocument;
+    if (originalPerformance) {
+      Object.defineProperty(globalThis, 'performance', originalPerformance);
+    } else {
+      delete globalThis.performance;
+    }
+  }
+});
+
+test('HUDCountdownClock removes transport latency and interpolates locally', () => {
+  const clock = new HUDCountdownClock();
+  assert.equal(clock.getRemainingMs(5_000), null);
+  assert.equal(clock.reanchor(300_000, 10_000, {
+    running: true,
+    nowMs: 5_000,
+    transportLatencyMs: 250,
+  }), true);
+  assert.equal(clock.getRemainingMs(5_000), 289_750);
+  assert.equal(clock.getRemainingMs(6_000), 288_750);
+  assert.equal(clock.getRemainingMs(500_000), 0);
+
+  assert.equal(clock.reanchor(300_000, 11_000, {
+    running: false,
+    nowMs: 7_000,
+    transportLatencyMs: 500,
+  }), true);
+  assert.equal(clock.getRemainingMs(7_000), 289_000);
+  assert.equal(clock.getRemainingMs(9_000), 289_000);
+
+  assert.equal(clock.reanchor(0, 0, {
+    running: true,
+    nowMs: 10_000,
+  }), false);
+  assert.equal(clock.getRemainingMs(11_000), 289_000);
+  clock.reset();
+  assert.equal(clock.hasAnchor, false);
+  assert.equal(clock.getRemainingMs(11_000), null);
 });
 
 test('Workshop bridge accepts only valid messages from its parent window', () => {
